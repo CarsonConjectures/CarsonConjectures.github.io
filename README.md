@@ -20,16 +20,16 @@
     font-weight: bold;
   }
   
-          body {
+  body {
             font-family: 'Press Start 2P', cursive;
             background-color: #000000;
             color: green;
-          }
-          table {
+  }
+  table {
              border-collapse: collapse; /* Optional: ensures that border lines between cells are single lines */
             border: 2px solid green; /* Sets the border color to blue */
-          }
-          button {
+  }
+  button {
             position: fixed;
             bottom: 20px;
             right: 20px;
@@ -39,9 +39,9 @@
             font-family: 'Press Start 2P', cursive;
             border: none;
             cursor: pointer;
-          }
-          button:not(:last-of-type) {
+    }
+    button:not(:last-of-type) {
               margin-right: 200px;
-          }
+    }
 </style>
 [CONDITIONAL PRACTICE](CONDPRAC)

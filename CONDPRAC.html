@@ -28,8 +28,8 @@
             color: green;
           }
           table {
-             border-collapse: collapse; /* Optional: ensures that border lines between cells are single lines */
-            border: 2px solid green; /* Sets the border color to blue */
+             border-collapse: collapse; 
+            border: 2px solid green; 
           }
           button {
             position: fixed;
@@ -56,14 +56,14 @@
 
 <table>
   <tr>
-    <th></th> <!-- Top-left corner, empty header -->
+    <th></th> 
     <th>A</th>
     <th>B</th>
     <th>TOTALS</th>
     <th>P(A|__)</th>
     <th>P(B|__)</th>
   </tr>
-  <!-- Manually adding rows and cells -->
+  
   <tr>
     <td>C</td>
     <td><div class="cell-title">P(AnC)</div><span id="PANC">0</span></td>
@@ -73,8 +73,8 @@
     <td><div class="cell-title">P(B|C)</div><span id="PBGC" class="hidden-value">0</span></td>
 <!--    <td><div class="cell-title">Title A5</div><span>Value 5</span></td> -->
   </tr>
-  <!-- Repeat for more rows, change titles and values as needed -->
-  <!-- Example for another row -->
+  
+  
   <tr>
     <td>D</td>
     <td><div class="cell-title">P(AnD)</div><span id="PAND">0</span></td>
@@ -84,7 +84,7 @@
     <td><div class="cell-title">P(B|D)</div><span id="PBGD"class="hidden-value">0</span></td>
 <!--    <td><div class="cell-title">Title A5</div><span>Value 5</span></td> -->
   </tr>
-  <!-- Add additional rows as needed, following the pattern above -->
+  
     <td>TOTALS</td>
     <td><div class="cell-title">P(A)</div><span id="PA" class="hidden-value">0</span></td>
     <td><div class="cell-title">P(B)</div><span id="PB" class="hidden-value">0</span></td>
@@ -92,8 +92,8 @@
     <td><div class="cell-title"></div><span class="hidden-value"></span></td>
     <td><div class="cell-title"></div><span class="hidden-value"></span></td>
   </tr>
-  <!-- Repeat for more rows, change titles and values as needed -->
-  <!-- Example for another row -->
+  
+  
   <tr>
     <td>P(C|__)</td>
     <td><div class="cell-title">P(C|A)</div><span id="PCGA" class="hidden-value">0</span></td>
@@ -102,8 +102,8 @@
     <td><div class="cell-title"></div><span class="hidden-value"></span></td>
     <td><div class="cell-title"></div><span class="hidden-value"></span></td>
   </tr>
-  <!-- Add additional rows as needed, following the pattern above -->
-  <!-- Example for another row -->
+  
+  
   <tr>
     <td>P(D|__)</td>
     <td><div class="cell-title">P(D|A)</div><span id="PDGA" class="hidden-value">0</span></td>
@@ -112,18 +112,11 @@
     <td><div class="cell-title"></div><span class="hidden-value"></span></td>
     <td><div class="cell-title"></div><span class="hidden-value"></span></td>
   </tr>
-  <!-- Add additional rows as needed, following the pattern above -->
+  
 </table>
 
 <script>
-  const newValues = [
-    // Dummy values, replace with your actual values
-    ['0', '0', '0', '0', '0'], // Values for Row 1
-    ['0', '0', '0', '0', '0'], // Values for Row 2
-    ['0', '0', '0', '', ''], // Values for Row 3
-    ['0', '0', '', '', ''], // Values for Row 4
-    ['0', '0', '', '', '']  // Values for Row 5
-  ];
+
 
 
   function toggleVisibility() {
@@ -175,8 +168,8 @@
     const vpa = vpanc+vpand;
     const vpb = vpbnc+vpbnd;
     
-    //const vpa=String(rangen);
-    //clearTable(); // Clear existing table rows, except for the header
+    
+    
     //DEFAULTS
     document.getElementById("PANC").innerText = vpanc;
     document.getElementById("PBNC").innerText = vpbnc;
@@ -204,7 +197,7 @@
     document.getElementById("PDGB").innerText = rndTwo(vpbnd/vpb);
   }
 
-  // Initialize table with 0 values
+  
   //window.onload = updateValues;
 </script>
 

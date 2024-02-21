@@ -44,5 +44,5 @@
               margin-right: 200px;
     }
 </style>
-[CONDITIONAL PRACTICE](CONDPRAC.html)
+[CONDITIONAL PRACTICE](CONDPRAC.html) </br>
 [NORMAL ONE PROPORTION APPLET](APPLETNORMAL.html)

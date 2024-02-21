@@ -184,7 +184,7 @@ function normPHAT(matrix, pi, n, phat) {
   
   const hzoom=100;
   const vzoom=10;
-  for (let m = 0; m < matrix.length; m++){
+  for (let m = 0; m < matrix.length+1000; m++){
   for (let i = Math.floor(phat*100); i < matrix.length; i++){
     matrix[ Math.max(Math.floor(Math.min( //AAAAAAAAH WHAT THE FUCK AAAAAAAAAAAA
       ( 1/(2*3.14*s**2)**.5 )*2.72**(-1/2*( ( (i-((100-hzoom)/2 ))/hzoom - u)/s)**2)*vzoom-m

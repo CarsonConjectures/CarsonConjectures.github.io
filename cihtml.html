@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TURBO_NORMAL_APPROXIMATION_CI.JS</title>
+    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        .slider-container {
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 25px;
+            background: black;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+
+        .slider:hover {
+            opacity: 1;
+            background: black;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            background: green;
+            cursor: pointer;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            background: green;
+            cursor: pointer;
+        }
+        .number-input-container {
+          display: flex;
+          align-items: center;
+          justify-content: space-around;
+          background-color: #000; /* Container background */
+          font-family: 'Press Start 2P', cursive;
+        }
+        button {
+            background-color:  #013800; /* Button background */
+            color: green; /* Button text color */
+            border:5px  green;
+            outline: green;
+            
+            cursor: pointer;
+            padding: 10px; /* Button size */
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        button:focus {
+          outline: none;
+        }
+        #sampleSize {
+          background-color: #000; /* Change to your desired background color */
+          color: green; /* Change to your desired text color */
+          border: 5px solid green; /* Optional: change the border color */
+          font-family: 'Press Start 2P', cursive;
+        }
+
+        #plot {
+            position: relative;
+            width: 100%;
+            height: 50px;
+            background-color: #013800;
+        }
+
+        .line {
+            position: absolute;
+            height: 100%;
+        }
+
+        .green-line, .midpoint {
+            width: 2px;
+            background-color: green;
+        }
+
+        .green-fill {
+            background-color: green;
+            opacity: 0.3;
+        }
+
+        .black-line {
+            width: 7px;
+            background-color: #ff8503;
+        }
+
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background-color: #000000;
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h2>TURBO_NORMAL_APPROXIMATION_CI.JS</h2>
+    <div class="slider-container">
+        <label>PHAT [0%-100%]: <span id="phatValue"></span> <input type="range" class="slider" id="phat" min="0" max="1" step="0.01" value="0.5" oninput="updateSlider(this); updatePlot();"></label>
+    </div>
+    <div class="slider-container">
+        <label>PI [0%-100%]: <span id="piValue"></span></p> <input type="range" class="slider" id="pi" min="0" max="1" step="0.01" value="0.5" oninput="updateSlider(this); updatePlot();"></label>
+    </div>
+    <div class="slider-container">
+        <label>CONFIDENCE LEVEL [0%-100%]: <span id="confidenceLevelValue"></span> <input type="range" class="slider" id="confidenceLevel" min="0" max="1" step="0.01" value="0.5" oninput="updateSlider(this); updatePlot();"></label>
+    </div>
+
+<div class="number-input-container">
+    <button id="increment" onclick="incrementValue()">↑↑↑ INCREASE N ↑↑↑</button>
+    <input type="number" id="sampleSize" min="2" value="2" oninput="updatePlot();">
+    <button id="decrement" onclick="decrementValue()">↓↓↓ DECREASE N ↓↓↓</button>
+</div>
+
+<label style="text-align: center;"><p>SAMPLE SIZE (n): <span id="nValue"></span></p></label>
+<br><br><br>
+
+    <div id="plot">
+        <div id="lowerBoundLine" class="line green-line"></div>
+        <div id="upperBoundLine" class="line green-line"></div>
+        <div id="fillBetween" class="line green-fill"></div>
+        <div id="piLine" class="line black-line"></div>
+        <div id="phatLine" class="line midpoint"></div>
+    </div>
+    
+    <!--<p>PHAT: <span id="phatValue"></span></p>
+    <p>PI: <span id="piValue"></span></p>
+    <p>confidenceLevel: <span id="confidenceLevelValue"></span></p>--->
+    
+    <p>Z: <span id="zValue"></span></p>
+
+
+    <p>Lower Bound: <span id="lowerBound"></span></p>
+    <p>Upper Bound: <span id="upperBound"></span></p>
+    <br><br>
+    <p id="piStatus"></p>
+
+    <script>
+function normSInv(p) {
+  
+    if (p < 0.5) {
+        // Lower half section
+        return -normSInv(1 - p);
+    }
+
+    // Coefficients in rational approximations
+    const a = [
+        -3.969683028665376e+01,
+        2.209460984245205e+02,
+        -2.759285104469687e+02,
+        1.383577518672690e+02,
+        -3.066479806614716e+01,
+        2.506628277459239e+00
+    ];
+
+    const b = [
+        -5.447609879822406e+01,
+        1.615858368580409e+02,
+        -1.556989798598866e+02,
+        6.680131188771972e+01,
+        -1.328068155288572e+01
+    ];
+
+    const c = [
+        -7.784894002430293e-03,
+        -3.223964580411365e-01,
+        -2.400758277161838e+00,
+        -2.549732539343734e+00,
+        4.374664141464968e+00,
+        2.938163982698783e+00
+    ];
+
+    const d = [
+        7.784695709041462e-03,
+        3.224671290700398e-01,
+        2.445134137142996e+00,
+        3.754408661907416e+00
+    ];
+
+    // Define break-points
+    const pLow = 0.02425;
+    const pHigh = 1 - pLow;
+
+    // Rational approximation for the lower region
+    if (0 < p && p < pLow) {
+        const q = Math.sqrt(-2 * Math.log(p));
+        return (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);
+    }
+
+    // Rational approximation for the central region
+    if (pLow <= p && p <= pHigh) {
+        const q = p - 0.5;
+        const r = q * q;
+        return (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q / (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1);
+    }
+
+    // Rational approximation for the upper region
+    if (pHigh < p && p < 1) {
+        const q = Math.sqrt(-2 * Math.log(1 - p));
+        return -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);
+    }
+
+    return 0; // If the input is invalid
+}
+
+    
+    
+      function incrementValue() {
+        var value = parseInt(document.getElementById('sampleSize').value, 10);
+        value = isNaN(value) ? 2 : value;
+        value++;
+        document.getElementById('sampleSize').value = value;
+        updatePlot();
+    }
+    
+    function decrementValue() {
+        var value = parseInt(document.getElementById('sampleSize').value, 10);
+        value = isNaN(value) ? 2 : value;
+        value < 3 ? value = 2 : value--; // Prevent going below the min value
+        document.getElementById('sampleSize').value = value;
+        updatePlot();
+    }
+
+    
+    
+        function updateSlider(slider) {
+            const value = (slider.value - slider.min) / (slider.max - slider.min) * 100;
+            slider.style.background = 'linear-gradient(to right, green 0%, green ' + value + '%, black ' + value + '%, black 100%)';
+        }
+
+        function updatePlot() {
+            const plotWidth = document.getElementById('plot').offsetWidth;
+            const phat = parseFloat(document.getElementById('phat').value);
+            const pi = parseFloat(document.getElementById('pi').value);
+            //const z = parseFloat(document.getElementById('confidenceLevel').value);
+            const z = normSInv(0.5+parseFloat(document.getElementById('confidenceLevel').value)/2);
+            const n = parseInt(document.getElementById('sampleSize').value);
+
+            document.getElementById('phatValue').textContent = phat.toFixed(2);
+            document.getElementById('piValue').textContent = pi.toFixed(2);
+            document.getElementById('zValue').textContent = z.toFixed(2);
+            document.getElementById('nValue').textContent = n;
+            document.getElementById('confidenceLevelValue').textContent = (parseFloat(document.getElementById('confidenceLevel').value) * 100).toFixed(2) + '%';
+
+
+            const errorMargin = z * Math.sqrt(phat * (1 - phat) / n);
+            const lowerBound = Math.max(0, phat - errorMargin);
+            const upperBound = Math.min(1, phat + errorMargin);
+
+            document.getElementById('lowerBound').textContent = lowerBound.toFixed(4);
+            document.getElementById('upperBound').textContent = upperBound.toFixed(4);
+
+            const lowerBoundPos = lowerBound * plotWidth;
+            const upperBoundPos = upperBound * plotWidth;
+            const phatPos = phat * plotWidth;
+            const piPos = pi * plotWidth;
+
+            document.getElementById('lowerBoundLine').style.left = `${lowerBoundPos}px`;
+            document.getElementById('upperBoundLine').style.left = `${upperBoundPos}px`;
+            document.getElementById('phatLine').style.left = `${phatPos}px`;
+            document.getElementById('piLine').style.left = `${piPos}px`;
+
+            document.getElementById('fillBetween').style.left = `${lowerBoundPos}px`;
+            document.getElementById('fillBetween').style.width = `${upperBoundPos - lowerBoundPos}px`;
+
+            if (pi >= lowerBound && pi <= upperBound) {
+                document.getElementById('piStatus').textContent = "Pi is within the confidence interval";
+            } else if (parseFloat(document.getElementById('confidenceLevel').value)==1) {
+                document.getElementById('piStatus').textContent = "Pi is within the confidence interval (100 percent CI)";
+            }else {
+                document.getElementById('piStatus').textContent = "Pi is NOT within the confidence interval";
+            }
+        }
+
+        // Initialize slider backgrounds
+        document.querySelectorAll('.slider').forEach(updateSlider);
+
+        updatePlot(); // Initialize the plot
+    </script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link href="https://fonts.cdnfonts.com/css/common-pixel" rel="stylesheet"> 
+    <style>
+        body {
+background-color: black; /* Set background to black */
+            color: green; /* Set text color to green */
+            display: flex; /* Use flexbox to layout children */
+            flex-direction: column; /* Stack children vertically */
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically */
+            height: 100vh; /* Full viewport height */
+            margin: 0; /* Remove default margin */
+            // font-family: 'Roboto', sans-serif; /* Custom Google Font for body */
+            font-family: 'Common Pixel', sans-serif;
+        }
+        h1 {
+            font-size: 2em; /* Large font size for the title */
+            margin-bottom: 20px; /* Space between title and search bar */
+            font-family: Arial, sans-serif; /* Example of a web-safe font for h1 */
+            font-family: 'Common Pixel', sans-serif;
+        }
+        input, button {
+            background-color: green; /* Set background color of input and button to green */
+            color: black; /* Set text color inside input and button to black */
+            border: 1px solid green; /* Set border color of input and button to green */
+            padding: 10px; /* Add some padding for better visual appearance */
+            font-size: 16px; /* Increase font size for better readability */
+            font-family: inherit; /* Inherit font family from body */
+        }
+        #message {
+          color: red;
+        }
+        form {
+            display: flex; /* Use flexbox to layout form children */
+            gap: 10px; /* Add gap between input and button */
+        }
+    </style>
+
+</head>
+<body>
+
+<h1>ANSWER__VERIFY.JS</h1> <!-- Large text title added above the search bar -->
+> > > > > > > > > > < < < < < < < < < <
+<body>
+    <h2>INPUT RELEVANT INFORMATION BELOW</h2>
+    <label for="problemCode">PROBLEM__CODE( )</label><br>
+    <input type="text" id="problemCode" name="problemCode"><br><br>
+    <label for="answerCode">INPUT__CODE( )</label><br>
+    <input type="text" id="answerCode" name="answerCode"><br><br>
+    <button onclick="checkAnswer()">CHECK_ANSWER( )</button>
+    <p id="result"></p>
+
+    <script>
+        function checkAnswer() {
+            var problemCode = document.getElementById("problemCode").value.trim().toLowerCase();
+            var answerCode = document.getElementById("answerCode").value.trim().toLowerCase();
+            var resultText = "";
+
+            // Define valid problem codes, their corresponding correct answers, and custom messages
+            var validProblems = {
+                "APPLES": { "answer": "IIMIL", "correctMessage": "TRUE, ANSWER CODE: CO", "incorrectMessage": "FALSE" },
+                "PEARS": { "answer": "IMMMLI", "correctMessage": "TRUE, ANSWER CODE: INT", "incorrectMessage": "FALSE" },
+                "DRAGON": { "answer": "49199500", "correctMessage": "TRUE, ANSWER CODE: NF", "incorrectMessage": "FALSE" },
+                "RASP": { "answer": "DAADDA", "correctMessage": "TRUE, ANSWER CODE: INT", "incorrectMessage": "FALSE" },
+                // Add more problem-answer pairs as needed
+            };
+
+            // Normalize the keys in validProblems
+            var normalizedProblems = {};
+            for (var key in validProblems) {
+                var normalizedKey = key.trim().toLowerCase();
+                normalizedProblems[normalizedKey] = {
+                    answer: validProblems[key].answer.trim().toLowerCase(),
+                    correctMessage: validProblems[key].correctMessage,
+                    incorrectMessage: validProblems[key].incorrectMessage
+                };
+            }
+
+            if (!normalizedProblems[problemCode]) {
+                resultText = "Error: Invalid problem code.";
+            } else {
+                var problem = normalizedProblems[problemCode];
+                resultText = problem.answer === answerCode ? problem.correctMessage : problem.incorrectMessage;
+            }
+
+            document.getElementById("result").textContent = resultText;
+        }
+    </script>
+</body>
+</html>

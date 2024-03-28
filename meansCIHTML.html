@@ -109,7 +109,7 @@
         <label>XBAR [0-500]: <span id="phatValue"></span> <input type="range" class="slider" id="phat" min="0" max="500" step="0.01" value="250" oninput="updateSlider(this); updatePlot();"></label>
     </div>
     <div class="slider-container">
-        <label>MU [0-500]: <span id="piValue"></span></p> <input type="range" class="slider" id="pi" min="0" max="500" step="0.01" value="200" oninput="updateSlider(this); updatePlot();"></label>
+        <label>NULL VALUE (MU) [0-500]: <span id="piValue"></span></p> <input type="range" class="slider" id="pi" min="0" max="500" step="0.01" value="200" oninput="updateSlider(this); updatePlot();"></label>
     </div>
     <div class="slider-container">
         <label>CONFIDENCE LEVEL [0%-100%]: <span id="confidenceLevelValue"></span> <input type="range" class="slider" id="confidenceLevel" min="0" max="1" step="0.01" value="0.5" oninput="updateSlider(this); updatePlot();"></label>
@@ -280,9 +280,9 @@ function normSInv(p) {
             if (pi >= lowerBound && pi <= upperBound) {
                 document.getElementById('piStatus').textContent = "Pi is within the confidence interval";
             } else if (parseFloat(document.getElementById('confidenceLevel').value)==1) {
-                document.getElementById('piStatus').textContent = "Pi is within the confidence interval (100 percent CI)";
+                document.getElementById('piStatus').textContent = "Mu is within the confidence interval (100 percent CI)";
             }else {
-                document.getElementById('piStatus').textContent = "Pi is NOT within the confidence interval";
+                document.getElementById('piStatus').textContent = "Mu is NOT within the confidence interval";
             }
         }
 

@@ -272,11 +272,11 @@ function normSInv(p) {
             document.getElementById('fillBetween').style.width = `${upperBoundPos - lowerBoundPos}px`;
 
             if (pi >= lowerBound && pi <= upperBound) {
-                document.getElementById('piStatus').textContent = "Pi is within the confidence interval";
+                document.getElementById('piStatus').textContent = "Pi is within the confidence interval: FAIL TO REJECT";
             } else if (parseFloat(document.getElementById('confidenceLevel').value)==1) {
-                document.getElementById('piStatus').textContent = "Pi is within the confidence interval (100 percent CI)";
+                document.getElementById('piStatus').textContent = "Pi is within the confidence interval (100 percent CI): FAIL TO REJECT";
             }else {
-                document.getElementById('piStatus').textContent = "Pi is NOT within the confidence interval";
+                document.getElementById('piStatus').textContent = "Pi is NOT within the confidence interval: REJECT";
             }
         }
 

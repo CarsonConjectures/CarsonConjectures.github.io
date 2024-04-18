@@ -84,9 +84,9 @@ function updateOutput() {
         output.textContent = typeOfTest === "TWO SAMPLES" ? "Use the MULTIPLE PROPORTIONS applet" : "Use the ONE PROPORTION applet";
     } else if (explanatory === "CATEGORICAL" && response === "QUANTITATIVE") {
         if (typeOfTest === "TWO SAMPLES") {
-            output.textContent = typeOfData === "WHOLE DATAFILE" ? "Use the MULTIPLE MEANS applet" : "Use the THEORY BASED INFERENCE applet set to 'TWO MEANS'";
+            output.textContent = typeOfData === "WHOLE DATAFILE" ? "Use the MULTIPLE MEANS applet" : "Use the THEORY BASED INFERENCE applet set to 'TWO MEANS'"
         } else {
-            output.textContent = typeOfData === "WHOLE DATAFILE" ? "Use the ONE MEAN applet" : "Use the THEORY BASED INFERENCE applet set to 'ONE MEAN'";
+            output.textContent = typeOfData === "WHOLE DATAFILE" ? "IF DATA IS NOT PAIRED: Use the ONE MEAN applet \n IF PAIRED DATA: use the 'MATCHED PAIRS' applet" : "Use the THEORY BASED INFERENCE applet set to 'ONE MEAN'";
         }
     } else if (explanatory === "QUANTITATIVE" && response === "QUANTITATIVE") {
         output.textContent = "Use LINEAR REGRESSION";

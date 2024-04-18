@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Statistics Applet Selector</title>
+<link href="https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: 'Press Start 2P', cursive;
+    }
+    button {
+        padding: 10px;
+        margin: 5px;
+        font-size: 16px;
+        width: 100%;
+        background-color: rgb(0,0,0);
+        color: white;
+        font-family: 'Press Start 2P', cursive;
+    }
+    .selected {
+        background-color: rgb(255,0,0); /* Green */
+        color: black;
+    }
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+    td, th {
+        border: 1px solid white;
+        text-align: center;
+        padding: 8px;
+        font-family: 'Press Start 2P', cursive;
+    }
+</style>
+<script>
+var explanatory = '';
+var response = '';
+var typeOfTest = '';
+var typeOfData = '';
+
+function selectVariables(exp, resp) {
+    explanatory = exp;
+    response = resp;
+    
+    // Remove all selected classes
+    var variableButtons = document.querySelectorAll('.var-btn');
+    variableButtons.forEach(function(button) {
+        button.classList.remove('selected');
+    });
+
+    // Add selected class to clicked button
+    document.getElementById(exp + '-' + resp).classList.add('selected');
+
+    updateOutput();
+}
+
+function selectOption(type, value) {
+    // Reset all buttons in the same group
+    var buttons = document.querySelectorAll('button[data-type="' + type + '"]');
+    buttons.forEach(function(button) {
+        button.classList.remove('selected');
+    });
+
+    // Set the selected value and style
+    var selectedButton = document.querySelector('button[data-type="' + type + '"][data-value="' + value + '"]');
+    selectedButton.classList.add('selected');
+
+    // Update the global variable
+    window[type] = value;
+    updateOutput();
+}
+
+function updateOutput() {
+    var output = document.getElementById("output");
+    
+    if (!explanatory || !response || !typeOfTest || !typeOfData) {
+        output.textContent = "Select all options to see the output here.";
+        return;
+    }
+
+    if (explanatory === "CATEGORICAL" && response === "CATEGORICAL") {
+        output.textContent = typeOfTest === "TWO SAMPLES" ? "Use the MULTIPLE PROPORTIONS applet" : "Use the ONE PROPORTION applet";
+    } else if (explanatory === "CATEGORICAL" && response === "QUANTITATIVE") {
+        if (typeOfTest === "TWO SAMPLES") {
+            output.textContent = typeOfData === "WHOLE DATAFILE" ? "Use the MULTIPLE MEANS applet" : "Use the THEORY BASED INFERENCE applet set to 'TWO MEANS'";
+        } else {
+            output.textContent = typeOfData === "WHOLE DATAFILE" ? "Use the ONE MEAN applet" : "Use the THEORY BASED INFERENCE applet set to 'ONE MEAN'";
+        }
+    } else if (explanatory === "QUANTITATIVE" && response === "QUANTITATIVE") {
+        output.textContent = "Use LINEAR REGRESSION";
+    } else if (explanatory === "QUANTITATIVE" && response === "CATEGORICAL") {
+        output.textContent = "Use LOGISTIC REGRESSION";
+    }
+}
+</script>
+</head>
+<body>
+<h1>APPLET_DECIDER.FLV</h1>
+
+WHAT ARE YOUR EXPLANATORY AND RESPONSE VARIABLE DATA TYPES?<br>
+
+<table>
+    <tr>
+        <th></th>
+        <th>Categorical Response</th>
+        <th>Quantitative Response</th>
+    </tr>
+    <tr>
+        <td>Categorical Explanatory</td>
+        <td><button id="CATEGORICAL-CATEGORICAL" class="var-btn" onclick="selectVariables('CATEGORICAL', 'CATEGORICAL')">Categorical -> Categorical</button></td>
+        <td><button id="CATEGORICAL-QUANTITATIVE" class="var-btn" onclick="selectVariables('CATEGORICAL', 'QUANTITATIVE')">Categorical -> Quantitative</button></td>
+    </tr>
+    <tr>
+        <td>Quantitative Explanatory</td>
+        <td><button id="QUANTITATIVE-CATEGORICAL" class="var-btn" onclick="selectVariables('QUANTITATIVE', 'CATEGORICAL')">Quantitative -> Categorical</button></td>
+        <td><button id="QUANTITATIVE-QUANTITATIVE" class="var-btn" onclick="selectVariables('QUANTITATIVE', 'QUANTITATIVE')">Quantitative -> Quantitative</button></td>
+    </tr>
+</table>
+
+<br>
+
+WHAT KIND OF COMPARISON ARE YOU MAKING?<br>
+
+<button data-type="typeOfTest" data-value="SAMPLE VS POPULATION/NULL VALUE" onclick="selectOption('typeOfTest', 'SAMPLE VS POPULATION/NULL VALUE')">Sample vs. Population/Null Value</button>
+<button data-type="typeOfTest" data-value="TWO SAMPLES" onclick="selectOption('typeOfTest', 'TWO SAMPLES')">Two Samples</button>
+
+<br><br>
+
+WHAT KIND OF INFOMATION ARE YOU WORKING WITH?<br>
+
+<button data-type="typeOfData" data-value="WHOLE DATAFILE" onclick="selectOption('typeOfData', 'WHOLE DATAFILE')">Whole Datafile with Observations and Values</button>
+<button data-type="typeOfData" data-value="JUST AVERAGES" onclick="selectOption('typeOfData', 'JUST AVERAGES')">Just the Average, Sample SD, and Sample Size</button>
+
+<br><br>
+
+<div id="output">Select all options to see the output here.</div>
+
+</body>
+</html>

@@ -1,0 +1,835 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PLUS E: ARMAGEDDON — Lab 2</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0f0b0b;
+        --panel: #1a1111;
+        --accent: #d56b2d;
+        --accent-2: #6fd1a6;
+        --text: #f7efe6;
+        --muted: #b6a79b;
+        --danger: #d14a3a;
+        --border: #3a2a23;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: radial-gradient(circle at top, #2a1b18, var(--bg));
+        color: var(--text);
+        min-height: 100vh;
+      }
+      header {
+        padding: 24px 16px 8px;
+        text-align: center;
+      }
+      header h1 {
+        margin: 0 0 8px;
+        font-size: 26px;
+        letter-spacing: 1px;
+      }
+      header p {
+        margin: 0;
+        color: var(--muted);
+      }
+      main {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 16px;
+      }
+      .screen {
+        display: none;
+        background: rgba(26, 17, 17, 0.92);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 22px;
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+      }
+      .screen.active {
+        display: block;
+      }
+      .section-title {
+        color: var(--accent);
+        font-size: 18px;
+        margin: 0 0 8px;
+      }
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 12px;
+        margin-top: 16px;
+      }
+      .card {
+        background: #150f0f;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .card strong {
+        font-size: 16px;
+      }
+      .card span {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .button-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 16px;
+      }
+      button,
+      .option-btn {
+        background: var(--accent);
+        border: none;
+        color: #170d0a;
+        padding: 10px 14px;
+        font-weight: 700;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: transform 0.15s ease, filter 0.15s ease;
+      }
+      button:hover,
+      .option-btn:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.05);
+      }
+      .option-btn.secondary {
+        background: #bda28a;
+      }
+      .option-btn.safe {
+        background: var(--accent-2);
+      }
+      .option-btn.danger {
+        background: var(--danger);
+        color: #fff1ed;
+      }
+        .story p {
+        margin: 10px 0;
+        color: var(--text);
+        line-height: 1.45;
+      }
+        .story p.urgent {
+          color: var(--danger);
+          font-weight: 700;
+        }
+      .member-list {
+        margin: 12px 0 0;
+        padding-left: 18px;
+      }
+      .member-list li {
+        margin: 4px 0;
+      }
+      .notice {
+        background: #221414;
+        border-left: 4px solid var(--accent);
+        padding: 10px 12px;
+        border-radius: 6px;
+        color: var(--muted);
+        margin: 12px 0;
+      }
+      .question-block {
+        margin-top: 16px;
+        padding: 14px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: #120c0c;
+      }
+      .question-block h3 {
+        margin: 0 0 10px;
+        font-size: 16px;
+        color: var(--accent);
+      }
+      .question-block .button-row {
+        margin-top: 10px;
+      }
+      .table-wrap {
+        overflow-x: auto;
+        margin-top: 12px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 640px;
+      }
+      th,
+      td {
+        padding: 8px;
+        border: 1px solid var(--border);
+        text-align: center;
+      }
+      th {
+        background: #221515;
+        color: var(--muted);
+      }
+      select {
+        width: 100%;
+        padding: 6px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: #1b1111;
+        color: var(--text);
+      }
+      .status {
+        margin-top: 10px;
+        color: var(--muted);
+      }
+      .final {
+        text-align: center;
+        font-size: 18px;
+        color: var(--accent-2);
+      }
+      .tiny {
+        font-size: 12px;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>PLUS E: ARMAGEDDON. LAB 2</h1>
+      <p> </p>
+    </header>
+    <main>
+      <section id="screen-start" class="screen active">
+        <h2 class="section-title">Choose your organization</h2>
+        <p>Select your group to begin the convoy mission.</p>
+        <div id="group-grid" class="card-grid"></div>
+      </section>
+
+      <section id="screen-opening" class="screen">
+        <h2 class="section-title">Opening Screen</h2>
+        <div id="opening-content"></div>
+        <div class="button-row">
+          <button id="btn-opening-continue">Continue</button>
+        </div>
+      </section>
+
+      <section id="screen-story-1" class="screen">
+        <h2 class="section-title">Desert Convoy</h2>
+        <div id="story-1" class="story"></div>
+        <div class="button-row">
+          <button class="option-btn danger" data-choice="leave">Leave Guinea Boar</button>
+          <button class="option-btn safe" data-choice="save">Save Guinea Boar</button>
+        </div>
+      </section>
+
+      <section id="screen-path-1" class="screen">
+        <h2 class="section-title">Path One: Leave the Guinea Boar</h2>
+        <div id="path-1" class="story"></div>
+        <div class="button-row">
+          <button id="btn-path-1-restart">Return to Start</button>
+        </div>
+      </section>
+
+      <section id="screen-q1" class="screen">
+        <h2 class="section-title">Path Two: Save the Guinea Boar — Q1</h2>
+        <div id="q1-story" class="story"></div>
+
+        <div class="question-block" id="q1-hypothesis">
+          <h3>Write the hypothesis test in symbols</h3>
+          <div class="button-row" id="q1-hypothesis-options"></div>
+          <div class="status" id="q1-hypothesis-status">Choose the correct hypothesis to continue.</div>
+        </div>
+
+        <div class="question-block">
+          <h3>Fill out the following table</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Method</th>
+                  <th>Sample Size</th>
+                  <th>Survived</th>
+                  <th>Mortality Rate</th>
+                  <th>Standard Statistic (z)</th>
+                  <th>P Value (lower-tail)</th>
+                </tr>
+              </thead>
+              <tbody id="q1-table-body"></tbody>
+            </table>
+          </div>
+          <div class="button-row">
+            <button id="btn-q1-check-table">Check Table</button>
+          </div>
+          <div class="status" id="q1-table-status">All entries must be correct to continue.</div>
+        </div>
+
+        <div class="question-block" id="q1-decision">
+          <h3>Make a decision on what treatment to use and justify it</h3>
+          <div class="button-row" id="q1-decision-options"></div>
+          <div class="status" id="q1-decision-status">Choose the correct option to continue.</div>
+        </div>
+      </section>
+
+      <section id="screen-q2" class="screen">
+        <h2 class="section-title">Pitching Machine Check — Q2</h2>
+        <div id="q2-story" class="story"></div>
+
+        <div class="question-block" id="q2-hypothesis">
+          <h3>Write the hypothesis test in symbols</h3>
+          <div class="button-row" id="q2-hypothesis-options"></div>
+          <div class="status" id="q2-hypothesis-status">Choose the correct hypothesis to continue.</div>
+        </div>
+
+        <div class="question-block" id="q2-pvalue">
+          <h3>What is the p value?</h3>
+          <div class="button-row" id="q2-pvalue-options"></div>
+          <div class="status" id="q2-pvalue-status">Choose the correct p value to continue.</div>
+        </div>
+
+        <div class="question-block" id="q2-conclusion">
+          <h3>What is your conclusion?</h3>
+          <div class="button-row" id="q2-conclusion-options"></div>
+          <div class="status" id="q2-conclusion-status">Choose the correct conclusion to continue.</div>
+        </div>
+      </section>
+
+      <section id="screen-finale" class="screen">
+        <h2 class="section-title">Final Screen</h2>
+        <div id="final-story" class="story"></div>
+        <p class="final">Lab complete! Show this screen to your instructor.</p>
+        <div class="button-row">
+          <button id="btn-finale-restart">Play Again</button>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const orgs = [
+        {
+          id: 1,
+          name: "Friends",
+          type: "scientific research group",
+          goal: "LEARN",
+          members: ["Fayth", "Mia", "Addi", "Grace", "Cassie"],
+        },
+        {
+          id: 2,
+          name: "The Unnamed",
+          type: "cult",
+          goal: "Do good things",
+          members: ["Alex Kaup", "Karla Parmerin-Montes-De-Oca", "Brett Vance", "Grace Ramos-Hernandez"],
+        },
+        {
+          id: 3,
+          name: "Struggle Bus",
+          type: "commercial organization",
+          goal: "Blank",
+          members: ["Leah Booth", "Abby Beckham", "Rome Bridger", "Turner Georgecink", "Cailyn Brecht"],
+        },
+        {
+          id: 4,
+          name: "WAAKE CORP",
+          type: "traders / commercial org with philanthropic and humanitarian aims",
+          goal: "OBSERVE TRENDS",
+          members: ["Evan Dunning", "Ava Hastings", "Avery Hadley", "Katelyn Ecklund", "Wesley Helmer"],
+        },
+        {
+          id: 5,
+          name: "Unknown Group 5",
+          type: "unknown",
+          goal: "Unknown",
+          members: ["TBD Member 1", "TBD Member 2", "TBD Member 3", "TBD Member 4", "TBD Member 5"],
+        },
+        {
+          id: 6,
+          name: "The Oracles of the Damned",
+          type: "security force",
+          goal: "Protect remaining resources and leaders",
+          members: ["Makenna Mottl", "Trevor Gibson", "Syriah Livingstong", "Emily McCrackine", "Cameron Lyons"],
+        },
+        {
+          id: 7,
+          name: "Mercenary Group",
+          type: "mercenary group",
+          goal: "Be a Mercenary Group",
+          members: ["Cecelia Rowe", "Lilionna Thompson", "Dylan Venancio", "Brandon Lahne"],
+        },
+        {
+          id: 8,
+          name: "Dogs of Wisdom",
+          type: "cult",
+          goal: "Bring wisdom to the post apocalyptic world",
+          members: ["Katarina Tergeoglou", "Hanan Lotoro", "Connor Slater", "Tyler Zach", "Marq Perez"],
+        },
+        {
+          id: 9,
+          name: "Panda INC",
+          type: "trader group",
+          goal: "Trade resources",
+          members: ["Jacob Fink", "Haydn Farr", "Cheyane Torticill", "Izzie Tranmer", "Isaac Dowdal"],
+        },
+        {
+          id: 10,
+          name: "STOME Labs",
+          type: "scientific research org",
+          goal: "Research mutant animals for money",
+          members: ["Mason", "Eli", "Sam", "Truman", "Owen"],
+        },
+        {
+          id: 11,
+          name: "Code Blue",
+          type: "scientific research org",
+          goal: "Cure cybercancer for profit",
+          members: ["Callie Hendershot", "Ava Cramer", "Bailey Denton", "Ella Martindale", "Hilary Paulson"],
+        },
+        {
+          id: 12,
+          name: "BloodCave Correctional Facility",
+          type: "prisoner rehabilitation program",
+          goal: "Meet the criteria for early release",
+          members: ["Tori Thimjon", "Payton Davies", "Wil Reeves", "Madalynn Vacek", "Ella Whiting"],
+        },
+      ];
+
+      const templates = {
+        commercial: [
+          "{name}, MBA",
+          "LoRa Media Manager {name}",
+          "CFO {name}",
+          "PR Specialist {name}",
+          "Damage Control Expert {name}",
+        ],
+        scientific: [
+          "Dr. {name}",
+          "Prof. {name}",
+          "Doctor Professor {name}",
+          "PhD Candidate {name}",
+          "{name} (paid in college credit)",
+        ],
+        cult: [
+          "High Diviner {name}",
+          "Lead Acolyte {name}",
+          "Sacrifice Manager {name}",
+          "{name} the Reborn",
+          "Ritual Keeper {name}",
+        ],
+        security: [
+          "Squad Leader {name}",
+          "IED Grenadier {name}",
+          "Cybercommando {name}",
+          "Medic {name}",
+          "Crossbow Sniper {name}",
+        ],
+        prisoner: [
+          "60221029 {name}",
+          "31415926 {name}",
+          "27182818 {name}",
+          "16180339 {name}",
+          "66260715 {name}",
+        ],
+        unknown: [
+          "Wanderer {name}",
+          "Scavenger {name}",
+          "Roadrunner {name}",
+          "Scrapwright {name}",
+          "Dust Medic {name}",
+        ],
+      };
+
+      const story = {
+        intro: [
+          "While driving through the desert, you come across a Giant Guinea Boar.",
+          "The Guinea Boar looks to be domesticated and lost from his home.",
+          "The Guinea Boar is physically wounded, and appears to have been surviving on wasteland scraps.",
+          "After <GROUP MEMBER 4> inspects the boar, they find that he is suffering from bloat: a life threatening condition for Guinea Boars.",
+          "Giant Guinea Boars are revered rodents in the wastes. Most authors consider it more extreme to kill off a Guinea Boar than a human character.",
+          "These creatures are often kept as pets by nobles, including High Blood President Chainsaw the Shredder, who is known to have 7 pet Guinea Boars.",
+          "If you can get the Guinea Boar back to a scrap village, you can fully regenerate him, but the closest village is several days of driving away.",
+          "Without intervention, the Guinea Boar will die in the next few hours.",
+          "Your team considers stopping the convoy to conduct surgery, but <GROUP MEMBER 5> spots a fleet of Resellers heading to your location.",
+          "If you begin driving now, you can escape the Resellers, but the Guinea Boar will most certainly die here.",
+          "You can also choose to take the time to lift the Guinea Boar on top of one of the war rig's trailers, but doing so will allow the Resellers to catch up with you.",
+          "The Resellers are willing to do anything to get ahold of your medical supplies and the Guinea Boar, so you will have to fight them.",
+        ],
+        leave: [
+          "You arrive at the nearest village, all safe and sound.",
+          "You receive a call from High Blood President Chainsaw the Shredder.",
+          "\"YOU WEAK DISGUSTING SLUDGE. I KNOW WHAT YOU DID.\"",
+          "\"AVOIDING THE BLESSING OF BEING ABLE TO DESTROY RESELLERS IS ONE THING, BUT YOU LET THAT PIG DIE, AND THAT IS UNFORGIVABLE.\"",
+          "\"ME AND MY PARTY OF FLESH SHREDDERS ARE COMING TO YOUR LOCATON. BEST HOPE YOU CAN HIDE WELL WASTELANDER\"",
+          "GAME OVER: you will probably die in the next few days",
+        ],
+        q1: [
+          "You lift the Guinea Boar onto the top of the trailer and begin driving away.",
+          "<GROUP MEMBER 5> and <GROUP MEMBER 4> begin surgery immediately while the truck is driving.",
+          "This condition is normally easy to treat with nanotrites, but you lack the resources to perform a modern operation.",
+          "Performing this operation with old-world methods has a 40% mortality rate.",
+          "Researchers studied experimental techniques, but data is limited. You will only use an experimental technique if there is evidence it decreases mortality rate relative to the standard technique.",
+        ],
+        q2Lead: [
+          "The Resellers are catching up and have begun firing arrows at your convoy.",
+          "<GROUP MEMBER 3> gets shot in the shoulder by one of their bolts and starts throwing bricks at the motorcycle raiders.",
+          "Before leaving, <GROUP MEMBER 2> installed a pitching machine turret that should throw 500 100mph fastballs per second, but it appears to be malfunctioning.",
+          "<GROUP MEMBER 2> and <GROUP MEMBER 1> climb to the machine to see if it can be fixed.",
+          "<GROUP MEMBER 1> claims the pitching machine is aiming slightly off target and could be biased left or right.",
+          "You fire the pitching machine 30 times and record how far each ball lands from the target (negative = left, positive = right).",
+          "The balls land an average of 0.12 meters from the target with a standard deviation of 0.5 meters.",
+        ],
+        q2After: [
+          "<GROUP MEMBER 2> inspects the code.",
+          "While doing this, <GROUP MEMBER 2> gets hit by a crossbow bolt in the leg, but is too focused to notice.",
+          "<GROUP MEMBER 2> finds an issue in the code. The turret uses a model that determines if the target is a human and not a bush.",
+          "If the turret does not have good evidence that the target is not a bush, it will not fire.",
+          "Normally this works well, but the Resellers are wearing ghillie suits.",
+          "<GROUP MEMBER 2> changes the alpha significance level to 0.10, making the program more likely to conclude targets are human.",
+          "After doing this, the turret begins to rapidly fire baseballs at the Resellers.",
+          "After 30 seconds, all Resellers are forcibly dismounted by a barrage of baseballs.",
+          "<GROUP MEMBER 4> and <GROUP MEMBER 5> continue surgery and successfully stabilize the Guinea Boar.",
+        ],
+      };
+
+      let currentOrg = null;
+      let screenNames = [];
+      let q1HypothesisCorrect = false;
+      let q1TableCorrect = false;
+      let q1DecisionCorrect = false;
+      let q2HypothesisCorrect = false;
+      let q2PValueCorrect = false;
+      let q2ConclusionCorrect = false;
+      const tableState = {};
+
+      function classifyType(type) {
+        const t = (type || "").toLowerCase();
+        if (t.includes("scientific")) return "scientific";
+        if (t.includes("cult")) return "cult";
+        if (t.includes("prisoner")) return "prisoner";
+        if (t.includes("security") || t.includes("mercenary")) return "security";
+        if (t.includes("commercial") || t.includes("trader")) return "commercial";
+        return "unknown";
+      }
+
+      function buildScreenNames(org) {
+        const typeKey = classifyType(org.type);
+        const list = org.members.slice();
+        while (list.length < 5) {
+          list.push(`Extra Recruit ${list.length + 1}`);
+        }
+        const rules = templates[typeKey] || templates.unknown;
+        return list.slice(0, 5).map((name, index) => {
+          const template = rules[index % rules.length];
+          return template.replace("{name}", name);
+        });
+      }
+
+      function renderStory(targetId, paragraphs) {
+        const target = document.getElementById(targetId);
+        target.innerHTML = paragraphs
+          .map((line) => {
+            let output = line;
+            screenNames.forEach((member, index) => {
+              output = output.replaceAll(`<GROUP MEMBER ${index + 1}>`, member);
+            });
+            const urgentLine = "Without intervention, the Guinea Boar will die in the next few hours.";
+            const className = line === urgentLine ? "urgent" : "";
+            return `<p class="${className}">${output}</p>`;
+          })
+          .join("");
+      }
+
+      function showScreen(id) {
+        document.querySelectorAll(".screen").forEach((screen) => {
+          screen.classList.toggle("active", screen.id === id);
+        });
+        window.scrollTo(0, 0);
+      }
+
+      function setupGroupSelection() {
+        const grid = document.getElementById("group-grid");
+        grid.innerHTML = "";
+        orgs.forEach((org) => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+            <strong>${org.name}</strong>
+            <span>Type: ${org.type || "Unknown"}</span>
+            <span>Goal: ${org.goal || "Unknown"}</span>
+            <button class="option-btn" data-org="${org.id}">Select</button>
+          `;
+          grid.appendChild(card);
+        });
+        grid.addEventListener("click", (event) => {
+          const button = event.target.closest("button[data-org]");
+          if (!button) return;
+          const orgId = Number(button.dataset.org);
+          currentOrg = orgs.find((org) => org.id === orgId);
+          screenNames = buildScreenNames(currentOrg);
+          renderOpening();
+          showScreen("screen-opening");
+        });
+      }
+
+      function renderOpening() {
+        const container = document.getElementById("opening-content");
+        container.innerHTML = `
+          <p><strong>Group Name:</strong> ${currentOrg.name}</p>
+          <p><strong>Organization Type:</strong> ${currentOrg.type}</p>
+          <p><strong>Organization Goal:</strong> ${currentOrg.goal}</p>
+          <div class="notice">YOUR TEAM:</div>
+          <ul class="member-list">
+            ${screenNames.map((member) => `<li>${member}</li>`).join("")}
+          </ul>
+        `;
+      }
+
+      function setupStory() {
+        renderStory("story-1", story.intro);
+        renderStory("path-1", story.leave);
+        renderStory("q1-story", story.q1);
+        renderStory("q2-story", story.q2Lead);
+        renderStory("final-story", story.q2After);
+      }
+
+      function setupStoryChoices() {
+        document.querySelectorAll("[data-choice]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const choice = btn.dataset.choice;
+            if (choice === "leave") {
+              showScreen("screen-path-1");
+            } else {
+              showScreen("screen-q1");
+            }
+          });
+        });
+        document.getElementById("btn-opening-continue").addEventListener("click", () => {
+          setupStory();
+          showScreen("screen-story-1");
+        });
+        document.getElementById("btn-path-1-restart").addEventListener("click", () => {
+          resetAll();
+          showScreen("screen-start");
+        });
+        document.getElementById("btn-finale-restart").addEventListener("click", () => {
+          resetAll();
+          showScreen("screen-start");
+        });
+      }
+
+      function resetAll() {
+        q1HypothesisCorrect = false;
+        q1TableCorrect = false;
+        q1DecisionCorrect = false;
+        q2HypothesisCorrect = false;
+        q2PValueCorrect = false;
+        q2ConclusionCorrect = false;
+        Object.keys(tableState).forEach((key) => delete tableState[key]);
+        setupQ1();
+        setupQ2();
+      }
+
+      function setupQ1() {
+        const hypothesisOptions = [
+          { text: "H0: p = 0.40, H1: p < 0.40", correct: true },
+          { text: "H0: p = 0.40, H1: p > 0.40", correct: false },
+          { text: "H0: p < 0.40, H1: p = 0.40", correct: false },
+          { text: "H0: p = 0.50, H1: p < 0.50", correct: false },
+        ];
+        renderOptionButtons("q1-hypothesis-options", hypothesisOptions, (correct) => {
+          q1HypothesisCorrect = correct;
+          document.getElementById("q1-hypothesis-status").textContent = correct
+            ? "Correct. Continue with the table."
+            : "Incorrect. Choose again.";
+        });
+
+        const tableRows = [
+          {
+            id: "A",
+            method: "Method A",
+            n: 30,
+            survived: 10,
+            mortality: "0.667",
+            z: "2.98",
+            p: "0.999",
+          },
+          {
+            id: "B",
+            method: "Method B",
+            n: 30,
+            survived: 20,
+            mortality: "0.333",
+            z: "-0.75",
+            p: "0.228",
+          },
+          {
+            id: "C",
+            method: "Method C",
+            n: 300,
+            survived: 200,
+            mortality: "0.333",
+            z: "-2.36",
+            p: "0.009",
+          },
+        ];
+
+        const mortalityOptions = ["0.667", "0.600", "0.333", "0.400", "0.250"];
+        const zOptions = ["2.98", "1.45", "-0.75", "-2.36", "0.41"];
+        const pOptions = ["0.999", "0.228", "0.009", "0.051", "0.120"];
+
+        const tbody = document.getElementById("q1-table-body");
+        tbody.innerHTML = "";
+        tableRows.forEach((row) => {
+          tbody.insertAdjacentHTML(
+            "beforeend",
+            `
+              <tr>
+                <td>${row.method}</td>
+                <td>${row.n}</td>
+                <td>${row.survived}</td>
+                <td>${buildSelect(`mortality-${row.id}`, mortalityOptions)}</td>
+                <td>${buildSelect(`z-${row.id}`, zOptions)}</td>
+                <td>${buildSelect(`p-${row.id}`, pOptions)}</td>
+              </tr>
+            `
+          );
+        });
+
+        document.getElementById("btn-q1-check-table").onclick = () => {
+          let allCorrect = true;
+          tableRows.forEach((row) => {
+            const checks = [
+              { key: `mortality-${row.id}`, correct: row.mortality },
+              { key: `z-${row.id}`, correct: row.z },
+              { key: `p-${row.id}`, correct: row.p },
+            ];
+            checks.forEach((check) => {
+              const select = document.querySelector(`select[data-key="${check.key}"]`);
+              if (!select) return;
+              if (select.value === check.correct) {
+                select.style.borderColor = "#2a5";
+                tableState[check.key] = true;
+              } else {
+                select.value = "";
+                select.style.borderColor = "#b44";
+                tableState[check.key] = false;
+                allCorrect = false;
+              }
+            });
+          });
+          q1TableCorrect = allCorrect;
+          document.getElementById("q1-table-status").textContent = allCorrect
+            ? "Table complete. Move to the treatment decision."
+            : "Some entries were incorrect and have been cleared.";
+        };
+
+        const decisionOptions = [
+          { text: "Use Method A (largest mortality rate)", correct: false },
+          { text: "Use Method B (evidence is strongest)", correct: false },
+          { text: "Use Method C (strong evidence of lower mortality)", correct: true },
+          { text: "Stick with the standard method", correct: false },
+        ];
+        renderOptionButtons("q1-decision-options", decisionOptions, (correct) => {
+          if (!q1HypothesisCorrect || !q1TableCorrect) {
+            document.getElementById("q1-decision-status").textContent =
+              "Finish the hypothesis and table before deciding.";
+            return;
+          }
+          if (!correct) {
+            document.getElementById("q1-decision-status").textContent =
+              "Incorrect. Restart Q1 decisions, but your table remains.";
+            q1DecisionCorrect = false;
+            showScreen("screen-q1");
+            return;
+          }
+          q1DecisionCorrect = true;
+          document.getElementById("q1-decision-status").textContent = "Correct. Continue.";
+          showScreen("screen-q2");
+        });
+      }
+
+      function setupQ2() {
+        const hypothesisOptions = [
+          { text: "H0: μ = 0, H1: μ ≠ 0", correct: true },
+          { text: "H0: μ = 0, H1: μ > 0", correct: false },
+          { text: "H0: μ = 0.12, H1: μ ≠ 0.12", correct: false },
+          { text: "H0: μ ≠ 0, H1: μ = 0", correct: false },
+        ];
+        renderOptionButtons("q2-hypothesis-options", hypothesisOptions, (correct) => {
+          q2HypothesisCorrect = correct;
+          document.getElementById("q2-hypothesis-status").textContent = correct
+            ? "Correct. Now compute the p value."
+            : "Incorrect. Choose again.";
+        });
+
+        const pvalueOptions = [
+          { text: "0.20", correct: true },
+          { text: "0.04", correct: false },
+          { text: "0.11", correct: false },
+          { text: "0.63", correct: false },
+        ];
+        renderOptionButtons("q2-pvalue-options", pvalueOptions, (correct) => {
+          if (!q2HypothesisCorrect) {
+            document.getElementById("q2-pvalue-status").textContent =
+              "Select the correct hypothesis first.";
+            return;
+          }
+          q2PValueCorrect = correct;
+          document.getElementById("q2-pvalue-status").textContent = correct
+            ? "Correct. Choose your conclusion."
+            : "Incorrect. Try again.";
+        });
+
+        const conclusionOptions = [
+          { text: "No evidence that the turret is malfunctioning", correct: true },
+          { text: "Strong evidence that the turret is biased left", correct: false },
+          { text: "Strong evidence that the turret is biased right", correct: false },
+          { text: "Evidence that the turret is malfunctioning", correct: false },
+        ];
+        renderOptionButtons("q2-conclusion-options", conclusionOptions, (correct) => {
+          if (!q2HypothesisCorrect || !q2PValueCorrect) {
+            document.getElementById("q2-conclusion-status").textContent =
+              "Complete the hypothesis and p value first.";
+            return;
+          }
+          q2ConclusionCorrect = correct;
+          document.getElementById("q2-conclusion-status").textContent = correct
+            ? "Correct. Continue."
+            : "Incorrect. Try again.";
+          if (correct) {
+            showScreen("screen-finale");
+          }
+        });
+      }
+
+      function renderOptionButtons(containerId, options, onPick) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = "";
+        options.forEach((option) => {
+          const btn = document.createElement("button");
+          btn.className = "option-btn secondary";
+          btn.textContent = option.text;
+          btn.addEventListener("click", () => onPick(option.correct));
+          container.appendChild(btn);
+        });
+      }
+
+      function buildSelect(key, options) {
+        const optionTags = options
+          .map((value) => `<option value="${value}">${value}</option>`)
+          .join("");
+        return `
+          <select data-key="${key}">
+            <option value="">Select</option>
+            ${optionTags}
+          </select>
+        `;
+      }
+
+      setupGroupSelection();
+      setupStoryChoices();
+      setupQ1();
+      setupQ2();
+    </script>
+  </body>
+</html>
+

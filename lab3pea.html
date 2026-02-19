@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>PLUS E: ARMAGEDDON — Lab 3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:      #050100;
+  --panel:   #0d0400;
+  --border:  #cc2200;
+  --border2: #661100;
+  --text:    #ff8833;
+  --bright:  #ffcc66;
+  --dim:     #883300;
+  --green:   #44ee88;
+  --red-err: #ff2200;
+  --glow:    0 0 6px #ff440088;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Share Tech Mono', 'Courier New', monospace;
+  font-size: 15px;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.12) 3px, rgba(0,0,0,0.12) 4px);
+  pointer-events: none;
+  z-index: 1000;
+}
+
+/* ── SCREEN SYSTEM ── */
+.screen { display: none; }
+.screen.active { display: block; }
+
+main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+}
+
+/* ── BOXES ── */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border2);
+  padding: 20px;
+  margin-bottom: 18px;
+  position: relative;
+}
+.panel::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--border), transparent);
+}
+
+/* ── HEADINGS ── */
+h1, h2, h3, .mono-head {
+  font-family: 'VT323', monospace;
+  letter-spacing: 1px;
+}
+.page-title {
+  font-family: 'VT323', monospace;
+  font-size: 36px;
+  color: var(--bright);
+  text-shadow: var(--glow);
+  text-align: center;
+  padding: 28px 16px 8px;
+  letter-spacing: 2px;
+}
+.section-label {
+  font-family: 'VT323', monospace;
+  font-size: 20px;
+  color: var(--border);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+
+/* ── STORY TEXT ── */
+.story p {
+  line-height: 1.6;
+  margin: 6px 0;
+  color: var(--text);
+}
+.story .speaker {
+  color: var(--bright);
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+}
+.story .action {
+  color: var(--dim);
+  font-style: italic;
+}
+.story .highlight {
+  color: var(--bright);
+}
+.story .warn {
+  color: var(--red-err);
+  font-weight: bold;
+}
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-block;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--bright);
+  font-family: 'VT323', monospace;
+  font-size: 20px;
+  padding: 7px 18px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: background 0.12s, color 0.12s;
+  outline: none;
+}
+.btn::before { content: '▶ '; color: var(--border); font-size: 14px; }
+.btn:hover, .btn:focus {
+  background: var(--border);
+  color: #000;
+}
+.btn:hover::before, .btn:focus::before { color: #000; }
+.btn:disabled {
+  border-color: var(--border2);
+  color: var(--border2);
+  cursor: not-allowed;
+}
+.btn:disabled::before { color: var(--border2); }
+.btn.secondary {
+  border-color: var(--dim);
+  color: var(--text);
+  font-size: 17px;
+}
+.btn.secondary::before { color: var(--dim); }
+.btn.secondary:hover { background: var(--dim); color: #000; }
+.btn.danger { border-color: var(--red-err); color: var(--red-err); }
+.btn.danger:hover { background: var(--red-err); color: #000; }
+.btn.safe { border-color: var(--green); color: var(--green); }
+.btn.safe:hover { background: var(--green); color: #000; }
+.btn-row {
+  display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px;
+}
+
+/* ── GROUP CARDS ── */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+.group-card {
+  background: #0a0200;
+  border: 1px solid var(--border2);
+  padding: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.group-card:hover { border-color: var(--border); }
+.group-card .gname {
+  font-family: 'VT323', monospace;
+  font-size: 20px;
+  color: var(--bright);
+  display: block; margin-bottom: 4px;
+}
+.group-card .gtype {
+  font-size: 12px; color: var(--dim); display: block;
+}
+.group-card .ggoal {
+  font-size: 12px; color: var(--text); display: block; margin-top: 3px;
+}
+.group-card .select-btn {
+  margin-top: 10px;
+  width: 100%;
+  text-align: center;
+}
+
+/* ── TABLE ── */
+.table-wrap { overflow-x: auto; margin-top: 12px; }
+table { width: 100%; border-collapse: collapse; min-width: 640px; }
+th, td {
+  padding: 7px 8px;
+  border: 1px solid var(--border2);
+  text-align: center;
+  font-size: 13px;
+}
+th {
+  background: #150500;
+  color: var(--border);
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  text-transform: uppercase;
+}
+td.q-label {
+  text-align: left;
+  color: var(--text);
+  font-size: 12px;
+  padding-left: 10px;
+}
+
+/* ── DROPDOWNS ── */
+select {
+  background: #0a0200;
+  color: var(--text);
+  border: 1px solid var(--border2);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  padding: 4px 6px;
+  width: 100%;
+  cursor: pointer;
+  outline: none;
+}
+select:focus { border-color: var(--border); }
+select.correct { border-color: var(--green); background: #001a08; color: var(--green); }
+select.wrong   { border-color: var(--red-err); }
+
+/* ── NOTICE / FORMULA BOX ── */
+.notice {
+  background: #0f0300;
+  border-left: 3px solid var(--border);
+  padding: 10px 14px;
+  margin: 12px 0;
+  color: var(--dim);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.notice .label {
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  color: var(--border);
+  display: block; margin-bottom: 4px;
+}
+.notice code { color: var(--bright); }
+
+/* ── CI PLOT GRID ── */
+.plot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+  margin: 14px 0;
+}
+.plot-box {
+  background: #0a0000;
+  border: 1px solid var(--border2);
+  padding: 10px;
+}
+.plot-box .plot-label {
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  color: var(--border);
+  display: block; margin-bottom: 6px;
+}
+
+/* ── STATUS LINE ── */
+.status-line {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--dim);
+  min-height: 18px;
+}
+.status-line.ok  { color: var(--green); }
+.status-line.err { color: var(--red-err); }
+
+/* ── CHEAT CODE ── */
+.cheat-zone {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+.cheat-zone:hover { opacity: 1; }
+.cheat-zone label {
+  font-size: 11px; color: var(--dim);
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.cheat-zone input {
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px;
+  padding: 4px 8px;
+  width: 80px;
+  text-transform: uppercase;
+  outline: none;
+}
+.cheat-zone input:focus { border-color: var(--border); }
+.cheat-msg { font-size: 12px; color: var(--green); }
+
+/* ── FINAL SCREEN ── */
+.final-box {
+  text-align: center;
+  padding: 40px 20px;
+  border: 2px solid var(--border);
+  margin: 20px 0;
+}
+.final-box .big {
+  font-family: 'VT323', monospace;
+  font-size: 48px;
+  color: var(--bright);
+  text-shadow: 0 0 20px #ffaa44aa;
+  display: block; margin-bottom: 12px;
+}
+.final-box .sub {
+  font-size: 16px;
+  color: var(--text);
+}
+
+/* ── MEMBER LIST ── */
+.member-list {
+  list-style: none;
+  margin: 8px 0 0;
+}
+.member-list li {
+  padding: 3px 0;
+  color: var(--text);
+  font-size: 14px;
+}
+.member-list li::before {
+  content: '// ';
+  color: var(--dim);
+}
+
+/* ── DIVIDER ── */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border2);
+  margin: 14px 0;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .plot-grid { grid-template-columns: 1fr; }
+  .btn { font-size: 17px; padding: 6px 12px; }
+}
+</style>
+</head>
+<body>
+
+<main>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: START — Group Selection
+══════════════════════════════════════════════ -->
+<div id="screen-start" class="screen active">
+  <div class="page-title">PLUS E: ARMAGEDDON<br><span style="font-size:22px;color:var(--border)">LAB 3 — BLOODBALL </span></div>
+  <div class="panel">
+    <div class="section-label">// SELECT YOUR ORGANIZATION TO BEGIN //</div>
+    <p style="color:var(--dim);font-size:13px;margin-bottom:12px;">Choose your team from the roster below. This will personalize your mission briefing.</p>
+    <div id="group-grid" class="card-grid"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: CONFIRM
+══════════════════════════════════════════════ -->
+<div id="screen-confirm" class="screen">
+  <div class="panel">
+    <div class="section-label">// ORGANIZATION CONFIRMED //</div>
+    <div id="confirm-content"></div>
+    <div class="btn-row">
+      <button class="btn safe" id="btn-confirm-yes">ENTER THE FIELD</button>
+      <button class="btn secondary" id="btn-confirm-back">GO BACK</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: AA — Prologue Choice
+══════════════════════════════════════════════ -->
+<div id="screen-aa" class="screen">
+  <div class="panel">
+    <div class="section-label">// MISSION LOG //</div>
+    <div class="story">
+      <p>A new mission file has been uploaded to your terminal.</p>
+      <p class="highlight">Do you want to start from the <strong>prologue</strong>, or skip directly to the <strong>main mission</strong>?</p>
+    </div>
+    <div class="btn-row">
+      <button class="btn" id="btn-aa-prologue">BEGIN FROM PROLOGUE</button>
+      <button class="btn secondary" id="btn-aa-skip">SKIP TO MAIN MISSION</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: B — Last Week's Mission
+══════════════════════════════════════════════ -->
+<div id="screen-b" class="screen">
+  <div class="panel">
+    <div class="story" id="story-b"></div>
+    <div class="btn-row">
+      <button class="btn" id="btn-b-continue">CONTINUE</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: C — Spinner / Fundraising Ideas
+══════════════════════════════════════════════ -->
+<div id="screen-c" class="screen">
+  <div class="panel">
+    <div class="story" id="story-c"></div>
+    <div class="btn-row" id="btn-row-c"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: D — Woman Enters
+══════════════════════════════════════════════ -->
+<div id="screen-d" class="screen">
+  <div class="panel">
+    <div class="story" id="story-d"></div>
+    <div class="btn-row" id="btn-row-d"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: E — Response: "Just gambling?"
+══════════════════════════════════════════════ -->
+<div id="screen-e" class="screen">
+  <div class="panel">
+    <div class="story" id="story-e"></div>
+    <div class="btn-row">
+      <button class="btn" id="btn-e-continue">HEAR HER OUT</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: F — Response: "Sports gambling is a scam"
+══════════════════════════════════════════════ -->
+<div id="screen-f" class="screen">
+  <div class="panel">
+    <div class="story" id="story-f"></div>
+    <div class="btn-row">
+      <button class="btn" id="btn-f-continue">HEAR HER OUT</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: G — Response: "I'm in"
+══════════════════════════════════════════════ -->
+<div id="screen-g" class="screen">
+  <div class="panel">
+    <div class="story" id="story-g"></div>
+    <div class="btn-row">
+      <button class="btn" id="btn-g-continue">HEAR HER OUT</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: H — Woman's Plan
+══════════════════════════════════════════════ -->
+<div id="screen-h" class="screen">
+  <div class="panel">
+    <div class="story" id="story-h"></div>
+    <div class="btn-row">
+      <button class="btn" id="btn-h-continue">CONTINUE TO MAIN MISSION</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: I — Office Scene / Problem Intro
+══════════════════════════════════════════════ -->
+<div id="screen-i" class="screen">
+  <div class="panel">
+    <div class="story" id="story-i"></div>
+    <div class="btn-row">
+      <button class="btn" id="btn-i-continue">EVALUATE PLAYER PERFORMANCE</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: J — CI Table Question
+══════════════════════════════════════════════ -->
+<div id="screen-j" class="screen">
+  <div class="panel">
+    <div class="section-label">// FREE BASH PERCENTAGE ANALYSIS — CONFIDENCE INTERVALS //</div>
+
+    <div class="notice">
+      <span class="label">FORMULA REFERENCE</span>
+      Sample Proportion: <code>p̂ = x / n</code><br>
+      Population SD: <code>SD = √( p̂ · (1 − p̂) )</code><br>
+      Standard Error (SE): <code>SE = √( p̂ · (1 − p̂) / n )</code><br>
+      2SD Method CI: <code>( p̂ − 2·SE ,  p̂ + 2·SE )</code><br>
+      Theory-Based 95% CI: <code>( p̂ − 1.96·SE ,  p̂ + 1.96·SE )</code><br>
+      <br>
+      <strong style="color:var(--bright)">Target threshold: p₀ = 0.65 (at least 65% free bash rate required)</strong>
+    </div>
+
+    <div class="notice" style="border-color:var(--dim)">
+      <span class="label">PLAYER RECORDS</span>
+      Athlete 1 — <code>30 successful bashes / 100 attempts</code><br>
+      Athlete 2 — <code>65 successful bashes / 100 attempts</code><br>
+      Athlete 3 — <code>650 successful bashes / 1000 attempts</code>
+    </div>
+
+    <p style="margin:10px 0;font-size:13px;color:var(--dim)">Fill in the table below. Click <strong style="color:var(--bright)">CHECK ANSWERS</strong> to verify. Correct cells turn green; incorrect cells are cleared. All cells must be correct to continue.</p>
+
+    <div class="table-wrap">
+      <table id="ci-table">
+        <thead>
+          <tr>
+            <th style="text-align:left">QUESTION</th>
+            <th>ATHLETE 1<br><span style="font-size:11px;font-family:monospace">(30/100)</span></th>
+            <th>ATHLETE 2<br><span style="font-size:11px;font-family:monospace">(65/100)</span></th>
+            <th>ATHLETE 3<br><span style="font-size:11px;font-family:monospace">(650/1000)</span></th>
+          </tr>
+        </thead>
+        <tbody id="ci-table-body"></tbody>
+      </table>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn secondary" id="btn-j-check">CHECK ANSWERS</button>
+      <button class="btn safe" id="btn-j-continue" disabled>CONTINUE</button>
+    </div>
+    <div class="status-line" id="status-j">Enter all values and click CHECK ANSWERS.</div>
+
+    <div class="cheat-zone">
+      <label>OVERRIDE CODE:</label>
+      <input type="text" id="cheat-j" maxlength="10" placeholder="_ _ _"/>
+      <span class="cheat-msg" id="cheat-msg-j"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: K — CI Plots + Significance
+══════════════════════════════════════════════ -->
+<div id="screen-k" class="screen">
+  <div class="panel">
+    <div class="section-label">// CONFIDENCE INTERVAL ANALYSIS //</div>
+
+    <p class="story" style="margin-bottom:10px">Below are three candidate confidence interval plots for the three athletes. Only one plot is correct. The dashed vertical line represents the null value <strong style="color:var(--bright)">p₀ = 0.60</strong>.</p>
+
+    <div class="plot-grid" id="plot-grid"></div>
+
+    <div class="notice" style="margin-top:14px">
+      <span class="label">Q1 — WHICH PLOT IS CORRECT?</span>
+      <select id="sel-plot" style="margin-top:6px;max-width:280px">
+        <option value="">— select —</option>
+        <option value="A">Plot A</option>
+        <option value="B">Plot B</option>
+        <option value="C">Plot C</option>
+      </select>
+    </div>
+
+    <div class="notice" style="margin-top:14px">
+      <span class="label">Q2 — SIGNIFICANCE vs. NULL (p₀ = 0.60)</span>
+      <p style="font-size:12px;color:var(--dim);margin:6px 0 10px">For each athlete, determine whether their free bash percentage is significantly different from the null value, based on the 95% CI:</p>
+      <table style="min-width:0;width:auto">
+        <thead>
+          <tr><th style="text-align:left">ATHLETE</th><th style="min-width:200px">CONCLUSION</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="text-align:left;color:var(--text)">Athlete 1 (30/100)</td>
+            <td><select id="sel-sig1" class="sig-sel">
+              <option value="">— select —</option>
+              <option value="gt">Significantly greater than p₀</option>
+              <option value="lt">Significantly less than p₀</option>
+              <option value="inc">Inconclusive (p₀ is within the CI)</option>
+              <option value="eq">Exactly equal to p₀</option>
+            </select></td>
+          </tr>
+          <tr>
+            <td style="text-align:left;color:var(--text)">Athlete 2 (65/100)</td>
+            <td><select id="sel-sig2" class="sig-sel">
+              <option value="">— select —</option>
+              <option value="gt">Significantly greater than p₀</option>
+              <option value="lt">Significantly less than p₀</option>
+              <option value="inc">Inconclusive (p₀ is within the CI)</option>
+              <option value="eq">Exactly equal to p₀</option>
+            </select></td>
+          </tr>
+          <tr>
+            <td style="text-align:left;color:var(--text)">Athlete 3 (650/1000)</td>
+            <td><select id="sel-sig3" class="sig-sel">
+              <option value="">— select —</option>
+              <option value="gt">Significantly greater than p₀</option>
+              <option value="lt">Significantly less than p₀</option>
+              <option value="inc">Inconclusive (p₀ is within the CI)</option>
+              <option value="eq">Exactly equal to p₀</option>
+            </select></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn secondary" id="btn-k-check">CHECK ANSWERS</button>
+      <button class="btn safe" id="btn-k-continue" disabled>CONTINUE</button>
+    </div>
+    <div class="status-line" id="status-k">Answer both questions and click CHECK ANSWERS.</div>
+
+    <div class="cheat-zone">
+      <label>OVERRIDE CODE:</label>
+      <input type="text" id="cheat-k" maxlength="10" placeholder="_ _ _"/>
+      <span class="cheat-msg" id="cheat-msg-k"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: L — Hire Decision
+══════════════════════════════════════════════ -->
+<div id="screen-l" class="screen">
+  <div class="panel">
+    <div class="section-label">// HIRING DECISION //</div>
+
+    <div class="notice" style="margin-bottom:14px">
+      <span class="label">ANALYSIS SUMMARY (from previous screens)</span>
+      Athlete 1 (30/100): CI [0.210, 0.390] is entirely below p₀ = 0.60 → significantly less than null<br>
+      Athlete 2 (65/100): CI [0.556, 0.744] contains p₀ = 0.60 → inconclusive; n = 100 attempts<br>
+      Athlete 3 (650/1000): CI [0.621, 0.679] is entirely above p₀ = 0.60 → significantly greater than null
+    </div>
+
+    <p class="story">Based on your confidence interval analysis, you must select one athlete as the starting Basher. Consider which estimate is most reliable given the available data.</p>
+
+    <div style="margin-top:14px">
+      <label class="section-label" style="font-size:16px">WHICH ATHLETE SHOULD YOU HIRE?</label>
+      <select id="sel-hire" style="max-width:380px;margin-top:8px;font-size:14px;padding:8px">
+        <option value="">— select —</option>
+        <option value="1">Athlete 1 (30/100) — est. 30% free bash rate</option>
+        <option value="2">Athlete 2 (65/100) — est. 65%, n=100 attempts</option>
+        <option value="3">Athlete 3 (650/1000) — est. 65%, n=1000 attempts</option>
+        <option value="0">None — no athlete meets the threshold</option>
+      </select>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn secondary" id="btn-l-check">CHECK ANSWER</button>
+      <button class="btn safe" id="btn-l-continue" disabled>HIRE AND CONTINUE</button>
+    </div>
+    <div class="status-line" id="status-l">Select an athlete and click CHECK ANSWER.</div>
+
+    <div class="cheat-zone">
+      <label>OVERRIDE CODE:</label>
+      <input type="text" id="cheat-l" maxlength="10" placeholder="_ _ _"/>
+      <span class="cheat-msg" id="cheat-msg-l"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: M — Game Day Choice
+══════════════════════════════════════════════ -->
+<div id="screen-m" class="screen">
+  <div class="panel">
+    <div class="story" id="story-m"></div>
+    <div class="btn-row" id="btn-row-m"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: N — Sit Back
+══════════════════════════════════════════════ -->
+<div id="screen-n" class="screen">
+  <div class="panel">
+    <div class="story" id="story-n"></div>
+    <div class="btn-row">
+      <button class="btn" id="btn-n-continue">WATCH THE GAME</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: O — Try to Coach
+══════════════════════════════════════════════ -->
+<div id="screen-o" class="screen">
+  <div class="panel">
+    <div class="story" id="story-o"></div>
+    <div class="btn-row">
+      <button class="btn" id="btn-o-continue">WATCH THE GAME</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: P — Probability Reveal
+══════════════════════════════════════════════ -->
+<div id="screen-p" class="screen">
+  <div class="panel">
+    <div class="story" id="story-p"></div>
+    <div class="btn-row">
+      <button class="btn safe" id="btn-p-finish">FINISH LAB</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: Q — Lab Complete
+══════════════════════════════════════════════ -->
+<div id="screen-q" class="screen">
+  <div class="panel">
+    <div class="final-box">
+      <span class="big">LAB COMPLETE</span>
+      <p class="sub">SHOW THIS SCREEN TO CARSON</p>
+      <hr class="divider" style="margin:20px auto;max-width:300px"/>
+      <div id="complete-team" style="margin-top:10px;color:var(--dim);font-size:13px"></div>
+    </div>
+    <div class="btn-row" style="justify-content:center">
+      <button class="btn secondary" id="btn-q-restart">PLAY AGAIN</button>
+    </div>
+  </div>
+</div>
+
+</main><!-- end main -->
+
+<script>
+// ══════════════════════════════════════
+// DATA: ORGANIZATIONS
+// ══════════════════════════════════════
+const orgs = [
+  { id:1,  name:"Friends",                      type:"scientific research group",                              goal:"LEARN",                                            members:["Fayth","Mia","Addi","Grace","Cassie"] },
+  { id:2,  name:"The Unnamed",                  type:"cult",                                                   goal:"Do good things",                                   members:["Alex Kaup","Karla Parmerin-Montes-De-Oca","Brett Vance","Grace Ramos-Hernandez"] },
+  { id:3,  name:"Struggle Bus",                 type:"commercial organization",                                goal:"Blank",                                            members:["Leah Booth","Abby Beckham","Rome Bridger","Turner Georgecink","Cailyn Brecht"] },
+  { id:4,  name:"WAAKE CORP",                   type:"traders / commercial org with philanthropic aims",       goal:"OBSERVE TRENDS",                                   members:["Evan Dunning","Ava Hastings","Avery Hadley","Katelyn Ecklund","Wesley Helmer"] },
+  { id:5,  name:"Unknown Group 5",              type:"unknown",                                                goal:"Unknown",                                          members:["TBD Member 1","TBD Member 2","TBD Member 3","TBD Member 4","TBD Member 5"] },
+  { id:6,  name:"The Oracles of the Damned",    type:"security force",                                        goal:"Protect remaining resources and leaders",          members:["Makenna Mottl","Trevor Gibson","Syriah Livingston","Emily McCrackine","Cameron Lyons"] },
+  { id:7,  name:"Mercenary Group",              type:"mercenary group",                                       goal:"Be a Mercenary Group",                             members:["Cecelia Rowe","Lilionna Thompson","Dylan Venancio","Brandon Lahne"] },
+  { id:8,  name:"Dogs of Wisdom",               type:"cult",                                                  goal:"Bring wisdom to the post-apocalyptic world",       members:["Katarina Tergeoglou","Hanan Lotoro","Connor Slater","Tyler Zach","Marq Perez"] },
+  { id:9,  name:"Panda INC",                    type:"trader group",                                          goal:"Trade resources",                                  members:["Jacob Fink","Haydn Farr","Cheyane Torticill","Izzie Tranmer","Isaac Dowdal"] },
+  { id:10, name:"STOME Labs",                   type:"scientific research org",                               goal:"Research mutant animals for money",                members:["Mason","Eli","Sam","Truman","Owen"] },
+  { id:11, name:"Code Blue",                    type:"scientific research org",                               goal:"Cure cybercancer for profit",                      members:["Callie Hendershot","Ava Cramer","Bailey Denton","Ella Martindale","Hilary Paulson"] },
+  { id:12, name:"BloodCave Correctional",       type:"prisoner rehabilitation program",                      goal:"Meet the criteria for early release",              members:["Tori Thimjon","Payton Davies","Wil Reeves","Madalynn Vacek","Ella Whiting"] }
+];
+
+const templates = {
+  scientific: ["{n}, PhD",      "Prof. {n}",           "Doctor Professor {n}", "PhD Candidate {n}",     "{n} (paid in college credit)"],
+  cult:       ["High Diviner {n}", "Lead Acolyte {n}", "Sacrifice Manager {n}", "{n} the Reborn",       "Ritual Keeper {n}"],
+  security:   ["Squad Leader {n}", "IED Grenadier {n}", "Cybercommando {n}",    "Field Medic {n}",      "Crossbow Sniper {n}"],
+  commercial: ["{n}, MBA",      "LoRa Media Manager {n}", "CFO {n}",            "PR Specialist {n}",    "Damage Control Expert {n}"],
+  prisoner:   ["60221029 {n}", "31415926 {n}",         "27182818 {n}",         "16180339 {n}",          "66260715 {n}"],
+  unknown:    ["Wanderer {n}", "Scavenger {n}",        "Roadrunner {n}",       "Scrapwright {n}",       "Dust Medic {n}"]
+};
+
+function classifyType(t) {
+  t = (t||"").toLowerCase();
+  if (t.includes("scientific") || t.includes("research")) return "scientific";
+  if (t.includes("cult"))       return "cult";
+  if (t.includes("prisoner"))   return "prisoner";
+  if (t.includes("security") || t.includes("mercenary")) return "security";
+  if (t.includes("commercial") || t.includes("trader"))  return "commercial";
+  return "unknown";
+}
+
+function buildNames(org) {
+  const key  = classifyType(org.type);
+  const tmpl = templates[key] || templates.unknown;
+  const list = org.members.slice();
+  while (list.length < 5) list.push(`Recruit ${list.length + 1}`);
+  return list.slice(0,5).map((name, i) => tmpl[i % tmpl.length].replace("{n}", name));
+}
+
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+let currentOrg  = null;
+let teamNames   = [];   // generated display names [0..4]
+
+// question completion flags
+let jDone = false, kDone = false, lDone = false;
+
+// ══════════════════════════════════════
+// SCREEN UTILITIES
+// ══════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0, 0);
+}
+
+function tm(n) { return teamNames[n-1] || `TEAM MEMBER ${n}`; }
+
+function renderStory(id, html) {
+  document.getElementById(id).innerHTML = html;
+}
+
+// Replace all <TM N> tokens
+function t(str) {
+  return str.replace(/<TM(\d)>/g, (_, n) => `<span class="highlight">${tm(+n)}</span>`);
+}
+
+// ══════════════════════════════════════
+// GROUP SELECTION SCREEN
+// ══════════════════════════════════════
+function setupGroupSelect() {
+  const grid = document.getElementById("group-grid");
+  grid.innerHTML = "";
+  orgs.forEach(org => {
+    const card = document.createElement("div");
+    card.className = "group-card";
+    card.innerHTML = `
+      <span class="gname">${org.name}</span>
+      <span class="gtype">TYPE: ${org.type}</span>
+      <span class="ggoal">GOAL: ${org.goal}</span>
+      <button class="btn select-btn" data-id="${org.id}">SELECT</button>`;
+    grid.appendChild(card);
+  });
+  grid.addEventListener("click", e => {
+    const btn = e.target.closest("button[data-id]");
+    if (!btn) return;
+    currentOrg = orgs.find(o => o.id === +btn.dataset.id);
+    teamNames  = buildNames(currentOrg);
+    renderConfirmScreen();
+    showScreen("screen-confirm");
+  });
+}
+
+// ══════════════════════════════════════
+// CONFIRM SCREEN
+// ══════════════════════════════════════
+function renderConfirmScreen() {
+  document.getElementById("confirm-content").innerHTML = `
+    <p><span class="highlight">${currentOrg.name}</span> — ${currentOrg.type}</p>
+    <p style="color:var(--dim);margin-top:4px">OBJECTIVE: ${currentOrg.goal}</p>
+    <hr class="divider"/>
+    <p class="section-label" style="font-size:14px;margin-bottom:4px">// TEAM ROSTER //</p>
+    <ul class="member-list">
+      ${teamNames.map(n => `<li>${n}</li>`).join("")}
+    </ul>`;
+}
+
+document.getElementById("btn-confirm-yes").addEventListener("click", () => {
+  renderAllStories();
+  showScreen("screen-aa");
+});
+document.getElementById("btn-confirm-back").addEventListener("click", () => showScreen("screen-start"));
+
+// ══════════════════════════════════════
+// NAVIGATION BUTTONS
+// ══════════════════════════════════════
+document.getElementById("btn-aa-prologue").addEventListener("click", () => showScreen("screen-b"));
+document.getElementById("btn-aa-skip").addEventListener("click", () => showScreen("screen-i"));
+
+document.getElementById("btn-b-continue").addEventListener("click", () => showScreen("screen-c"));
+
+document.getElementById("btn-e-continue").addEventListener("click", () => showScreen("screen-h"));
+document.getElementById("btn-f-continue").addEventListener("click", () => showScreen("screen-h"));
+document.getElementById("btn-g-continue").addEventListener("click", () => showScreen("screen-h"));
+
+document.getElementById("btn-h-continue").addEventListener("click", () => showScreen("screen-i"));
+document.getElementById("btn-i-continue").addEventListener("click", () => showScreen("screen-j"));
+
+document.getElementById("btn-n-continue").addEventListener("click", () => showScreen("screen-p"));
+document.getElementById("btn-o-continue").addEventListener("click", () => showScreen("screen-p"));
+document.getElementById("btn-p-finish").addEventListener("click", () => {
+  document.getElementById("complete-team").innerHTML = `${currentOrg.name} — ${teamNames.join(", ")}`;
+  showScreen("screen-q");
+});
+document.getElementById("btn-q-restart").addEventListener("click", () => {
+  resetAll();
+  showScreen("screen-start");
+});
+
+// ══════════════════════════════════════
+// STORY CONTENT
+// ══════════════════════════════════════
+function renderAllStories() {
+
+  // SCREEN B
+  renderStory("story-b", t(`
+    <p>Last week's mission was a resounding success. Although your team suffered 2 minor injuries, you managed to un-injure the Guinea Boar and hospitalized at least 20 resellers while defending yourselves, giving your team a net workplace injury rate of 2000%. (According to OBSA, that is an A++!)</p>
+    <p>While this was a moral and PR win for your team, it was a philanthropic mission — you were not paid for your work. As much as you want to continue doing good deeds, your team can't afford any of the wacky contraptions you need.</p>
+    <p>To address your team's financial problems, your team books a private meeting room in HATE Library at NNUNL Crater Campus. Each team member has an idea, so you selected a random member <strong>Uniformly At Random (UAR)</strong> using a spinner.</p>
+  `));
+
+  // SCREEN C
+  renderStory("story-c", t(`
+    <p>The spinner selects ... ... <TM1> to present their idea first.</p>
+    <p><span class="speaker">&lt;<TM1>&gt;</span> "What method do you recommend the team use to acquire money?"</p>
+  `));
+  const cBtns = document.getElementById("btn-row-c");
+  cBtns.innerHTML = "";
+  [
+    "Carrion Cookout — organize a charity event where you sell tasty meat products",
+    "Talent Show — get people to sing on stage (they WILL record you, but their money spends the same)",
+    "Lottery — give people dreams of infinite wealth in exchange for their money",
+    "Theft — straightforward resource redistribution (the honest kind)"
+  ].forEach(txt => {
+    const b = document.createElement("button");
+    b.className = "btn secondary";
+    b.textContent = txt;
+    b.addEventListener("click", () => showScreen("screen-d"));
+    cBtns.appendChild(b);
+  });
+
+  // SCREEN D
+  renderStory("story-d", t(`
+    <p>Before the team can properly process the idea, a woman kicks open the private meeting room door.</p>
+    <p><span class="speaker">[UNNAMED WOMAN]</span> "Seems like you guys need help making money."</p>
+    <p class="action">— no one responds —</p>
+    <p><span class="speaker">[UNNAMED WOMAN]</span> "Is that correct?"</p>
+    <p class="action">— no one responds —</p>
+    <p><span class="speaker">[UNNAMED WOMAN]</span> "Well, I have a solution."</p>
+    <p class="action">— no one responds —</p>
+    <p><span class="speaker">[UNNAMED WOMAN]</span> "Who here has heard of sports gambling?"</p>
+    <p style="margin-top:10px"><span class="speaker">&lt;<TM2>&gt;</span> responds...</p>
+  `));
+  const dBtns = document.getElementById("btn-row-d");
+  dBtns.innerHTML = "";
+  const dChoices = [
+    ["This is your big idea? Just gambling?", "screen-e"],
+    ["I'm not doing that. Sports gambling is a scam.", "screen-f"],
+    ["I'm in. Let's do it.", "screen-g"]
+  ];
+  dChoices.forEach(([txt, scr]) => {
+    const b = document.createElement("button");
+    b.className = "btn secondary";
+    b.textContent = `"${txt}"`;
+    b.addEventListener("click", () => showScreen(scr));
+    dBtns.appendChild(b);
+  });
+
+  // SCREEN E
+  renderStory("story-e", t(`
+    <p>She appears caught off guard — this was not the response she was expecting.</p>
+    <p><span class="speaker">[UNNAMED WOMAN]</span> "Well, no. Yes, we are gambling, but that's not the whole plan!"</p>
+  `));
+
+  // SCREEN F
+  renderStory("story-f", t(`
+    <p>She appears slightly agitated.</p>
+    <p><span class="speaker">[UNNAMED WOMAN]</span> "Well, yeah, most of the time — but this time, <em>this time</em> it's gonna be different!"</p>
+  `));
+
+  // SCREEN G
+  renderStory("story-g", t(`
+    <p>She appears confused.</p>
+    <p><span class="speaker">[UNNAMED WOMAN]</span> "Just like that? You don't even want to know how we will make money doing it?"</p>
+  `));
+
+  // SCREEN H
+  renderStory("story-h", t(`
+    <p>She begins elaborating on her plan. You can tell she rehearsed this.</p>
+    <p><span class="speaker">[UNNAMED WOMAN]</span> "As you all know, the biggest game of the year is next week: <strong>New New UNL vs. Post-Iowa</strong>. This is no ordinary game — it is a multi-century Bloodball rivalry. Historical records indicate that our last win was in 2022. Over the centuries, NNUNL fans have progressively given up hope. Currently the odds for NNUNL winning are <strong>+100,000,000</strong>, meaning we just need to bet $100, and if we win, we get $100,000,000."</p>
+    <p><span class="speaker">&lt;<TM3>&gt;</span> "But doesn't that mean we have approximately a <strong>0.0001%</strong> chance of winning? We would almost certainly just lose the money."</p>
+    <p class="action">— she grins and looks at everyone in silence for 30 seconds —</p>
+    <p><span class="speaker">[UNNAMED WOMAN]</span> "Not exactly. The odds are what <em>they</em> think. I personally think we are going to win. I have discovered a nanotrite formula that can dramatically improve a person's pre-existing abilities to superhuman levels. Give this serum to a person who can run a 5-minute mile, and they will finish it in 30 seconds. The best part: there is <strong>no rule against using it</strong>."</p>
+    <p><span class="speaker">&lt;<TM4>&gt;</span> "If the drug isn't against the rules, why don't other teams use it?"</p>
+    <p><span class="speaker">[UNNAMED WOMAN]</span> "They're afraid of the side effects. The serum sometimes causes violent rage, but my sources say there is only a <strong>1% chance</strong> of a violent rage incident occurring per person, so it shouldn't be a problem if we just use it for one game."</p>
+    <p class="action">— the group remains silent —</p>
+    <p><span class="speaker">[UNNAMED WOMAN]</span> "Look, I just need someone to help select some team members and do a little coaching. Just find some good players and I will make them unstoppable."</p>
+    <p><span class="speaker">&lt;<TM5>&gt;</span> "Doesn't the team already have a coach?"</p>
+    <p><span class="speaker">[UNNAMED WOMAN]</span> "Oh, don't worry about that — it's all worked out. They're looking for a new one. You guys seem really nice and upstanding; they'll absolutely hire you."</p>
+  `));
+
+  // SCREEN I
+  renderStory("story-i", t(`
+    <p><span class="speaker">[OFFICE GUY 1]</span> "We need to find out who hurt our coach. When I find out who did that to him, I'm gonna—"</p>
+    <p><span class="speaker">[OFFICE GUY 2]</span> "Look, the team needs a coach <em>now</em>. We can deal with all that later, but we have some potentially great coaches right here!"</p>
+    <p><span class="speaker">[OFFICE GUY 1]</span> "You want to hire... 60 coaches?"</p>
+    <p><span class="speaker">[OFFICE GUY 2]</span> "I don't see why not."</p>
+    <br>
+    <p><span class="speaker">&lt;<TM1>&gt;</span> "So, what are we supposed to do?"</p>
+    <p><span class="speaker">[OFFICE GUY 2]</span> "Don't worry about it — it's super easy. Just look at the list of players, estimate their performance, and select the ones that are better than average. These days, anyone who can construct a confidence interval can coach a team. Bloodball players are uncontrollable, so during the game all you have to do is watch and hope your team wins."</p>
+    <hr class="divider"/>
+    <p>One part of Bloodball is the <strong class="highlight">Free Bash Percentage</strong>. Players are given one unobstructed swing at a steel piñata, and the team scores a point if a single piece of candy comes out and touches the floor. During your hiring process, you review <strong>3 athletes</strong> as potential starting Bashers.</p>
+    <p>Prospective athletes come in with records of their free bash attempts. You want to analyze this data using <strong>confidence intervals</strong> to select the best athlete. A higher free bash percentage is better.</p>
+    <p>Based on previous analysis, a player should have a free bash percentage of <span class="warn">at least 65%</span>. Even though this is a one-tailed question in spirit, you will use <strong>two-sided 95% confidence intervals</strong> regardless.</p>
+  `));
+
+  // SCREEN M
+  renderStory("story-m", t(`
+    <p>Today is the game. You have practically done nothing since making your hiring decision, but the players seem motivated and ready to fight.</p>
+    <p style="margin-top:10px"><span class="speaker">&lt;<TM3>&gt;</span>, do you...</p>
+  `));
+  const mBtns = document.getElementById("btn-row-m");
+  mBtns.innerHTML = "";
+  [["Sit back and continue doing nothing", "screen-n"],
+   ["Analyze the other team and offer strategic pointers", "screen-o"]
+  ].forEach(([txt, scr]) => {
+    const b = document.createElement("button");
+    b.className = "btn secondary";
+    b.textContent = txt;
+    b.addEventListener("click", () => showScreen(scr));
+    mBtns.appendChild(b);
+  });
+
+  // SCREEN N
+  renderStory("story-n", t(`
+    <p>The players all grab their bats and run out onto the field. You continue doing nothing.</p>
+  `));
+
+  // SCREEN O
+  renderStory("story-o", t(`
+    <p>One of the players responds.</p>
+    <p><span class="speaker">[PLAYER]</span> "OI! WHO ASKED THIS EGGHEAD TO SPEAK?!"</p>
+    <p>All the players laugh at you. They grab their bats and head out onto the field.</p>
+  `));
+
+  // SCREEN P
+  renderStory("story-p", t(`
+    <p><span class="speaker">&lt;<TM1>&gt;</span> "Wait — what is your name again?"</p>
+    <p><span class="speaker">[UNNAMED WOMAN]</span> "Unnamed Woman."</p>
+    <p><span class="speaker">&lt;<TM1>&gt;</span> "Ah. So how did you know how many players we would give the serum to?"</p>
+    <p><span class="speaker">[UNNAMED WOMAN]</span> "I didn't."</p>
+    <p><span class="speaker">&lt;<TM1>&gt;</span> "But you said during your analysis that the serum had a 1% chance of causing a problem — so you had to know how many people we'd be giving it to?"</p>
+    <p><span class="speaker">[UNNAMED WOMAN]</span> "Ohhh, okay, I get it. The 1% figure was based on a study that gave the serum to <em>individuals</em>, not groups. The bloodball team has <strong>50 players total</strong>, and we gave the serum to all of them. If we assume each player reacts independently, the probability of at least one player going into a violent rage is..."</p>
+    <p class="action">— she pauses —</p>
+    <p style="margin:12px 0;padding:10px 16px;border:1px solid var(--border2);background:#0f0100;font-family:'VT323',monospace;font-size:20px;color:var(--bright)">
+      P(at least one rage) = 1 − (0.99)^50 ≈ 1 − 0.605 ≈ <span class="warn">0.395 ≈ 39%</span>
+    </p>
+    <p><span class="speaker">[UNNAMED WOMAN]</span> "..."</p>
+    <p><span class="speaker">[UNNAMED WOMAN]</span> "This may have been a bad idea."</p>
+  `));
+}
+
+// ══════════════════════════════════════
+// CI TABLE DATA (Screen J)
+// ══════════════════════════════════════
+const ciTableDef = {
+  questions: [
+    { label: "Proportion (p̂ = x/n)",                         key: "prop" },
+    { label: "Population SD  √(p̂·(1−p̂))",                   key: "sd"   },
+    { label: "SE — sampling dist SD (applet)",                key: "se_a" },
+    { label: "SE — sampling dist SD (formula)",               key: "se_f" },
+    { label: "Midpoint of CI",                                key: "mid"  },
+    { label: "Lower bound — 2SD method",                      key: "lo2"  },
+    { label: "Upper bound — 2SD method",                      key: "hi2"  },
+    { label: "Lower bound — theory-based (applet)",           key: "lot"  },
+    { label: "Upper bound — theory-based (applet)",           key: "hit"  }
+  ],
+  // athletes: [A1, A2, A3]
+  // Each entry: { correct, opts: [opt1, opt2, opt3, opt4] }
+  // opts include correct mixed in
+  cells: [
+    // prop
+    [
+      { c:"0.300", o:["0.300","0.400","0.650","0.250"] },
+      { c:"0.650", o:["0.650","0.550","0.300","0.700"] },
+      { c:"0.650", o:["0.650","0.600","0.700","0.550"] }
+    ],
+    // pop sd
+    [
+      { c:"0.458", o:["0.458","0.300","0.477","0.490"] },
+      { c:"0.477", o:["0.477","0.458","0.500","0.450"] },
+      { c:"0.477", o:["0.477","0.458","0.500","0.450"] }
+    ],
+    // se applet
+    [
+      { c:"0.046", o:["0.046","0.048","0.050","0.030"] },
+      { c:"0.048", o:["0.048","0.046","0.050","0.040"] },
+      { c:"0.015", o:["0.015","0.048","0.046","0.020"] }
+    ],
+    // se formula
+    [
+      { c:"0.046", o:["0.046","0.048","0.050","0.030"] },
+      { c:"0.048", o:["0.048","0.046","0.050","0.040"] },
+      { c:"0.015", o:["0.015","0.048","0.046","0.020"] }
+    ],
+    // midpoint
+    [
+      { c:"0.300", o:["0.300","0.400","0.500","0.200"] },
+      { c:"0.650", o:["0.650","0.600","0.700","0.750"] },
+      { c:"0.650", o:["0.650","0.600","0.700","0.750"] }
+    ],
+    // lower 2sd  (A2: 0.650-2×0.048=0.554; A3: 0.650-2×0.015=0.620)
+    [
+      { c:"0.208", o:["0.208","0.250","0.190","0.220"] },
+      { c:"0.554", o:["0.554","0.570","0.540","0.520"] },
+      { c:"0.620", o:["0.620","0.600","0.610","0.630"] }
+    ],
+    // upper 2sd  (A2: 0.650+2×0.048=0.746; A3: 0.650+2×0.015=0.680)
+    [
+      { c:"0.392", o:["0.392","0.350","0.410","0.430"] },
+      { c:"0.746", o:["0.746","0.760","0.730","0.780"] },
+      { c:"0.680", o:["0.680","0.700","0.690","0.670"] }
+    ],
+    // lower theory  (A2: 0.650-1.96×0.048=0.556; A3: 0.650-1.96×0.015=0.621)
+    [
+      { c:"0.210", o:["0.210","0.250","0.190","0.225"] },
+      { c:"0.556", o:["0.556","0.570","0.540","0.525"] },
+      { c:"0.621", o:["0.621","0.600","0.610","0.635"] }
+    ],
+    // upper theory  (A2: 0.650+1.96×0.048=0.744; A3: 0.650+1.96×0.015=0.679)
+    [
+      { c:"0.390", o:["0.390","0.350","0.410","0.430"] },
+      { c:"0.744", o:["0.744","0.760","0.730","0.775"] },
+      { c:"0.679", o:["0.679","0.700","0.690","0.665"] }
+    ]
+  ]
+};
+
+function buildCITable() {
+  const tbody = document.getElementById("ci-table-body");
+  tbody.innerHTML = "";
+  ciTableDef.questions.forEach((q, qi) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td class="q-label">${q.label}</td>`;
+    ciTableDef.cells[qi].forEach((cell, ai) => {
+      const td = document.createElement("td");
+      const selId = `ci_${qi}_${ai}`;
+      let opts = `<option value="">—</option>`;
+      cell.o.forEach(v => { opts += `<option value="${v}">${v}</option>`; });
+      td.innerHTML = `<select id="${selId}" data-qi="${qi}" data-ai="${ai}">${opts}</select>`;
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+function checkCITable() {
+  let allOk = true;
+  ciTableDef.questions.forEach((_, qi) => {
+    ciTableDef.cells[qi].forEach((cell, ai) => {
+      const sel = document.getElementById(`ci_${qi}_${ai}`);
+      if (!sel) return;
+      if (sel.value === cell.c) {
+        sel.className = "correct";
+      } else {
+        sel.className = "wrong";
+        sel.value = "";
+        allOk = false;
+        // remove wrong class after brief flash
+        setTimeout(() => { if (sel.value === "") sel.className = ""; }, 800);
+      }
+    });
+  });
+  return allOk;
+}
+
+function fillCITable() {
+  ciTableDef.questions.forEach((_, qi) => {
+    ciTableDef.cells[qi].forEach((cell, ai) => {
+      const sel = document.getElementById(`ci_${qi}_${ai}`);
+      if (sel) { sel.value = cell.c; sel.className = "correct"; }
+    });
+  });
+}
+
+document.getElementById("btn-j-check").addEventListener("click", () => {
+  const ok = checkCITable();
+  const status = document.getElementById("status-j");
+  if (ok) {
+    status.textContent = "ALL CORRECT — You may continue.";
+    status.className = "status-line ok";
+    document.getElementById("btn-j-continue").disabled = false;
+    jDone = true;
+  } else {
+    status.textContent = "SOME ERRORS — Incorrect cells have been cleared. Try again.";
+    status.className = "status-line err";
+  }
+});
+
+document.getElementById("btn-j-continue").addEventListener("click", () => showScreen("screen-k"));
+
+// ══════════════════════════════════════
+// CI PLOTS (Screen K)
+// ══════════════════════════════════════
+function makeCIPlot(plotData) {
+  const W = 380, H = 140;
+  const xMin = 0.1, xMax = 0.9;
+  const xS = v => 50 + (v - xMin) / (xMax - xMin) * 300;
+  const ys = [38, 78, 118];
+  const nc = "#ff2200";   // null color
+  const bc = "#ff6633";   // bar color
+  const dc = "#ffcc44";   // dot color
+
+  let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;background:#050100">`;
+  // axis
+  s += `<line x1="50" y1="128" x2="350" y2="128" stroke="#442200" stroke-width="1"/>`;
+  // ticks + labels
+  [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9].forEach(v => {
+    const x = xS(v);
+    s += `<line x1="${x}" y1="126" x2="${x}" y2="130" stroke="#442200" stroke-width="1"/>`;
+    s += `<text x="${x}" y="138" font-size="8" fill="#662200" text-anchor="middle" font-family="monospace">${v.toFixed(1)}</text>`;
+  });
+  // null line
+  const nx = xS(plotData.nullVal);
+  s += `<line x1="${nx}" y1="16" x2="${nx}" y2="128" stroke="${nc}" stroke-width="1.5" stroke-dasharray="4,2"/>`;
+  s += `<text x="${nx}" y="11" font-size="9" fill="${nc}" text-anchor="middle" font-family="monospace">p₀=${plotData.nullVal}</text>`;
+  // CIs
+  plotData.athletes.forEach((a, i) => {
+    const y  = ys[i];
+    const lx = xS(a.lo), ux = xS(a.hi), mx = xS(a.m);
+    s += `<line x1="${lx}" y1="${y}" x2="${ux}" y2="${y}" stroke="${bc}" stroke-width="2"/>`;
+    s += `<line x1="${lx}" y1="${y-5}" x2="${lx}" y2="${y+5}" stroke="${bc}" stroke-width="1.5"/>`;
+    s += `<line x1="${ux}" y1="${y-5}" x2="${ux}" y2="${y+5}" stroke="${bc}" stroke-width="1.5"/>`;
+    s += `<circle cx="${mx}" cy="${y}" r="4" fill="${dc}"/>`;
+    s += `<text x="46" y="${y+3}" font-size="9" fill="#ff8833" text-anchor="end" font-family="monospace">A${i+1}</text>`;
+  });
+  s += `</svg>`;
+  return s;
+}
+
+const plotDefs = {
+  A: {
+    nullVal: 0.60,
+    athletes: [
+      { lo:0.250, hi:0.350, m:0.300 },  // A1 too narrow (wrong)
+      { lo:0.556, hi:0.744, m:0.650 },  // A2 correct
+      { lo:0.600, hi:0.700, m:0.650 }   // A3 too wide (wrong)
+    ]
+  },
+  B: {  // CORRECT
+    nullVal: 0.60,
+    athletes: [
+      { lo:0.210, hi:0.390, m:0.300 },
+      { lo:0.556, hi:0.744, m:0.650 },
+      { lo:0.621, hi:0.679, m:0.650 }
+    ]
+  },
+  C: {
+    nullVal: 0.40,   // wrong null line position
+    athletes: [
+      { lo:0.210, hi:0.390, m:0.300 },
+      { lo:0.556, hi:0.744, m:0.650 },
+      { lo:0.600, hi:0.700, m:0.650 }   // A3 too wide (wrong)
+    ]
+  }
+};
+
+function buildPlotGrid() {
+  const grid = document.getElementById("plot-grid");
+  grid.innerHTML = "";
+  ["A","B","C"].forEach(key => {
+    const box = document.createElement("div");
+    box.className = "plot-box";
+    box.innerHTML = `<span class="plot-label">PLOT ${key}</span>${makeCIPlot(plotDefs[key])}`;
+    grid.appendChild(box);
+  });
+}
+
+function checkKAnswers() {
+  let ok = true;
+  // plot selection
+  const selPlot = document.getElementById("sel-plot");
+  if (selPlot.value === "B") {
+    selPlot.className = "correct";
+  } else {
+    selPlot.className = "wrong";
+    selPlot.value = "";
+    setTimeout(() => { if (!selPlot.value) selPlot.className = ""; }, 800);
+    ok = false;
+  }
+  // significance
+  const sigAnswers = ["lt","inc","gt"];
+  ["sel-sig1","sel-sig2","sel-sig3"].forEach((id, i) => {
+    const sel = document.getElementById(id);
+    if (sel.value === sigAnswers[i]) {
+      sel.className = "correct";
+    } else {
+      sel.className = "wrong";
+      sel.value = "";
+      setTimeout(() => { if (!sel.value) sel.className = ""; }, 800);
+      ok = false;
+    }
+  });
+  return ok;
+}
+
+function fillKAnswers() {
+  document.getElementById("sel-plot").value  = "B";   document.getElementById("sel-plot").className  = "correct";
+  document.getElementById("sel-sig1").value  = "lt";  document.getElementById("sel-sig1").className  = "correct";
+  document.getElementById("sel-sig2").value  = "inc"; document.getElementById("sel-sig2").className  = "correct";
+  document.getElementById("sel-sig3").value  = "gt";  document.getElementById("sel-sig3").className  = "correct";
+}
+
+document.getElementById("btn-k-check").addEventListener("click", () => {
+  const ok = checkKAnswers();
+  const st = document.getElementById("status-k");
+  if (ok) {
+    st.textContent = "ALL CORRECT — You may continue.";
+    st.className = "status-line ok";
+    document.getElementById("btn-k-continue").disabled = false;
+    kDone = true;
+  } else {
+    st.textContent = "SOME ERRORS — Incorrect answers have been cleared.";
+    st.className = "status-line err";
+  }
+});
+
+document.getElementById("btn-k-continue").addEventListener("click", () => showScreen("screen-l"));
+
+// ══════════════════════════════════════
+// HIRE DECISION (Screen L)
+// ══════════════════════════════════════
+document.getElementById("btn-l-check").addEventListener("click", () => {
+  const sel = document.getElementById("sel-hire");
+  const st  = document.getElementById("status-l");
+  if (sel.value === "3") {
+    sel.className = "correct";
+    st.textContent = "CORRECT — Athlete 3 has the largest sample size (n=1000), providing the most reliable estimate. Their narrow CI confirms consistency. Proceed.";
+    st.className = "status-line ok";
+    document.getElementById("btn-l-continue").disabled = false;
+    lDone = true;
+  } else {
+    sel.className = "wrong";
+    sel.value = "";
+    setTimeout(() => { if (!sel.value) sel.className = ""; }, 800);
+    st.textContent = "INCORRECT — Consider which athlete's data is most statistically reliable. Which has the most attempts?";
+    st.className = "status-line err";
+  }
+});
+
+document.getElementById("btn-l-continue").addEventListener("click", () => showScreen("screen-m"));
+
+// ══════════════════════════════════════
+// CHEAT CODES
+// ══════════════════════════════════════
+function setupCheatCode(inputId, msgId, fillFn, continueBtnId, doneFlagSetter, statusId) {
+  document.getElementById(inputId).addEventListener("keydown", e => {
+    if (e.key === "Enter" && e.target.value.toUpperCase() === "PEA") {
+      fillFn();
+      doneFlagSetter(true);
+      document.getElementById(continueBtnId).disabled = false;
+      document.getElementById(msgId).textContent = "[ OVERRIDE ACTIVE ]";
+      const st = document.getElementById(statusId);
+      st.textContent = "CHEAT MODE — all answers filled.";
+      st.className = "status-line ok";
+      e.target.value = "";
+    }
+  });
+}
+
+setupCheatCode("cheat-j","cheat-msg-j", fillCITable, "btn-j-continue", v => { jDone = v; }, "status-j");
+setupCheatCode("cheat-k","cheat-msg-k", fillKAnswers,"btn-k-continue", v => { kDone = v; }, "status-k");
+setupCheatCode("cheat-l","cheat-msg-l",
+  () => { const s = document.getElementById("sel-hire"); s.value="3"; s.className="correct"; },
+  "btn-l-continue", v => { lDone = v; }, "status-l");
+
+// ══════════════════════════════════════
+// RESET
+// ══════════════════════════════════════
+function resetAll() {
+  jDone = false; kDone = false; lDone = false;
+  // reset CI table
+  ciTableDef.questions.forEach((_, qi) => {
+    ciTableDef.cells[qi].forEach((_, ai) => {
+      const sel = document.getElementById(`ci_${qi}_${ai}`);
+      if (sel) { sel.value = ""; sel.className = ""; }
+    });
+  });
+  document.getElementById("status-j").textContent = "Enter all values and click CHECK ANSWERS.";
+  document.getElementById("status-j").className   = "status-line";
+  document.getElementById("btn-j-continue").disabled = true;
+  // reset screen k
+  ["sel-plot","sel-sig1","sel-sig2","sel-sig3"].forEach(id => {
+    const el = document.getElementById(id); if (el) { el.value=""; el.className=""; }
+  });
+  document.getElementById("status-k").textContent = "Answer both questions and click CHECK ANSWERS.";
+  document.getElementById("status-k").className   = "status-line";
+  document.getElementById("btn-k-continue").disabled = true;
+  // reset screen l
+  const sh = document.getElementById("sel-hire");
+  if (sh) { sh.value=""; sh.className=""; }
+  document.getElementById("status-l").textContent = "Select an athlete and click CHECK ANSWER.";
+  document.getElementById("status-l").className   = "status-line";
+  document.getElementById("btn-l-continue").disabled = true;
+  // cheat messages
+  ["cheat-msg-j","cheat-msg-k","cheat-msg-l"].forEach(id => {
+    const el = document.getElementById(id); if (el) el.textContent = "";
+  });
+  ["cheat-j","cheat-k","cheat-l"].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = "";
+  });
+}
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+setupGroupSelect();
+buildCITable();
+buildPlotGrid();
+
+</script>
+</body>
+</html>

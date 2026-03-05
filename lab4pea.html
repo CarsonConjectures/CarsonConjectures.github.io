@@ -439,8 +439,14 @@ Note: We use <code>z</code> (not t) here because the population SD is known.
 
 <div class="notice" style="margin-top:14px;border-color:var(--red-err)">
 <span class="label" style="color:var(--red-err)">DECISION</span>
-<p style="font-size:13px;color:var(--text)">You need to do at least <strong>450 total damage</strong> (or at least <strong>15 damage per shot on average</strong>) to knock out the RadBeetle. Based on your CLT analysis, should you attack or hide?</p>
+<p style="font-size:13px;color:var(--text)">You need to do at least <strong>450 total damage</strong> (or at least <strong>15 damage per shot on average</strong>) to knock out the RadBeetle.</p>
+<p style="font-size:12px;color:var(--dim);margin-top:6px"><em>Hint: A 95% CI for the total damage is approximately [600 &minus; 1.96&middot;&radic;750, 600 + 1.96&middot;&radic;750] &approx; [546.3, 653.7]. The entire interval is well above the 450 threshold.</em></p>
+<p style="font-size:13px;color:var(--text);margin-top:8px">Based on your analysis, what do you do?</p>
 <table style="min-width:0;width:auto"><tbody id="clt-decision-body"></tbody></table>
+</div>
+<div class="btn-row" id="clt-decision-btns" style="display:none">
+<button class="btn safe" onclick="showScreen('screen-attack')">ATTACK</button>
+<button class="btn danger" onclick="showScreen('screen-hide')">HIDE</button>
 </div>
 
 <div class="btn-row">
@@ -611,7 +617,8 @@ qDefs.forEach(q=>{const sel=document.getElementById(q.id);if(sel){sel.value=q.c;
 document.getElementById(btnId).disabled=false;
 document.getElementById(statusId).textContent="CHEAT MODE — all answers filled.";
 document.getElementById(statusId).className="status-line ok";
-if(cheatMsgId)document.getElementById(cheatMsgId).textContent="[ OVERRIDE ACTIVE ]";}
+if(cheatMsgId)document.getElementById(cheatMsgId).textContent="[ OVERRIDE ACTIVE ]";
+const db=document.getElementById("clt-decision-btns");if(db&&btnId==="btn-clt-continue")db.style.display="flex";}
 
 function setupCheat(inputId,msgId,qDefs,btnId,statusId){
 document.getElementById(inputId).addEventListener("keydown",e=>{
@@ -762,18 +769,15 @@ const tr=document.createElement("tr");
 tr.innerHTML='<td class="q-label">'+q.label+'</td><td>'+makeSelect(q.id,mopts)+'</td>';
 mbody.appendChild(tr);});
 
-// Decision
+// Decision — not graded, free choice
 const dbody=document.getElementById("clt-decision-body");dbody.innerHTML="";
-const dq={label:"Based on your analysis, should you attack or hide?",c:"Attack — expected total (600) far exceeds 450",id:"clt_dec",
-opts:["Attack — expected total (600) far exceeds 450","Hide — the damage is too unpredictable","Hide — 450 is too high a threshold","Attack — but only if you get lucky"]};
-cltQs.push({id:dq.id,c:dq.c});
-const tr=document.createElement("tr");
-tr.innerHTML='<td class="q-label">'+dq.label+'</td><td>'+makeSelect(dq.id,dq.opts)+'</td>';
-dbody.appendChild(tr);
 }
 
-document.getElementById("btn-clt-check").addEventListener("click",()=>checkAnswers(cltQs,"clt-body","status-clt","btn-clt-continue","cheat-clt","cheat-msg-clt"));
-document.getElementById("btn-clt-continue").addEventListener("click",()=>showScreen("screen-attack"));
+document.getElementById("btn-clt-check").addEventListener("click",()=>{
+const ok=checkAnswers(cltQs,"clt-body","status-clt","btn-clt-continue","cheat-clt","cheat-msg-clt");
+if(ok)document.getElementById("clt-decision-btns").style.display="flex";
+});
+document.getElementById("btn-clt-continue").addEventListener("click",()=>{document.getElementById("clt-decision-btns").style.display="flex";});
 
 // ═══════ SVG PLOTS ═══════
 function makeCIPIPlot(data,W,H){

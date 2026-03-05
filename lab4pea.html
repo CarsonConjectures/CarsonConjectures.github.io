@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>PLUS E: ARMAGEDDON — Lab 4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#050100;--panel:#0d0400;--border:#cc2200;--border2:#661100;--text:#ff8833;--bright:#ffcc66;--dim:#883300;--green:#44ee88;--red-err:#ff2200;--glow:0 0 6px #ff440088}
+*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono','Courier New',monospace;font-size:15px;min-height:100vh;position:relative;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 3px,rgba(0,0,0,0.12) 3px,rgba(0,0,0,0.12) 4px);pointer-events:none;z-index:1000}
+.screen{display:none}.screen.active{display:block}
+main{max-width:960px;margin:0 auto;padding:24px 16px 64px}
+.panel{background:var(--panel);border:1px solid var(--border2);padding:20px;margin-bottom:18px;position:relative}
+.panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,var(--border),transparent)}
+h1,h2,h3,.mono-head{font-family:'VT323',monospace;letter-spacing:1px}
+.page-title{font-family:'VT323',monospace;font-size:36px;color:var(--bright);text-shadow:var(--glow);text-align:center;padding:28px 16px 8px;letter-spacing:2px}
+.section-label{font-family:'VT323',monospace;font-size:20px;color:var(--border);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px}
+.story p{line-height:1.6;margin:6px 0;color:var(--text)}
+.story .speaker{color:var(--bright);font-family:'VT323',monospace;font-size:18px}
+.story .action{color:var(--dim);font-style:italic}
+.story .highlight{color:var(--bright)}
+.story .warn{color:var(--red-err);font-weight:bold}
+.btn{display:inline-block;background:transparent;border:1px solid var(--border);color:var(--bright);font-family:'VT323',monospace;font-size:20px;padding:7px 18px;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:background 0.12s,color 0.12s;outline:none}
+.btn::before{content:'> ';color:var(--border);font-size:14px}
+.btn:hover,.btn:focus{background:var(--border);color:#000}
+.btn:hover::before,.btn:focus::before{color:#000}
+.btn:disabled{border-color:var(--border2);color:var(--border2);cursor:not-allowed}
+.btn:disabled::before{color:var(--border2)}
+.btn.secondary{border-color:var(--dim);color:var(--text);font-size:17px}
+.btn.secondary::before{color:var(--dim)}
+.btn.secondary:hover{background:var(--dim);color:#000}
+.btn.danger{border-color:var(--red-err);color:var(--red-err)}
+.btn.danger:hover{background:var(--red-err);color:#000}
+.btn.safe{border-color:var(--green);color:var(--green)}
+.btn.safe:hover{background:var(--green);color:#000}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:12px}
+.group-card{background:#0a0200;border:1px solid var(--border2);padding:12px;cursor:pointer;transition:border-color 0.15s}
+.group-card:hover{border-color:var(--border)}
+.group-card .gname{font-family:'VT323',monospace;font-size:20px;color:var(--bright);display:block;margin-bottom:4px}
+.group-card .gtype{font-size:12px;color:var(--dim);display:block}
+.group-card .ggoal{font-size:12px;color:var(--text);display:block;margin-top:3px}
+.group-card .select-btn{margin-top:10px;width:100%;text-align:center}
+.table-wrap{overflow-x:auto;margin-top:12px}
+table{width:100%;border-collapse:collapse;min-width:640px}
+th,td{padding:7px 8px;border:1px solid var(--border2);text-align:center;font-size:13px}
+th{background:#150500;color:var(--border);font-family:'VT323',monospace;font-size:16px;text-transform:uppercase}
+td.q-label{text-align:left;color:var(--text);font-size:12px;padding-left:10px}
+select{background:#0a0200;color:var(--text);border:1px solid var(--border2);font-family:'Share Tech Mono',monospace;font-size:12px;padding:4px 6px;width:100%;cursor:pointer;outline:none}
+select:focus{border-color:var(--border)}
+select.correct{border-color:var(--green);background:#001a08;color:var(--green)}
+select.wrong{border-color:var(--red-err)}
+.notice{background:#0f0300;border-left:3px solid var(--border);padding:10px 14px;margin:12px 0;color:var(--dim);font-size:13px;line-height:1.7}
+.notice .label{font-family:'VT323',monospace;font-size:16px;color:var(--border);display:block;margin-bottom:4px}
+.notice code{color:var(--bright)}
+.plot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:14px 0}
+.plot-box{background:#0a0000;border:1px solid var(--border2);padding:10px}
+.plot-box .plot-label{font-family:'VT323',monospace;font-size:18px;color:var(--border);display:block;margin-bottom:6px}
+.status-line{margin-top:8px;font-size:13px;color:var(--dim);min-height:18px}
+.status-line.ok{color:var(--green)}
+.status-line.err{color:var(--red-err)}
+.cheat-zone{margin-top:24px;display:flex;align-items:center;gap:10px;opacity:0.4;transition:opacity 0.2s}
+.cheat-zone:hover{opacity:1}
+.cheat-zone label{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:1px}
+.cheat-zone input{background:transparent;border:1px solid var(--border2);color:var(--text);font-family:'Share Tech Mono',monospace;font-size:13px;padding:4px 8px;width:80px;text-transform:uppercase;outline:none}
+.cheat-zone input:focus{border-color:var(--border)}
+.cheat-msg{font-size:12px;color:var(--green)}
+.final-box{text-align:center;padding:40px 20px;border:2px solid var(--border);margin:20px 0}
+.final-box .big{font-family:'VT323',monospace;font-size:48px;color:var(--bright);text-shadow:0 0 20px #ffaa44aa;display:block;margin-bottom:12px}
+.final-box .sub{font-size:16px;color:var(--text)}
+.member-list{list-style:none;margin:8px 0 0}
+.member-list li{padding:3px 0;color:var(--text);font-size:14px}
+.member-list li::before{content:'// ';color:var(--dim)}
+.divider{border:none;border-top:1px solid var(--border2);margin:14px 0}
+.news-article{background:#0a0200;border:1px solid var(--border2);padding:14px;margin-bottom:12px}
+.news-article .news-tag{font-family:'VT323',monospace;font-size:14px;color:var(--border);text-transform:uppercase;letter-spacing:2px;display:block;margin-bottom:4px}
+.news-article .news-headline{font-family:'VT323',monospace;font-size:22px;color:var(--bright);display:block;margin-bottom:6px}
+.news-article .news-body{font-size:13px;color:var(--text);line-height:1.5}
+.nav-cheat{margin-top:8px;display:flex;align-items:center;gap:10px;opacity:0.4;transition:opacity 0.2s}
+.nav-cheat:hover{opacity:1}
+.nav-cheat select{width:160px}
+.applet-panel{background:#0a0200;border:2px solid var(--border);padding:16px;margin:14px 0}
+.applet-panel .slider-row{display:flex;align-items:center;gap:10px;margin:8px 0}
+.applet-panel .slider-row label{min-width:120px;font-size:12px;color:var(--dim)}
+.applet-panel input[type=range]{flex:1;-webkit-appearance:none;height:8px;background:#1a0800;outline:none;border-radius:0}
+.applet-panel input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:var(--border);cursor:pointer;border-radius:0}
+.applet-panel .val{min-width:60px;text-align:right;font-size:13px;color:var(--bright)}
+.applet-panel input[type=number]{background:#0a0200;color:var(--bright);border:1px solid var(--border2);font-family:'Share Tech Mono',monospace;font-size:13px;padding:4px;width:80px}
+.applet-bar{position:relative;width:100%;height:60px;background:#0a0000;border:1px solid var(--border2);margin:10px 0}
+.applet-ci{position:absolute;height:12px;top:14px;background:rgba(68,238,136,0.3);border-left:2px solid var(--green);border-right:2px solid var(--green)}
+.applet-pi{position:absolute;height:12px;top:34px;background:rgba(255,136,51,0.2);border-left:2px solid var(--text);border-right:2px solid var(--text)}
+.applet-null{position:absolute;width:2px;height:100%;background:var(--red-err);top:0}
+.applet-mean{position:absolute;width:2px;height:100%;background:var(--bright);top:0}
+.tab-btns{display:flex;gap:0;margin-bottom:12px}
+.tab-btn{padding:6px 16px;border:1px solid var(--border2);background:transparent;color:var(--dim);font-family:'VT323',monospace;font-size:16px;cursor:pointer}
+.tab-btn.active{background:var(--border);color:#000;border-color:var(--border)}
+@media(max-width:600px){.plot-grid{grid-template-columns:1fr}.btn{font-size:17px;padding:6px 12px}}
+</style>
+</head>
+<body>
+<main>
+
+<!-- NEWS -->
+<div id="screen-news" class="screen active">
+<div class="page-title">PLUS E: ARMAGEDDON<br><span style="font-size:22px;color:var(--border)">LAB 4 — THE SAWTOOTH</span></div>
+<div class="panel">
+<div class="section-label">// NOTIFICATIONS //</div>
+<div class="news-article">
+<span class="news-tag">HEARTWARMING</span>
+<span class="news-headline">Volunteers Stop Reseller Raiders While Saving Guinea Boar</span>
+<span class="news-body">A group of volunteers successfully defended a critical supply route from reseller raiders while simultaneously rescuing an injured Guinea Boar and delivering medication to those in need. Public opinion of the volunteer organizations has soared.</span>
+</div>
+<div class="news-article">
+<span class="news-tag">SPORTS</span>
+<span class="news-headline">What Is a "Kill" in Bloodball?</span>
+<span class="news-body">You may have heard the word "kill" used to describe performance in a Bloodball game, but not everyone knows what this sports term means. In Bloodball, a "kill" is when you end the life of an opponent on the field.</span>
+</div>
+<div class="news-article">
+<span class="news-tag">CONTINUITY PLAN</span>
+<span class="news-headline">RadBeetle Advisory</span>
+<span class="news-body">Due to the RadBeetle Migration, all classes on Thursday will be canceled. We recommend staying indoors and traveling in well-armed groups until the RadBeetle advisory is lifted.</span>
+</div>
+<div class="btn-row" style="justify-content:center;margin-top:18px">
+<button class="btn" onclick="showScreen('screen-start')">LOG IN TO WORK</button>
+</div>
+</div>
+</div>
+
+<!-- GROUP SELECT -->
+<div id="screen-start" class="screen">
+<div class="page-title">PLUS E: ARMAGEDDON<br><span style="font-size:22px;color:var(--border)">LAB 4 — THE SAWTOOTH</span></div>
+<div class="panel">
+<div class="section-label">// SELECT YOUR ORGANIZATION TO BEGIN //</div>
+<p style="color:var(--dim);font-size:13px;margin-bottom:12px">Choose your team from the roster below. This will personalize your mission briefing.</p>
+<div id="group-grid" class="card-grid"></div>
+</div>
+</div>
+
+<!-- CONFIRM -->
+<div id="screen-confirm" class="screen">
+<div class="panel">
+<div class="section-label">// ORGANIZATION CONFIRMED //</div>
+<div id="confirm-content"></div>
+<div class="btn-row">
+<button class="btn safe" id="btn-confirm-yes">ENTER THE FIELD</button>
+<button class="btn secondary" id="btn-confirm-back">GO BACK</button>
+</div>
+</div>
+</div>
+
+<!-- AA: PROLOGUE CHOICE -->
+<div id="screen-aa" class="screen">
+<div class="panel">
+<div class="section-label">// MISSION LOG //</div>
+<div class="story">
+<p>A new mission file has been uploaded to your terminal.</p>
+<p class="highlight">Do you want to start from the <strong>prologue</strong> (Bloodball game recap), or skip directly to the <strong>main mission</strong>?</p>
+</div>
+<div class="btn-row">
+<button class="btn" onclick="showScreen('screen-resume')">BEGIN FROM PROLOGUE</button>
+<button class="btn secondary" onclick="showScreen('screen-beginprep')">SKIP TO MAIN MISSION</button>
+</div>
+</div>
+</div>
+
+<!-- RESUME: Game Begins -->
+<div id="screen-resume" class="screen">
+<div class="panel"><div class="story" id="story-resume"></div>
+<div class="btn-row"><button class="btn" onclick="showScreen('screen-cw1')">CONTINUE WATCHING</button></div>
+</div></div>
+
+<!-- CW1: Thrown into Jumbotron -->
+<div id="screen-cw1" class="screen">
+<div class="panel"><div class="story" id="story-cw1"></div>
+<div class="btn-row"><button class="btn" onclick="showScreen('screen-cw15')">CONTINUE WATCHING</button></div>
+</div></div>
+
+<!-- CW15: Medic Revival -->
+<div id="screen-cw15" class="screen">
+<div class="panel"><div class="story" id="story-cw15"></div>
+<div class="btn-row"><button class="btn" onclick="showScreen('screen-cw175')">CONTINUE WATCHING</button></div>
+</div></div>
+
+<!-- CW175: Referee Call + Win -->
+<div id="screen-cw175" class="screen">
+<div class="panel"><div class="story" id="story-cw175"></div>
+<div class="btn-row"><button class="btn safe" onclick="showScreen('screen-groupmsg')">LEAVE STADIUM</button></div>
+</div></div>
+
+<!-- GROUP MESSAGE -->
+<div id="screen-groupmsg" class="screen">
+<div class="panel"><div class="story" id="story-groupmsg"></div>
+<div class="btn-row"><button class="btn" onclick="showScreen('screen-beginprep')">CONTINUE MISSION</button></div>
+</div></div>
+
+<!-- BEGIN PREP -->
+<div id="screen-beginprep" class="screen">
+<div class="panel">
+<div class="story">
+<p>Now that you have some extra money at your disposal, it is time to purchase some resources to prepare you for future missions.</p>
+<p>Expecting that you may run into additional trouble, you head to a nearby weapons dealer.</p>
+</div>
+<div class="btn-row"><button class="btn" onclick="showScreen('screen-cipi')">ENTER WEAPON STORE</button></div>
+</div></div>
+
+<!-- CI/PI CONCEPTUAL QUESTIONS -->
+<div id="screen-cipi" class="screen">
+<div class="panel">
+<div class="section-label">// WEAPON EVALUATION — CONFIDENCE &amp; PREDICTION INTERVALS //</div>
+
+<div class="notice">
+<span class="label">REFERENCE: CI &amp; PI BASICS</span>
+A <code>Confidence Interval (CI)</code> estimates where the <strong>population mean</strong> is likely to be. Width depends on <code>variance</code> and <code>n</code>.<br>
+A <code>Prediction Interval (PI)</code> estimates the range of a <strong>single future observation</strong>. Width depends mainly on <code>variance</code>.<br><br>
+<strong style="color:var(--bright)">Key formulas for Uniform(a, b):</strong><br>
+Mean: <code>&mu; = (a + b) / 2</code><br>
+Variance: <code>&sigma;&sup2; = (b &minus; a)&sup2; / 12</code><br>
+SD: <code>&sigma; = &radic;(&sigma;&sup2;)</code><br>
+SE (standard error): <code>SE = &sigma; / &radic;n</code><br>
+2SD CI: <code>x&#772; &plusmn; 2 &middot; SE</code><br>
+Theory CI: <code>x&#772; &plusmn; z* &middot; SE</code><br>
+PI: <code>x&#772; &plusmn; z* &middot; &sigma; &middot; &radic;(1 + 1/n)</code><br><br>
+Changing <code>variance</code> affects both CI and PI widths.<br>
+Changing <code>n</code> affects CI width but <strong>not</strong> PI width.<br>
+Changing <code>&mu;&#8320;</code> (null value) affects <strong>neither</strong> CI nor PI width.
+</div>
+
+<div class="story">
+<p><span class="speaker">[LEZLIE THAW]</span> "The U10-30 SAWTOOTH LIPLAC is one of our best less-lethal options. Unlike normal electric weapons, this one is completely wireless thanks to its laser-induced plasma wires. Its onboard RTG charges the capacitor banks. The capacitors automatically discharge once they hit their limit, so the device is in a nonstop rapid cycle of charging and discharging."</p>
+<p>The U10-30 SAWTOOTH LIPLAC does anywhere from <strong class="highlight">10 to 30 damage points</strong>. All values are equally likely (uniform distribution), so the probability of dealing 11-12 damage is the same as dealing 20-21 damage.</p>
+<p style="margin-top:10px">Four modifications are available. Consider how each would theoretically affect the damage confidence interval and prediction interval:</p>
+</div>
+
+<div class="notice" style="border-color:var(--dim)">
+<span class="label">MODIFICATIONS</span>
+<strong>Capacitor Drum</strong> — changes damage range to <code>0&ndash;40</code> (instead of 10&ndash;30)<br>
+<strong>Laser Compensator</strong> — changes damage range to <code>25&ndash;35</code> (instead of 10&ndash;30)<br>
+<strong>Unsafe Mode</strong> — changes damage range to <code>20&ndash;40</code> (instead of 10&ndash;30)<br>
+<strong>Econ Mode</strong> — changes damage range to <code>0&ndash;20</code> (instead of 10&ndash;30)
+</div>
+
+<p style="margin-top:8px;font-size:13px;color:var(--dim)">Use the applet below to experiment, then fill in all answers. All must be correct to continue.</p>
+<div class="btn-row"><button class="btn secondary" onclick="document.getElementById('applet-section').style.display=document.getElementById('applet-section').style.display==='none'?'block':'none'">TOGGLE CI/PI APPLET</button></div>
+<div id="applet-section" style="display:none"></div>
+
+<div class="table-wrap">
+<table><thead><tr>
+<th style="text-align:left">MODIFICATION</th><th>EFFECT ON VARIANCE</th><th>EFFECT ON CI WIDTH</th><th>EFFECT ON PI WIDTH</th>
+</tr></thead>
+<tbody id="cipi-mod-body"></tbody>
+</table>
+</div>
+
+<div class="notice" style="margin-top:14px">
+<span class="label">SHIFTING QUESTION</span>
+<table style="min-width:0;width:auto"><tbody id="cipi-shift-body"></tbody></table>
+</div>
+
+<div class="notice" style="margin-top:14px">
+<span class="label">SAMPLE SIZE METHODS</span>
+<p style="font-size:12px;color:var(--dim);margin-bottom:8px">Originally you test the blaster 50 times. Consider these two alternative methods:</p>
+<p style="font-size:12px;color:var(--text)"><strong>Method A:</strong> Fire 30 times instead of 50<br><strong>Method B:</strong> Fire 100 times instead of 50</p>
+<table style="min-width:0"><thead><tr>
+<th style="text-align:left">METHOD</th><th>EFFECT ON n</th><th>EFFECT ON CI WIDTH</th><th>EFFECT ON PI WIDTH</th>
+</tr></thead>
+<tbody id="cipi-method-body"></tbody>
+</table>
+</div>
+
+<div class="notice" style="margin-top:14px">
+<span class="label">NULL VALUE TESTS</span>
+<p style="font-size:12px;color:var(--dim);margin-bottom:8px">Consider testing the blaster against different null values:</p>
+<p style="font-size:12px;color:var(--text)"><strong>Test A:</strong> Test if damage average differs from 25 (instead of 20)<br><strong>Test B:</strong> Test if damage average differs from 15 (instead of 20)</p>
+<table style="min-width:0"><thead><tr>
+<th style="text-align:left">TEST</th><th>EFFECT ON &mu;&#8320;</th><th>EFFECT ON CI WIDTH</th><th>EFFECT ON PI WIDTH</th>
+</tr></thead>
+<tbody id="cipi-test-body"></tbody>
+</table>
+</div>
+
+<div class="btn-row">
+<button class="btn secondary" id="btn-cipi-check">CHECK ANSWERS</button>
+<button class="btn safe" id="btn-cipi-continue" disabled>CONTINUE</button>
+</div>
+<div class="status-line" id="status-cipi">Fill in all answers, then click CHECK ANSWERS.</div>
+<div class="cheat-zone"><label>OVERRIDE:</label><input type="text" id="cheat-cipi" maxlength="10" placeholder="_ _ _"/><span class="cheat-msg" id="cheat-msg-cipi"></span></div>
+<div class="nav-cheat"><label>NAV:</label><input type="text" class="nav-input" maxlength="10" placeholder="code"/><select class="nav-select" onchange="if(this.value){showScreen(this.value);this.value=''}"><option value="">--</option></select></div>
+</div></div>
+
+<!-- CONTINUE LOOKING: Weapon 2 CI/PI Calculations -->
+<div id="screen-looking" class="screen">
+<div class="panel">
+<div class="section-label">// WEAPON 2 — DAMAGE ANALYSIS //</div>
+
+<div class="notice">
+<span class="label">FORMULA REFERENCE</span>
+2SD CI: <code>x&#772; &plusmn; 2 &middot; (s / &radic;n)</code><br>
+Theory CI (95%): <code>x&#772; &plusmn; 1.96 &middot; (s / &radic;n)</code><br>
+Theory PI (95%): <code>x&#772; &plusmn; 1.96 &middot; s &middot; &radic;(1 + 1/n)</code><br><br>
+<strong style="color:var(--bright)">CI Validity:</strong> Requires n &ge; 30 or data approximately normal.<br>
+<strong style="color:var(--bright)">PI Validity:</strong> Requires data to be normally distributed.
+</div>
+
+<div class="story">
+<p><span class="speaker">[LEZLIE THAW]</span> "We have this new device that just came in, but I haven't tested it yet."</p>
+<p>You use the weapon <strong class="highlight">100 times</strong> and find that it has an average damage of <strong class="highlight">20.5 points</strong> with a standard deviation of <strong class="highlight">3</strong>. The damage appears to be <strong>normally distributed</strong>.</p>
+</div>
+
+<div class="table-wrap">
+<table><thead><tr><th style="text-align:left">QUESTION</th><th>ANSWER</th></tr></thead>
+<tbody id="looking-body"></tbody>
+</table>
+</div>
+
+<div class="notice" style="margin-top:14px">
+<span class="label">PLOT IDENTIFICATION</span>
+<p style="font-size:12px;color:var(--dim);margin-bottom:8px">You want to test that this weapon does at least 19 points of damage. Below are three plots showing a CI (green), PI (orange), and null value line (red dashed). Select the correct plot.</p>
+</div>
+<div class="plot-grid" id="looking-plots"></div>
+<div class="table-wrap">
+<table style="min-width:0;width:auto"><thead><tr><th style="text-align:left">QUESTION</th><th style="min-width:200px">ANSWER</th></tr></thead>
+<tbody id="looking-plot-body"></tbody>
+</table>
+</div>
+
+<div class="btn-row">
+<button class="btn secondary" id="btn-looking-check">CHECK ANSWERS</button>
+<button class="btn safe" id="btn-looking-continue" disabled>CONTINUE</button>
+</div>
+<div class="status-line" id="status-looking">Fill in all answers, then click CHECK ANSWERS.</div>
+<div class="cheat-zone"><label>OVERRIDE:</label><input type="text" id="cheat-looking" maxlength="10" placeholder="_ _ _"/><span class="cheat-msg" id="cheat-msg-looking"></span></div>
+<div class="nav-cheat"><label>NAV:</label><input type="text" class="nav-input" maxlength="10" placeholder="code"/><select class="nav-select" onchange="if(this.value){showScreen(this.value);this.value=''}"><option value="">--</option></select></div>
+</div></div>
+
+<!-- BRICK BOW PROBABILITY -->
+<div id="screen-looking2" class="screen">
+<div class="panel">
+<div class="section-label">// WEAPON 3 — BRICK BOW ANALYSIS //</div>
+
+<div class="notice">
+<span class="label">FORMULA REFERENCE</span>
+Conditional probability: <code>P(A | B) = P(A and B) / P(B)</code><br>
+Marginal probability: sum the row or column totals divided by the grand total.
+</div>
+
+<div class="story">
+<p>You test out the <strong class="highlight">Brick Bow</strong> — a crossbow that launches bricks — 100 times and observe the following results:</p>
+</div>
+
+<div class="table-wrap">
+<table style="min-width:0;width:auto;margin:10px 0">
+<thead><tr><th>DAMAGE</th><th>MISS</th><th>HIT</th></tr></thead>
+<tbody>
+<tr><td>0 pts</td><td>70</td><td>0</td></tr>
+<tr><td>50 pts</td><td>0</td><td>20</td></tr>
+<tr><td>100 pts</td><td>0</td><td>10</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="table-wrap">
+<table style="min-width:0;width:auto"><thead><tr><th style="text-align:left">QUESTION</th><th style="min-width:200px">ANSWER</th></tr></thead>
+<tbody id="looking2-body"></tbody>
+</table>
+</div>
+
+<div class="btn-row">
+<button class="btn secondary" id="btn-looking2-check">CHECK ANSWERS</button>
+<button class="btn safe" id="btn-looking2-continue" disabled>CONTINUE</button>
+</div>
+<div class="status-line" id="status-looking2">Answer both questions, then click CHECK ANSWERS.</div>
+<div class="cheat-zone"><label>OVERRIDE:</label><input type="text" id="cheat-looking2" maxlength="10" placeholder="_ _ _"/><span class="cheat-msg" id="cheat-msg-looking2"></span></div>
+<div class="nav-cheat"><label>NAV:</label><input type="text" class="nav-input" maxlength="10" placeholder="code"/><select class="nav-select" onchange="if(this.value){showScreen(this.value);this.value=''}"><option value="">--</option></select></div>
+</div></div>
+
+<!-- WEAPON SELECTION -->
+<div id="screen-looking3" class="screen">
+<div class="panel">
+<div class="section-label">// SELECT A WEAPON FOR PURCHASE //</div>
+<div class="story"><p>Based on your analysis, select one weapon to purchase. Your choice will be saved.</p></div>
+<div class="btn-row" id="weapon-btns"></div>
+</div></div>
+
+<!-- PURCHASE + ALARM -->
+<div id="screen-purchase" class="screen">
+<div class="panel">
+<div class="story" id="story-purchase"></div>
+<div class="btn-row"><button class="btn danger" onclick="showScreen('screen-investigate')">INVESTIGATE</button></div>
+</div></div>
+
+<!-- INVESTIGATE: RadBeetle -->
+<div id="screen-investigate" class="screen">
+<div class="panel">
+<div class="story">
+<p>After leaving the building, you see a massive <strong class="warn">Cycloptic RadBeetle</strong>.</p>
+<p>SynthEvolved from the bombardier beetle, these giant insects can charge a chemical blast that will melt anything in range. The beetle has noticed you and is charging its attack.</p>
+<p>If a RadBeetle is given a strong enough attack, it can be knocked unconscious. However, attacking the beetle will give you less time to escape. While a single shot from a Wacky Blaster is fairly weak, each Wacky Blaster can fire 6 shots, and with 5 team members, that's <strong class="highlight">30 rounds</strong> total.</p>
+</div>
+<div class="btn-row"><button class="btn" onclick="showScreen('screen-clt')">CONSIDER ATTACKING</button></div>
+</div></div>
+
+<!-- CLT QUESTIONS -->
+<div id="screen-clt" class="screen">
+<div class="panel">
+<div class="section-label">// CENTRAL LIMIT THEOREM — WACKY BLASTER ANALYSIS //</div>
+
+<div class="notice">
+<span class="label">REFERENCE: CENTRAL LIMIT THEOREM (CLT)</span>
+Due to the Central Limit Theorem, the sum (and mean) of several independent and identically distributed random variables becomes approximately normally distributed as the number of samples increases, <strong>regardless of the original distribution shape</strong>.<br><br>
+If each shot does damage X with mean <code>&mu;</code> and variance <code>&sigma;&sup2;</code>, and you fire <code>n</code> shots:<br>
+<strong>Sum</strong> S = X&#8321; + X&#8322; + ... + X&#8345;: mean = <code>n&middot;&mu;</code>, variance = <code>n&middot;&sigma;&sup2;</code><br>
+<strong>Mean</strong> X&#772; = S/n: mean = <code>&mu;</code>, variance = <code>&sigma;&sup2;/n</code><br><br>
+Note: We use <code>z</code> (not t) here because the population SD is known.
+</div>
+
+<div class="story">
+<p>The <strong class="highlight">Wacky Blaster</strong> does an average of <strong>20 damage</strong> per shot with a standard deviation of <strong>5</strong>. The damage per shot follows a strange, non-normal distribution — but you are firing <strong>30 shots</strong> total, so CLT may apply.</p>
+</div>
+
+<div class="table-wrap">
+<table><thead><tr><th style="text-align:left">QUESTION</th><th>ANSWER</th></tr></thead>
+<tbody id="clt-body"></tbody>
+</table>
+</div>
+
+<div class="notice" style="margin-top:14px">
+<span class="label">DISTRIBUTION MATCHING</span>
+<p style="font-size:12px;color:var(--dim);margin-bottom:8px">Below are 3 distribution plots. Match each to what it represents.</p>
+</div>
+<div class="plot-grid" id="clt-plots"></div>
+<div class="table-wrap">
+<table style="min-width:0;width:auto"><thead><tr><th style="text-align:left">PLOT</th><th style="min-width:260px">REPRESENTS</th></tr></thead>
+<tbody id="clt-match-body"></tbody>
+</table>
+</div>
+
+<div class="notice" style="margin-top:14px;border-color:var(--red-err)">
+<span class="label" style="color:var(--red-err)">DECISION</span>
+<p style="font-size:13px;color:var(--text)">You need to do at least <strong>450 total damage</strong> (or at least <strong>15 damage per shot on average</strong>) to knock out the RadBeetle. Based on your CLT analysis, should you attack or hide?</p>
+<table style="min-width:0;width:auto"><tbody id="clt-decision-body"></tbody></table>
+</div>
+
+<div class="btn-row">
+<button class="btn secondary" id="btn-clt-check">CHECK ANSWERS</button>
+<button class="btn safe" id="btn-clt-continue" disabled>CONTINUE</button>
+</div>
+<div class="status-line" id="status-clt">Fill in all answers, then click CHECK ANSWERS.</div>
+<div class="cheat-zone"><label>OVERRIDE:</label><input type="text" id="cheat-clt" maxlength="10" placeholder="_ _ _"/><span class="cheat-msg" id="cheat-msg-clt"></span></div>
+<div class="nav-cheat"><label>NAV:</label><input type="text" class="nav-input" maxlength="10" placeholder="code"/><select class="nav-select" onchange="if(this.value){showScreen(this.value);this.value=''}"><option value="">--</option></select></div>
+</div></div>
+
+<!-- HIDE (fail) -->
+<div id="screen-hide" class="screen">
+<div class="panel">
+<div class="story">
+<p class="warn">The hiding spot you chose was no match for the RadBeetle's chemical blast. You have been melted.</p>
+<p class="action">— your atoms scatter across the wasteland —</p>
+<p style="margin-top:10px">Perhaps you should reconsider your statistical analysis.</p>
+</div>
+<div class="btn-row"><button class="btn danger" onclick="showScreen('screen-clt')">GO BACK</button></div>
+</div></div>
+
+<!-- ATTACK (success) -->
+<div id="screen-attack" class="screen">
+<div class="panel">
+<div class="story">
+<p>Your team unleashes a coordinated barrage from all five Wacky Blasters. After being hit 30 times, the RadBeetle collapses to the ground, unconscious.</p>
+<p style="margin-top:8px" class="highlight">You are now safe.</p>
+</div>
+<div class="btn-row"><button class="btn safe" onclick="showScreen('screen-finish')">FINISH LAB</button></div>
+</div></div>
+
+<!-- FINISH -->
+<div id="screen-finish" class="screen">
+<div class="panel">
+<div class="final-box">
+<span class="big">LAB COMPLETE</span>
+<p class="sub">YOUR WIN CODE IS: <strong style="color:var(--green);font-size:24px">BEETLE</strong></p>
+<hr class="divider" style="margin:20px auto;max-width:300px"/>
+<div id="complete-team" style="margin-top:10px;color:var(--dim);font-size:13px"></div>
+<p class="sub" style="margin-top:12px">SHOW THIS SCREEN TO CARSON</p>
+</div>
+<div class="btn-row" style="justify-content:center;gap:14px">
+<button class="btn safe" id="btn-download">DOWNLOAD DECISIONS (TXT)</button>
+<button class="btn secondary" onclick="resetAll();showScreen('screen-start')">PLAY AGAIN</button>
+</div>
+</div></div>
+
+</main>
+<script>
+// ═══════ ORG DATA ═══════
+const orgs=[
+{id:1,name:"Friends",type:"scientific research group",goal:"LEARN",members:["Fayth Brown","Grace Brown","Mia Maranville","Cassie Marquart","Addi O'Roark"]},
+{id:2,name:"The Unnamed",type:"cult",goal:"Do good things",members:["Jack Gideon","Alex Kaup","Karla Palmerin Montes De Oca","Grace Ramos-Hernandez","Brett Vance"]},
+{id:3,name:"Struggle Bus",type:"commercial organization",goal:"Positive force of the wastes",members:["Abby Beckham","Leah Booth","Cailyn Brecht","Benjamin Keller","Turner Georgecink"]},
+{id:4,name:"WAAKE CORP",type:"traders / commercial org with philanthropic aims",goal:"OBSERVE TRENDS",members:["Evan Dunning","Katelyn Ecklund","Avery Hadley","Sam Kremer","Wesley Helmer"]},
+{id:5,name:"Mysterious",type:"unknown",goal:"Unknown",members:["Samuel Wishman","Rome Bridger","Ava Hastings","Brandon Lahne","Hanan Lotoro"]},
+{id:6,name:"The Oracles of the Damned",type:"security force",goal:"Protect remaining resources and leaders",members:["Trevor Gibson","Syriah Livingston","Emily McCrackine","Makenna Mottl"]},
+{id:7,name:"Mercenary Group",type:"mercenary group",goal:"Be a Mercenary Group",members:["Grant Kroenke","Madeline Quirk","Cecelia Rowe","Lilionna Thompson","Dylan Venancio"]},
+{id:8,name:"Dogs of Wisdom",type:"cult",goal:"Bring wisdom to the post-apocalyptic world",members:["Dylan Leed","Marq Perez","Conner Slater","Katarina Tergeoglou","Tyler Zach"]},
+{id:9,name:"Panda INC",type:"trader group",goal:"Trade resources",members:["Haydn Farr","Jacob Fink","Isaac Ingwell","Cheyane Torticill","Izabella Tranmer"]},
+{id:10,name:"STOME Labs",type:"scientific research org",goal:"Research mutant animals for money",members:["Mason Hutfles","Truman Metcalf","Owen Reeves","Eli Weber","Kyan Lipton"]},
+{id:11,name:"Code Blue",type:"scientific research org",goal:"Cure cybercancer for profit",members:["Callie Hendershot","Ava Cramer","Bailey Denton","Ella Martindale","Hilary Paulson"]},
+{id:12,name:"BloodCave Correctional",type:"prisoner rehabilitation program",goal:"Meet the criteria for early release",members:["Payton Davies","Wil Reeves","Tori Thimjon","Madalynn Vacek","Ella Whiting"]}
+];
+
+const templates={
+scientific:["{n}, PhD","Prof. {n}","Doctor Professor {n}","PhD Candidate {n}","{n} (paid in college credit)"],
+cult:["High Diviner {n}","Lead Acolyte {n}","Sacrifice Manager {n}","{n} the Reborn","Ritual Keeper {n}"],
+security:["Squad Leader {n}","IED Grenadier {n}","Cybercommando {n}","Field Medic {n}","Crossbow Sniper {n}"],
+commercial:["{n}, MBA","LoRa Media Manager {n}","CFO {n}","PR Specialist {n}","Damage Control Expert {n}"],
+prisoner:["60221029 {n}","31415926 {n}","27182818 {n}","16180339 {n}","66260715 {n}"],
+unknown:["Wanderer {n}","Scavenger {n}","Roadrunner {n}","Scrapwright {n}","Dust Medic {n}"],
+mercenary:["Commander {n}","Outrider {n}","Demo Expert {n}","Scout {n}","Heavy Gunner {n}"]
+};
+
+function classifyType(t){t=(t||"").toLowerCase();if(t.includes("scientific")||t.includes("research"))return"scientific";if(t.includes("cult"))return"cult";if(t.includes("prisoner"))return"prisoner";if(t.includes("security"))return"security";if(t.includes("mercenary"))return"mercenary";if(t.includes("commercial")||t.includes("trader"))return"commercial";return"unknown";}
+
+function buildNames(org){const key=classifyType(org.type);const tmpl=templates[key]||templates.unknown;const list=org.members.slice();while(list.length<5)list.push("Recruit "+(list.length+1));return list.slice(0,5).map((name,i)=>tmpl[i%tmpl.length].replace("{n}",name));}
+
+// ═══════ STATE ═══════
+let currentOrg=null,teamNames=[],weaponChosen="",decisions={};
+
+// ═══════ SCREEN NAV ═══════
+const allScreens=["screen-news","screen-start","screen-confirm","screen-aa","screen-resume","screen-cw1","screen-cw15","screen-cw175","screen-groupmsg","screen-beginprep","screen-cipi","screen-looking","screen-looking2","screen-looking3","screen-purchase","screen-investigate","screen-clt","screen-hide","screen-attack","screen-finish"];
+
+function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));const el=document.getElementById(id);if(el){el.classList.add("active");window.scrollTo(0,0);}}
+
+function tm(n){return teamNames[n-1]||("TEAM MEMBER "+n);}
+function t(str){return str.replace(/<TM(\d)>/g,(_,n)=>'<span class="highlight">'+tm(+n)+'</span>');}
+function renderStory(id,html){const el=document.getElementById(id);if(el)el.innerHTML=html;}
+
+// ═══════ NAV DROPDOWNS ═══════
+function populateNavDropdowns(){
+document.querySelectorAll(".nav-select").forEach(sel=>{sel.innerHTML='<option value="">-- jump to --</option>';allScreens.forEach(s=>{const o=document.createElement("option");o.value=s;o.textContent=s.replace("screen-","");sel.appendChild(o);});sel.style.display="none";});
+document.querySelectorAll(".nav-input").forEach(inp=>{inp.addEventListener("keydown",e=>{
+if(e.key==="Enter"&&e.target.value.toUpperCase()==="PEA"){e.target.value="";unlockNav();}});});
+}
+function unlockNav(){document.querySelectorAll(".nav-cheat").forEach(el=>el.classList.add("unlocked"));document.querySelectorAll(".nav-select").forEach(s=>s.style.display="");document.querySelectorAll(".nav-input").forEach(i=>{i.style.display="none";});}
+
+// ═══════ GROUP SELECT ═══════
+function setupGroupSelect(){
+const grid=document.getElementById("group-grid");grid.innerHTML="";
+orgs.forEach(org=>{const card=document.createElement("div");card.className="group-card";
+card.innerHTML='<span class="gname">'+org.name+'</span><span class="gtype">TYPE: '+org.type+'</span><span class="ggoal">GOAL: '+org.goal+'</span><button class="btn select-btn" data-id="'+org.id+'">SELECT</button>';
+grid.appendChild(card);});
+grid.addEventListener("click",e=>{const btn=e.target.closest("button[data-id]");if(!btn)return;currentOrg=orgs.find(o=>o.id===+btn.dataset.id);teamNames=buildNames(currentOrg);renderConfirmScreen();showScreen("screen-confirm");});}
+
+function renderConfirmScreen(){
+document.getElementById("confirm-content").innerHTML='<p><span class="highlight">'+currentOrg.name+'</span> — '+currentOrg.type+'</p><p style="color:var(--dim);margin-top:4px">OBJECTIVE: '+currentOrg.goal+'</p><hr class="divider"/><p class="section-label" style="font-size:14px;margin-bottom:4px">// TEAM ROSTER //</p><ul class="member-list">'+teamNames.map(n=>'<li>'+n+'</li>').join("")+'</ul>';}
+
+document.getElementById("btn-confirm-yes").addEventListener("click",()=>{renderAllStories();showScreen("screen-aa");});
+document.getElementById("btn-confirm-back").addEventListener("click",()=>showScreen("screen-start"));
+
+// ═══════ GROUP MESSAGES ═══════
+const groupMessages={
+1:"Your fellow researchers are thrilled with the recent success. Public opinion of your group has improved dramatically, and new volunteers are lining up to support your scientific endeavors.",
+2:"Your team donates several million to a higher purpose. You have ascended in rank. Some of that money goes towards helping build water purifiers in New New Nebraska.",
+3:"Earnings have surged as public opinion of your organization has improved over the last month. You are no longer viewed as just a commercial organization, but a positive force of the wastes.",
+4:"Your shareholders are very pleased with your recent actions. Public opinion of WAAKE CORP has increased dramatically in the last month.",
+5:'You get a call on your LoRa device from an unknown user.<br><br><span class="speaker">[MYSTERIOUS PERSON]</span> "Excellent work. From now on, you will be responding to my requests. Failing to do so will result in me reporting both you and your former group to the IRS. Have fun with your new team members!"<br><br><span class="action">You look around at the strangers sitting next to you. None of you know each other. None of you know why you were chosen.</span>',
+6:"The income you have acquired has made it possible to outfit several water pump stations with defense teams. Citizens can now get water without fear of being aggressively taxed by other warlords.",
+7:"Your recent actions have made your mercenary group look much better. Normally, mercs are frowned upon, but your recent actions have gained the respect of the wastes.",
+8:"Your team donates several million to a higher purpose. You have ascended in rank. After your actions, people are beginning to support your group. Rather than being yelled at in public, people are starting to listen to your words of wisdom.",
+9:"After the PR crisis of last year, Panda INC was concerned that their reputation was too damaged to continue dealing with other traders. After your actions this last month, all of the major villages want to engage in trade with your organization.",
+10:"Your recent actions have greatly improved the public's attitude towards your scientific endeavors. As a result, you have recently been approved to harvest samples in the protected Isotope Lakes region.",
+11:"Your earnings this week have allowed you to purchase a massive cytotech lab with human-on-chip technology. In light of your team's recent actions, you have gained the public's trust as ethical scientists, and volunteers are lining up to take part in your experiments.",
+12:'<span class="speaker">[PAROLE OFFICER]</span> "Congrats on the big win. Although you aren\'t allowed to make more than $2.50 per hour, I will let this offense slide as long as all income is used for practical purposes."'
+};
+
+// ═══════ STORY RENDERING ═══════
+function renderAllStories(){
+renderStory("story-resume",t('<p>The game begins. The players take their bats and begin walking onto the field.</p><p>Everything looks normal, but one player seems off. His eyes are an unnatural bloodshot red, and he seems to be hyperventilating.</p><p>Rather than getting into formation, he approaches the other team\'s leader. The other team\'s leader attempts to banter with him.</p><p><span class="speaker">[OTHER TEAM LEADER]</span> "OI GUYS, THIS ONE LOOKS PRETTY MAD!"</p><p><span class="speaker">[OTHER TEAM LEADER]</span> "WHATCHA MAD ABOUT? THE FACT THAT YOUR TEAM NAME IS BASED ON CORN, BUT YOU HAVE STATISTICALLY PRODUCED FEWER BUSHELS THAN US FOR SEVERAL CENTURIES?"</p><p class="action">Your team member is expressionless. All he does is stare at the other team leader.</p><p><span class="speaker">[OTHER TEAM LEADER]</span> "TRYIN\' TO INTIMIDATE ME WITH A SILENT STARE, ARE YA? AYE EVERYBODY, THIS GUY THINKS HE\'S PLAYIN\' BOXING—"</p><p>Your team member grabs him by the forehead, lifting him in the air with one hand. The stadium goes silent.</p>'));
+
+renderStory("story-cw1",t('<p>With the other player\'s head in his hand, your athlete throws him several hundred yards into the jumbotron at the other end of the stadium, shattering it instantly.</p><p class="action">Everyone on the field takes a knee.</p><p>Medical teams begin rushing to the shattered screen.</p><p>You look at the athlete biomonitor — the other team leader\'s heartbeat has completely stopped.</p>'));
+
+renderStory("story-cw15",t('<p>One of the medics injects him with nanotrites and activates them with a defibrillator. The athlete biomonitor shows his heartbeat suddenly restart.</p><p class="action">The referees begin discussing your team\'s recent actions. Everyone remains silent in anticipation.</p>'));
+
+renderStory("story-cw175",t('<p>After several minutes pass, a referee makes an announcement:</p><p style="margin:12px 0;padding:10px 16px;border:1px solid var(--border2);background:#0f0100;font-family:\'VT323\',monospace;font-size:22px;color:var(--bright);text-align:center">"ON FIELD KILL, NUMBER 45, NNUNL — NO PENALTY."</p><p class="action">Fireworks and confetti are launched from the stadium. The band begins playing your team\'s theme song.</p><p>Having scored a successful on-field kill, the game has ended.</p><p style="margin-top:10px;padding:10px 16px;border:1px solid var(--green);background:#001a08;font-family:\'VT323\',monospace;font-size:20px;color:var(--green);text-align:center">NNUNL WINS! — EARNINGS: $100,000,000.00</p>'));
+
+const gmHtml=groupMessages[currentOrg.id]||"Your team receives a message regarding recent events.";
+renderStory("story-groupmsg",'<div class="section-label">// INCOMING TRANSMISSION //</div><p>'+gmHtml+'</p>');
+
+renderStory("story-purchase",t('<p><span class="speaker">[LEZLIE THAW]</span> "Okay, perfect! Now I am legally required to enforce a waiting period on this weapon, so I can\'t give it to you immediately."</p><p><span class="speaker">&lt;<TM2>&gt;</span> "How long is the waiting period?"</p><p><span class="speaker">[LEZLIE THAW]</span> "About 4 minutes, but I can throw in a free Wacky Blaster so you have something to use while you wait."</p><p>Just as you receive the Wacky Blaster, you hear a siren go off outside, so you leave to investigate.</p>'));
+}
+
+// ═══════ WEAPON SELECTION ═══════
+function setupWeaponBtns(){
+const cont=document.getElementById("weapon-btns");cont.innerHTML="";
+[["Brick Bow","Crossbow that shoots bricks. Long range weapon."],
+["U10-30 SAWTOOTH LIPLAC","Electro laser that shocks targets. Noisy and intimidating."],
+["Dirac Spallator","Radiation pistol that always does the same damage. Very quiet operation."]
+].forEach(([name,desc])=>{const b=document.createElement("button");b.className="btn secondary";b.textContent=name+" — "+desc;b.addEventListener("click",()=>{weaponChosen=name;showScreen("screen-purchase");});cont.appendChild(b);});}
+
+// ═══════ QUESTION SYSTEM CORE ═══════
+function makeSelect(id,opts){let h='<select id="'+id+'"><option value="">—</option>';opts.forEach(v=>{h+='<option value="'+v+'">'+v+'</option>';});return h+'</select>';}
+
+function checkAnswers(qDefs,bodyId,statusId,btnId,cheatId,cheatMsgId){
+let allOk=true;
+qDefs.forEach(q=>{const sel=document.getElementById(q.id);if(!sel)return;if(sel.value===q.c){sel.className="correct";}else{sel.className="wrong";sel.value="";allOk=false;setTimeout(()=>{if(sel.value==="")sel.className="";},800);}});
+const st=document.getElementById(statusId);
+if(allOk){st.textContent="ALL CORRECT — You may continue.";st.className="status-line ok";document.getElementById(btnId).disabled=false;}
+else{st.textContent="SOME ERRORS — Incorrect answers have been cleared. Try again.";st.className="status-line err";}
+return allOk;}
+
+function fillAnswers(qDefs,btnId,statusId,cheatMsgId){
+qDefs.forEach(q=>{const sel=document.getElementById(q.id);if(sel){sel.value=q.c;sel.className="correct";}});
+document.getElementById(btnId).disabled=false;
+document.getElementById(statusId).textContent="CHEAT MODE — all answers filled.";
+document.getElementById(statusId).className="status-line ok";
+if(cheatMsgId)document.getElementById(cheatMsgId).textContent="[ OVERRIDE ACTIVE ]";}
+
+function setupCheat(inputId,msgId,qDefs,btnId,statusId){
+document.getElementById(inputId).addEventListener("keydown",e=>{
+if(e.key==="Enter"&&e.target.value.toUpperCase()==="PEA"){fillAnswers(qDefs,btnId,statusId,msgId);e.target.value="";}});}
+
+// ═══════ CI/PI CONCEPTUAL QUESTIONS ═══════
+const cipiModQs=[];const cipiShiftQs=[];const cipiMethodQs=[];const cipiTestQs=[];
+let allCipiQs=[];
+
+function buildCipiQuestions(){
+const modBody=document.getElementById("cipi-mod-body");modBody.innerHTML="";
+const mods=[
+{name:"Capacitor Drum (0–40)",ans:["Increase variance","Widen the CI","Widen the PI"]},
+{name:"Laser Compensator (25–35)",ans:["Decrease variance","Shrink the CI","Shrink the PI"]},
+{name:"Unsafe Mode (20–40)",ans:["Increase the mean","Neither (no change)","Neither (no change)"]},
+{name:"Econ Mode (0–20)",ans:["Decrease the mean","Neither (no change)","Neither (no change)"]}
+];
+const varOpts=["Increase variance","Decrease variance","Increase the mean","Decrease the mean","No change"];
+const ciOpts=["Widen the CI","Shrink the CI","Neither (no change)"];
+const piOpts=["Widen the PI","Shrink the PI","Neither (no change)"];
+
+mods.forEach((m,i)=>{
+const ids=["cipi_mod_"+i+"_v","cipi_mod_"+i+"_c","cipi_mod_"+i+"_p"];
+cipiModQs.push({id:ids[0],c:m.ans[0]},{id:ids[1],c:m.ans[1]},{id:ids[2],c:m.ans[2]});
+const tr=document.createElement("tr");
+tr.innerHTML='<td class="q-label">'+m.name+'</td><td>'+makeSelect(ids[0],varOpts)+'</td><td>'+makeSelect(ids[1],ciOpts)+'</td><td>'+makeSelect(ids[2],piOpts)+'</td>';
+modBody.appendChild(tr);});
+
+const shiftBody=document.getElementById("cipi-shift-body");shiftBody.innerHTML="";
+const shiftOpts=["Shift right (higher)","Shift left (lower)","No shift"];
+[{name:"Unsafe Mode shifts the CI and PI...",c:"Shift right (higher)",id:"cipi_shift_0"},
+{name:"Econ Mode shifts the CI and PI...",c:"Shift left (lower)",id:"cipi_shift_1"}
+].forEach(q=>{cipiShiftQs.push({id:q.id,c:q.c});
+const tr=document.createElement("tr");
+tr.innerHTML='<td class="q-label">'+q.name+'</td><td>'+makeSelect(q.id,shiftOpts)+'</td>';
+shiftBody.appendChild(tr);});
+
+const methodBody=document.getElementById("cipi-method-body");methodBody.innerHTML="";
+const nOpts=["Increase n","Decrease n","No change"];
+[{name:"Method A (n=30)",ans:["Decrease n","Widen the CI","Neither (no change)"]},
+{name:"Method B (n=100)",ans:["Increase n","Shrink the CI","Neither (no change)"]}
+].forEach((m,i)=>{
+const ids=["cipi_meth_"+i+"_n","cipi_meth_"+i+"_c","cipi_meth_"+i+"_p"];
+cipiMethodQs.push({id:ids[0],c:m.ans[0]},{id:ids[1],c:m.ans[1]},{id:ids[2],c:m.ans[2]});
+const tr=document.createElement("tr");
+tr.innerHTML='<td class="q-label">'+m.name+'</td><td>'+makeSelect(ids[0],nOpts)+'</td><td>'+makeSelect(ids[1],ciOpts)+'</td><td>'+makeSelect(ids[2],piOpts)+'</td>';
+methodBody.appendChild(tr);});
+
+const testBody=document.getElementById("cipi-test-body");testBody.innerHTML="";
+const muOpts=["Increase the null value","Decrease the null value","No change"];
+[{name:"Test A (test against 25)",ans:["Increase the null value","Neither (no change)","Neither (no change)"]},
+{name:"Test B (test against 15)",ans:["Decrease the null value","Neither (no change)","Neither (no change)"]}
+].forEach((m,i)=>{
+const ids=["cipi_test_"+i+"_m","cipi_test_"+i+"_c","cipi_test_"+i+"_p"];
+cipiTestQs.push({id:ids[0],c:m.ans[0]},{id:ids[1],c:m.ans[1]},{id:ids[2],c:m.ans[2]});
+const tr=document.createElement("tr");
+tr.innerHTML='<td class="q-label">'+m.name+'</td><td>'+makeSelect(ids[0],muOpts)+'</td><td>'+makeSelect(ids[1],ciOpts)+'</td><td>'+makeSelect(ids[2],piOpts)+'</td>';
+testBody.appendChild(tr);});
+
+allCipiQs=[...cipiModQs,...cipiShiftQs,...cipiMethodQs,...cipiTestQs];
+}
+
+document.getElementById("btn-cipi-check").addEventListener("click",()=>checkAnswers(allCipiQs,"cipi-mod-body","status-cipi","btn-cipi-continue","cheat-cipi","cheat-msg-cipi"));
+document.getElementById("btn-cipi-continue").addEventListener("click",()=>showScreen("screen-looking"));
+
+// ═══════ WEAPON 2 CI/PI CALCULATIONS ═══════
+const lookingQs=[];
+function buildLookingQuestions(){
+const body=document.getElementById("looking-body");body.innerHTML="";
+const qs=[
+{label:"2SD CI — Midpoint",c:"20.5",opts:["20.5","20.0","21.0","19.5"]},
+{label:"2SD CI — Margin of Error (2 × SE)",c:"0.6",opts:["0.6","0.3","1.2","6.0"]},
+{label:"2SD CI — Lower Bound",c:"19.9",opts:["19.9","19.5","20.2","18.5"]},
+{label:"2SD CI — Upper Bound",c:"21.1",opts:["21.1","21.5","20.8","22.5"]},
+{label:"Theory CI — Midpoint",c:"20.5",opts:["20.5","20.0","21.0","19.5"]},
+{label:"Theory CI — Margin of Error (1.96 × SE)",c:"0.588",opts:["0.588","0.600","0.300","1.176"]},
+{label:"Theory CI — Lower Bound",c:"19.912",opts:["19.912","19.900","19.500","20.000"]},
+{label:"Theory CI — Upper Bound",c:"21.088",opts:["21.088","21.100","21.500","21.000"]},
+{label:"Are the CI validity conditions met?",c:"Yes — n is large (100 ≥ 30) and data is normal",opts:["Yes — n is large (100 ≥ 30) and data is normal","No — n is too small","No — data is not normal","Yes — but only because data is normal"]},
+{label:"Are the PI validity conditions met?",c:"Yes — the data is normally distributed",opts:["Yes — the data is normally distributed","No — n is too small for PI","No — data must be uniform for PI","Yes — because n ≥ 30"]},
+{label:"Theory PI — Midpoint",c:"20.5",opts:["20.5","20.0","21.0","19.5"]},
+{label:"Theory PI — Margin of Error",c:"5.909",opts:["5.909","0.588","5.880","6.000"]},
+{label:"Theory PI — Lower Bound",c:"14.591",opts:["14.591","14.500","19.912","17.500"]},
+{label:"Theory PI — Upper Bound",c:"26.409",opts:["26.409","26.500","21.088","23.500"]}
+];
+qs.forEach((q,i)=>{const id="lk_"+i;lookingQs.push({id:id,c:q.c});
+const tr=document.createElement("tr");
+tr.innerHTML='<td class="q-label">'+q.label+'</td><td>'+makeSelect(id,q.opts)+'</td>';
+body.appendChild(tr);});
+
+// Plot questions
+const pbody=document.getElementById("looking-plot-body");pbody.innerHTML="";
+const pqs=[
+{label:"Which plot is correct?",c:"Plot B",opts:["Plot A","Plot B","Plot C"],id:"lk_plot"},
+{label:"Using your CI, do you reject or fail to reject the null (μ₀ = 19)?",c:"Reject — 19 is not in the CI",opts:["Reject — 19 is not in the CI","Fail to reject — 19 is in the CI","Inconclusive"],id:"lk_reject"}
+];
+pqs.forEach(q=>{lookingQs.push({id:q.id,c:q.c});
+const tr=document.createElement("tr");
+tr.innerHTML='<td class="q-label">'+q.label+'</td><td>'+makeSelect(q.id,q.opts)+'</td>';
+pbody.appendChild(tr);});
+}
+
+document.getElementById("btn-looking-check").addEventListener("click",()=>checkAnswers(lookingQs,"looking-body","status-looking","btn-looking-continue","cheat-looking","cheat-msg-looking"));
+document.getElementById("btn-looking-continue").addEventListener("click",()=>showScreen("screen-looking2"));
+
+// ═══════ BRICK BOW PROBABILITY ═══════
+const looking2Qs=[];
+function buildLooking2Questions(){
+const body=document.getElementById("looking2-body");body.innerHTML="";
+[{label:"What is the probability that the brick hits the target?",c:"0.30",opts:["0.30","0.70","0.10","0.20"],id:"bb_hit"},
+{label:"Given that the brick hits the target, what is the probability it does 100 damage?",c:"1/3 ≈ 0.333",opts:["1/3 ≈ 0.333","0.10","0.30","1/2 = 0.500"],id:"bb_cond"}
+].forEach(q=>{looking2Qs.push({id:q.id,c:q.c});
+const tr=document.createElement("tr");
+tr.innerHTML='<td class="q-label">'+q.label+'</td><td>'+makeSelect(q.id,q.opts)+'</td>';
+body.appendChild(tr);});}
+
+document.getElementById("btn-looking2-check").addEventListener("click",()=>checkAnswers(looking2Qs,"looking2-body","status-looking2","btn-looking2-continue","cheat-looking2","cheat-msg-looking2"));
+document.getElementById("btn-looking2-continue").addEventListener("click",()=>showScreen("screen-looking3"));
+
+// ═══════ CLT QUESTIONS ═══════
+const cltQs=[];
+function buildCltQuestions(){
+const body=document.getElementById("clt-body");body.innerHTML="";
+const qs=[
+{label:"Each shot follows what distribution?",c:"A non-normal (wacky) distribution",opts:["A non-normal (wacky) distribution","A normal distribution","A uniform distribution","An exponential distribution"]},
+{label:"Mean damage per shot",c:"20",opts:["20","600","15","5"]},
+{label:"Variance per shot",c:"25",opts:["25","5","20","750"]},
+{label:"The TOTAL damage from 30 shots follows approximately...",c:"A normal distribution (by CLT)",opts:["A normal distribution (by CLT)","A wacky distribution","A uniform distribution","Cannot be determined"]},
+{label:"Mean of the total damage (30 shots)",c:"600",opts:["600","20","450","150"]},
+{label:"Variance of the total damage (30 shots)",c:"750",opts:["750","25","150","900"]},
+{label:"The AVERAGE damage per shot from 30 shots follows approximately...",c:"A normal distribution (by CLT)",opts:["A normal distribution (by CLT)","A wacky distribution","A uniform distribution","Cannot be determined"]},
+{label:"Mean of the average damage per shot",c:"20",opts:["20","600","0.667","15"]},
+{label:"Variance of the average damage per shot",c:"0.833",opts:["0.833","25","750","5"]}
+];
+qs.forEach((q,i)=>{const id="clt_"+i;cltQs.push({id:id,c:q.c});
+const tr=document.createElement("tr");
+tr.innerHTML='<td class="q-label">'+q.label+'</td><td>'+makeSelect(id,q.opts)+'</td>';
+body.appendChild(tr);});
+
+// Plot matching
+const mbody=document.getElementById("clt-match-body");mbody.innerHTML="";
+const mopts=["A — Damage per shot (non-normal)","B — Total damage from 30 shots (normal-ish)","C — Average damage per shot (normal-ish)"];
+[{label:"Plot 1 (wide, non-normal, centered ~20)",c:"A — Damage per shot (non-normal)",id:"clt_m0"},
+{label:"Plot 2 (normal bell curve, centered ~600, wide)",c:"B — Total damage from 30 shots (normal-ish)",id:"clt_m1"},
+{label:"Plot 3 (normal bell curve, centered ~20, narrow)",c:"C — Average damage per shot (normal-ish)",id:"clt_m2"}
+].forEach(q=>{cltQs.push({id:q.id,c:q.c});
+const tr=document.createElement("tr");
+tr.innerHTML='<td class="q-label">'+q.label+'</td><td>'+makeSelect(q.id,mopts)+'</td>';
+mbody.appendChild(tr);});
+
+// Decision
+const dbody=document.getElementById("clt-decision-body");dbody.innerHTML="";
+const dq={label:"Based on your analysis, should you attack or hide?",c:"Attack — expected total (600) far exceeds 450",id:"clt_dec",
+opts:["Attack — expected total (600) far exceeds 450","Hide — the damage is too unpredictable","Hide — 450 is too high a threshold","Attack — but only if you get lucky"]};
+cltQs.push({id:dq.id,c:dq.c});
+const tr=document.createElement("tr");
+tr.innerHTML='<td class="q-label">'+dq.label+'</td><td>'+makeSelect(dq.id,dq.opts)+'</td>';
+dbody.appendChild(tr);
+}
+
+document.getElementById("btn-clt-check").addEventListener("click",()=>checkAnswers(cltQs,"clt-body","status-clt","btn-clt-continue","cheat-clt","cheat-msg-clt"));
+document.getElementById("btn-clt-continue").addEventListener("click",()=>showScreen("screen-attack"));
+
+// ═══════ SVG PLOTS ═══════
+function makeCIPIPlot(data,W,H){
+const xMin=data.xMin||10,xMax=data.xMax||30;
+const xS=v=>30+(v-xMin)/(xMax-xMin)*(W-60);
+let s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="width:100%;background:#050100">';
+// axis
+s+='<line x1="30" y1="'+(H-20)+'" x2="'+(W-30)+'" y2="'+(H-20)+'" stroke="#442200" stroke-width="1"/>';
+// ticks
+const step=(xMax-xMin)/8;
+for(let i=0;i<=8;i++){const v=xMin+step*i;const x=xS(v);
+s+='<line x1="'+x+'" y1="'+(H-22)+'" x2="'+x+'" y2="'+(H-18)+'" stroke="#442200" stroke-width="1"/>';
+s+='<text x="'+x+'" y="'+(H-8)+'" font-size="8" fill="#662200" text-anchor="middle" font-family="monospace">'+v.toFixed(1)+'</text>';}
+// null line
+if(data.nullVal!==undefined){const nx=xS(data.nullVal);
+s+='<line x1="'+nx+'" y1="10" x2="'+nx+'" y2="'+(H-20)+'" stroke="#ff2200" stroke-width="1.5" stroke-dasharray="4,2"/>';
+s+='<text x="'+nx+'" y="8" font-size="8" fill="#ff2200" text-anchor="middle" font-family="monospace">null='+data.nullVal+'</text>';}
+// CI
+if(data.ci){const y=35;const lx=xS(data.ci[0]),ux=xS(data.ci[1]),mx=xS((data.ci[0]+data.ci[1])/2);
+s+='<rect x="'+lx+'" y="'+(y-6)+'" width="'+(ux-lx)+'" height="12" fill="rgba(68,238,136,0.2)"/>';
+s+='<line x1="'+lx+'" y1="'+(y-8)+'" x2="'+lx+'" y2="'+(y+8)+'" stroke="#44ee88" stroke-width="2"/>';
+s+='<line x1="'+ux+'" y1="'+(y-8)+'" x2="'+ux+'" y2="'+(y+8)+'" stroke="#44ee88" stroke-width="2"/>';
+s+='<line x1="'+lx+'" y1="'+y+'" x2="'+ux+'" y2="'+y+'" stroke="#44ee88" stroke-width="2"/>';
+s+='<circle cx="'+mx+'" cy="'+y+'" r="3" fill="#ffcc44"/>';
+s+='<text x="'+(W-28)+'" y="'+(y+3)+'" font-size="9" fill="#44ee88" text-anchor="end" font-family="monospace">CI</text>';}
+// PI
+if(data.pi){const y=60;const lx=xS(data.pi[0]),ux=xS(data.pi[1]),mx=xS((data.pi[0]+data.pi[1])/2);
+s+='<rect x="'+lx+'" y="'+(y-6)+'" width="'+(ux-lx)+'" height="12" fill="rgba(255,136,51,0.15)"/>';
+s+='<line x1="'+lx+'" y1="'+(y-8)+'" x2="'+lx+'" y2="'+(y+8)+'" stroke="#ff8833" stroke-width="2"/>';
+s+='<line x1="'+ux+'" y1="'+(y-8)+'" x2="'+ux+'" y2="'+(y+8)+'" stroke="#ff8833" stroke-width="2"/>';
+s+='<line x1="'+lx+'" y1="'+y+'" x2="'+ux+'" y2="'+y+'" stroke="#ff8833" stroke-width="2"/>';
+s+='<circle cx="'+mx+'" cy="'+y+'" r="3" fill="#ffcc44"/>';
+s+='<text x="'+(W-28)+'" y="'+(y+3)+'" font-size="9" fill="#ff8833" text-anchor="end" font-family="monospace">PI</text>';}
+s+='</svg>';return s;}
+
+function buildLookingPlots(){
+const grid=document.getElementById("looking-plots");grid.innerHTML="";
+const plots=[
+{label:"Plot A",ci:[18.5,22.5],pi:[14.5,26.5],nullVal:19,xMin:12,xMax:29},
+{label:"Plot B",ci:[19.9,21.1],pi:[14.591,26.409],nullVal:19,xMin:12,xMax:29},
+{label:"Plot C",ci:[19.9,21.1],pi:[14.591,26.409],nullVal:21,xMin:12,xMax:29}
+];
+plots.forEach(p=>{const box=document.createElement("div");box.className="plot-box";
+box.innerHTML='<span class="plot-label">'+p.label+'</span>'+makeCIPIPlot(p,380,90);
+grid.appendChild(box);});}
+
+function makeCltDistPlot(type,W,H){
+let s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="width:100%;background:#050100">';
+s+='<line x1="30" y1="'+(H-20)+'" x2="'+(W-10)+'" y2="'+(H-20)+'" stroke="#442200" stroke-width="1"/>';
+if(type==="wacky"){
+// Non-normal: bimodal/irregular
+const pts=[[30,H-20],[60,H-80],[90,H-40],[120,H-70],[150,H-30],[180,H-60],[210,H-90],[240,H-50],[270,H-35],[300,H-20]];
+let d="M"+pts[0].join(",");pts.slice(1).forEach(p=>{d+=" L"+p.join(",");});
+s+='<path d="'+d+'" stroke="#ff8833" stroke-width="2" fill="none"/>';
+s+='<text x="'+(W/2)+'" y="'+(H-6)+'" font-size="9" fill="#662200" text-anchor="middle" font-family="monospace">centered ~20</text>';
+}else if(type==="sum"){
+// Normal bell, centered 600
+const cx=W/2,sd=60;
+let d="M 30,"+(H-20);for(let x=30;x<=W-10;x+=2){const z=(x-cx)/sd;const y=(H-20)-80*Math.exp(-0.5*z*z);d+=" L"+x+","+y;}
+d+=" L"+(W-10)+","+(H-20);
+s+='<path d="'+d+'" stroke="#ff8833" stroke-width="2" fill="rgba(255,136,51,0.1)"/>';
+s+='<text x="'+(W/2)+'" y="'+(H-6)+'" font-size="9" fill="#662200" text-anchor="middle" font-family="monospace">centered ~600</text>';
+}else{
+// Normal bell, very narrow, centered 20
+const cx=W/2,sd=25;
+let d="M 30,"+(H-20);for(let x=30;x<=W-10;x+=2){const z=(x-cx)/sd;const y=(H-20)-80*Math.exp(-0.5*z*z);d+=" L"+x+","+y;}
+d+=" L"+(W-10)+","+(H-20);
+s+='<path d="'+d+'" stroke="#ff8833" stroke-width="2" fill="rgba(255,136,51,0.1)"/>';
+s+='<text x="'+(W/2)+'" y="'+(H-6)+'" font-size="9" fill="#662200" text-anchor="middle" font-family="monospace">centered ~20, narrow</text>';}
+s+='</svg>';return s;}
+
+function buildCltPlots(){
+const grid=document.getElementById("clt-plots");grid.innerHTML="";
+[["Plot 1","wacky"],["Plot 2","sum"],["Plot 3","mean"]].forEach(([label,type])=>{
+const box=document.createElement("div");box.className="plot-box";
+box.innerHTML='<span class="plot-label">'+label+'</span>'+makeCltDistPlot(type,340,120);
+grid.appendChild(box);});}
+
+// ═══════ CI/PI APPLET ═══════
+function buildApplet(){
+const sec=document.getElementById("applet-section");
+sec.innerHTML=`
+<div class="applet-panel">
+<div class="section-label">// CI/PI VISUALIZATION APPLET //</div>
+<p style="font-size:11px;color:var(--dim);margin-bottom:10px">Use this applet to explore how CI and PI change with different parameters. Toggle Uniform mode to auto-compute mean, variance, and SD from uniform distribution bounds.</p>
+<div class="tab-btns">
+<button class="tab-btn active" id="tab-standard" onclick="setAppletMode('standard')">STANDARD</button>
+<button class="tab-btn" id="tab-uniform" onclick="setAppletMode('uniform')">UNIFORM</button>
+</div>
+<div id="applet-uniform-inputs" style="display:none">
+<div class="slider-row"><label>a (min):</label><input type="number" id="app-a" value="10" onchange="updateAppletFromUniform()"/><label>b (max):</label><input type="number" id="app-b" value="30" onchange="updateAppletFromUniform()"/></div>
+<div style="font-size:12px;color:var(--bright);margin:6px 0" id="uniform-info"></div>
+</div>
+<div class="slider-row"><label>x&#772; (mean):</label><input type="range" id="app-xbar" min="-10" max="100" step="0.1" value="20" oninput="updateApplet()"/><span class="val" id="app-xbar-v">20</span></div>
+<div class="slider-row"><label>&mu;&#8320; (null):</label><input type="range" id="app-null" min="-10" max="100" step="0.1" value="19" oninput="updateApplet()"/><span class="val" id="app-null-v">19</span></div>
+<div class="slider-row"><label>Confidence:</label><input type="range" id="app-conf" min="0.5" max="0.99" step="0.01" value="0.95" oninput="updateApplet()"/><span class="val" id="app-conf-v">95%</span></div>
+<div class="slider-row"><label>SD (&sigma;):</label><input type="range" id="app-sd" min="0.1" max="50" step="0.1" value="5.77" oninput="updateApplet()"/><span class="val" id="app-sd-v">5.77</span></div>
+<div class="slider-row"><label>n:</label><input type="number" id="app-n" value="50" min="2" style="width:80px" onchange="updateApplet()"/></div>
+<div class="applet-bar" id="applet-bar">
+<div class="applet-ci" id="app-ci-bar"></div>
+<div class="applet-pi" id="app-pi-bar"></div>
+<div class="applet-null" id="app-null-bar"></div>
+<div class="applet-mean" id="app-mean-bar"></div>
+</div>
+<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--dim)"><span>-10</span><span>100</span></div>
+<div style="font-size:12px;margin-top:8px;color:var(--text)" id="applet-results"></div>
+</div>`;
+updateApplet();
+}
+
+function normSInv(p){if(p<0.5)return-normSInv(1-p);const a=[-3.969683028665376e+01,2.209460984245205e+02,-2.759285104469687e+02,1.383577518672690e+02,-3.066479806614716e+01,2.506628277459239e+00];const b=[-5.447609879822406e+01,1.615858368580409e+02,-1.556989798598866e+02,6.680131188771972e+01,-1.328068155288572e+01];const c=[-7.784894002430293e-03,-3.223964580411365e-01,-2.400758277161838e+00,-2.549732539343734e+00,4.374664141464968e+00,2.938163982698783e+00];const d=[7.784695709041462e-03,3.224671290700398e-01,2.445134137142996e+00,3.754408661907416e+00];const pLow=0.02425,pHigh=1-pLow;if(0<p&&p<pLow){const q=Math.sqrt(-2*Math.log(p));return(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}if(pLow<=p&&p<=pHigh){const q=p-0.5,r=q*q;return(((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);}if(pHigh<p&&p<1){const q=Math.sqrt(-2*Math.log(1-p));return-(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}return 0;}
+
+let appletMode="standard";
+function setAppletMode(mode){
+appletMode=mode;
+document.getElementById("tab-standard").className="tab-btn"+(mode==="standard"?" active":"");
+document.getElementById("tab-uniform").className="tab-btn"+(mode==="uniform"?" active":"");
+document.getElementById("applet-uniform-inputs").style.display=mode==="uniform"?"block":"none";
+if(mode==="uniform")updateAppletFromUniform();else updateApplet();}
+
+function updateAppletFromUniform(){
+const a=parseFloat(document.getElementById("app-a").value)||0;
+const b=parseFloat(document.getElementById("app-b").value)||1;
+const mean=(a+b)/2;const variance=Math.pow(b-a,2)/12;const sd=Math.sqrt(variance);
+document.getElementById("app-xbar").value=mean;
+document.getElementById("app-sd").value=sd.toFixed(2);
+document.getElementById("uniform-info").textContent="Mean="+(mean.toFixed(3))+" | Var="+(variance.toFixed(3))+" | SD="+(sd.toFixed(3));
+updateApplet();}
+
+function updateApplet(){
+const xbar=parseFloat(document.getElementById("app-xbar").value);
+const mu=parseFloat(document.getElementById("app-null").value);
+const conf=parseFloat(document.getElementById("app-conf").value);
+const sd=parseFloat(document.getElementById("app-sd").value);
+const n=parseInt(document.getElementById("app-n").value)||2;
+const z=normSInv(0.5+conf/2);
+const se=sd/Math.sqrt(n);
+const ciLo=xbar-z*se,ciHi=xbar+z*se;
+const piLo=xbar-z*sd*Math.sqrt(1+1/n),piHi=xbar+z*sd*Math.sqrt(1+1/n);
+
+document.getElementById("app-xbar-v").textContent=xbar.toFixed(2);
+document.getElementById("app-null-v").textContent=mu.toFixed(2);
+document.getElementById("app-conf-v").textContent=(conf*100).toFixed(0)+"%";
+document.getElementById("app-sd-v").textContent=sd.toFixed(2);
+
+const bar=document.getElementById("applet-bar");if(!bar)return;
+const bw=bar.offsetWidth;const toX=v=>Math.max(0,Math.min(bw,(v-(-10))/(100-(-10))*bw));
+
+const ciBar=document.getElementById("app-ci-bar");
+ciBar.style.left=toX(ciLo)+"px";ciBar.style.width=Math.max(0,toX(ciHi)-toX(ciLo))+"px";
+const piBar=document.getElementById("app-pi-bar");
+piBar.style.left=toX(piLo)+"px";piBar.style.width=Math.max(0,toX(piHi)-toX(piLo))+"px";
+document.getElementById("app-null-bar").style.left=toX(mu)+"px";
+document.getElementById("app-mean-bar").style.left=toX(xbar)+"px";
+
+let res="z*="+z.toFixed(3)+" | SE="+se.toFixed(4);
+res+="<br>CI: ["+ciLo.toFixed(3)+", "+ciHi.toFixed(3)+"]";
+res+="<br>PI: ["+piLo.toFixed(3)+", "+piHi.toFixed(3)+"]";
+if(mu>=ciLo&&mu<=ciHi)res+='<br><span style="color:var(--dim)">Null is WITHIN CI — Fail to reject</span>';
+else res+='<br><span style="color:var(--red-err)">Null is OUTSIDE CI — Reject</span>';
+document.getElementById("applet-results").innerHTML=res;}
+
+// ═══════ DOWNLOAD ═══════
+document.getElementById("btn-download").addEventListener("click",()=>{
+const data={group:currentOrg?currentOrg.name:"",groupId:currentOrg?currentOrg.id:0,members:teamNames,weaponChosen:weaponChosen,completionCode:"BEETLE",timestamp:new Date().toISOString()};
+const blob=new Blob([JSON.stringify(data,null,2)],{type:"text/plain"});
+const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+a.download="lab4_decisions_"+(currentOrg?currentOrg.name.replace(/\s+/g,"_"):"unknown")+".txt";
+a.click();URL.revokeObjectURL(a.href);});
+
+// ═══════ CHEAT CODES ═══════
+function setupAllCheats(){
+setupCheat("cheat-cipi","cheat-msg-cipi",allCipiQs,"btn-cipi-continue","status-cipi");
+setupCheat("cheat-looking","cheat-msg-looking",lookingQs,"btn-looking-continue","status-looking");
+setupCheat("cheat-looking2","cheat-msg-looking2",looking2Qs,"btn-looking2-continue","status-looking2");
+setupCheat("cheat-clt","cheat-msg-clt",cltQs,"btn-clt-continue","status-clt");
+}
+
+// ═══════ RESET ═══════
+function resetAll(){
+[allCipiQs,lookingQs,looking2Qs,cltQs].forEach(arr=>{arr.forEach(q=>{const sel=document.getElementById(q.id);if(sel){sel.value="";sel.className="";}});});
+["btn-cipi-continue","btn-looking-continue","btn-looking2-continue","btn-clt-continue"].forEach(id=>{document.getElementById(id).disabled=true;});
+["status-cipi","status-looking","status-looking2","status-clt"].forEach(id=>{const el=document.getElementById(id);el.textContent="Fill in all answers, then click CHECK ANSWERS.";el.className="status-line";});
+["cheat-msg-cipi","cheat-msg-looking","cheat-msg-looking2","cheat-msg-clt"].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent="";});
+weaponChosen="";currentOrg=null;teamNames=[];
+}
+
+// ═══════ INIT ═══════
+setupGroupSelect();
+buildCipiQuestions();
+buildLookingQuestions();
+buildLooking2Questions();
+buildCltQuestions();
+buildLookingPlots();
+buildCltPlots();
+buildApplet();
+setupWeaponBtns();
+populateNavDropdowns();
+setupAllCheats();
+</script>
+</body>
+</html>

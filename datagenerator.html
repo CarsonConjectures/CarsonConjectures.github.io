@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>PRIOR_MANIFESTATION_SIMULATION</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#000501;--panel:#000d04;--border:#00cc22;--border2:#006611;--text:#33ff88;--bright:#66ffcc;--dim:#008833;--green:#44ee88;--red-err:#ff2200;--glow:0 0 6px #00ff4488}
+*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono','Courier New',monospace;font-size:15px;min-height:100vh;position:relative;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 3px,rgba(0,0,0,0.12) 3px,rgba(0,0,0,0.12) 4px);pointer-events:none;z-index:1000}
+main{max-width:960px;margin:0 auto;padding:24px 16px 64px}
+.panel{background:var(--panel);border:1px solid var(--border2);padding:20px;margin-bottom:18px;position:relative}
+.panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,var(--border),transparent)}
+h1,h2,h3,.mono-head{font-family:'VT323',monospace;letter-spacing:1px}
+.page-title{font-family:'VT323',monospace;font-size:36px;color:var(--border);text-shadow:var(--glow);text-align:center;padding:28px 16px 8px;letter-spacing:2px}
+.section-label{font-family:'VT323',monospace;font-size:20px;color:var(--border);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px}
+.btn{display:inline-block;background:transparent;border:1px solid var(--border);color:var(--bright);font-family:'VT323',monospace;font-size:20px;padding:7px 18px;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:background 0.12s,color 0.12s;outline:none}
+.btn::before{content:'> ';color:var(--border);font-size:14px}
+.btn:hover,.btn:focus{background:var(--border);color:#000}
+.btn:hover::before,.btn:focus::before{color:#000}
+.btn:disabled{border-color:var(--border2);color:var(--border2);cursor:not-allowed}
+.btn:disabled::before{color:var(--border2)}
+.btn.secondary{border-color:var(--dim);color:var(--text);font-size:17px}
+.btn.secondary::before{color:var(--dim)}
+.btn.secondary:hover{background:var(--dim);color:#000}
+.btn.danger{border-color:var(--red-err);color:var(--red-err)}
+.btn.danger:hover{background:var(--red-err);color:#000}
+.btn.safe{border-color:var(--green);color:var(--green)}
+.btn.safe:hover{background:var(--green);color:#000}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.notice{background:#000f03;border-left:3px solid var(--border);padding:10px 14px;margin:12px 0;color:var(--dim);font-size:13px;line-height:1.7}
+.notice .label{font-family:'VT323',monospace;font-size:16px;color:var(--border);display:block;margin-bottom:4px}
+.notice code{color:var(--bright)}
+.divider{border:none;border-top:1px solid var(--border2);margin:14px 0}
+
+.screen{display:none}.screen.active{display:block}
+
+/* Tab navigation */
+.tab-bar{display:flex;flex-wrap:wrap;gap:0;margin-bottom:0}
+.tab-btn{padding:8px 16px;border:1px solid var(--border2);background:transparent;color:var(--dim);font-family:'VT323',monospace;font-size:18px;cursor:pointer;letter-spacing:1px;transition:background 0.12s,color 0.12s}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{background:var(--border);color:#000;border-color:var(--border)}
+.tab-content{display:none}.tab-content.active{display:block}
+
+/* Form controls */
+.form-group{margin:12px 0}
+.form-group label{display:block;font-family:'VT323',monospace;font-size:17px;color:var(--border);margin-bottom:4px;letter-spacing:1px}
+.form-group input,.form-group select,.form-group textarea{background:#000a02;color:var(--bright);border:1px solid var(--border2);font-family:'Share Tech Mono',monospace;font-size:14px;padding:6px 10px;width:100%;outline:none}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--border)}
+.form-group input[type=number]{width:120px}
+.form-group .hint{font-size:11px;color:var(--dim);margin-top:2px}
+.form-row{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end}
+.form-row .form-group{flex:1;min-width:100px}
+
+/* Histogram */
+.hist-container{background:#000a00;border:1px solid var(--border2);padding:12px;margin:14px 0;min-height:200px;position:relative}
+.hist-container .plot-label{font-family:'VT323',monospace;font-size:18px;color:var(--border);display:block;margin-bottom:8px}
+canvas.hist-canvas{width:100%;background:transparent}
+
+/* Data preview */
+.data-preview{background:#000a02;border:1px solid var(--border2);padding:10px;margin:10px 0;max-height:200px;overflow-y:auto;font-size:12px;color:var(--text);white-space:pre;line-height:1.5;scrollbar-color:var(--border2) #000a02}
+.data-preview::-webkit-scrollbar{width:8px}
+.data-preview::-webkit-scrollbar-track{background:#000a02}
+.data-preview::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+.data-preview::-webkit-scrollbar-thumb:hover{background:var(--border)}
+.data-preview .preview-label{font-family:'VT323',monospace;font-size:16px;color:var(--border);display:block;margin-bottom:4px}
+
+/* Stats box */
+.stats-box{display:flex;flex-wrap:wrap;gap:16px;margin:10px 0}
+.stat-item{background:#000a02;border:1px solid var(--border2);padding:8px 14px;min-width:120px}
+.stat-item .stat-label{font-family:'VT323',monospace;font-size:14px;color:var(--dim);display:block}
+.stat-item .stat-val{font-family:'VT323',monospace;font-size:22px;color:var(--bright)}
+
+/* Format selector */
+.format-tabs{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}
+.format-tab{padding:4px 12px;border:1px solid var(--border2);background:transparent;color:var(--dim);font-family:'VT323',monospace;font-size:15px;cursor:pointer}
+.format-tab.active{border-color:var(--green);color:var(--green);background:#001a08}
+
+.status-line{margin-top:8px;font-size:13px;color:var(--dim);min-height:18px}
+.status-line.ok{color:var(--green)}
+.status-line.err{color:var(--red-err)}
+
+/* Standalone hint (outside .form-group) */
+.hint{font-size:11px;color:var(--dim);margin-top:2px}
+
+/* Group input rows for multi-group */
+.group-row{display:flex;gap:10px;align-items:center;margin:6px 0;flex-wrap:wrap}
+.group-row input{flex:1;min-width:60px;background:#000a02;color:var(--bright);border:1px solid var(--border2);font-family:'Share Tech Mono',monospace;font-size:14px;padding:6px 10px;outline:none}
+.group-row input:focus{border-color:var(--border)}
+.remove-group{background:transparent;border:1px solid var(--red-err);color:var(--red-err);font-family:'VT323',monospace;font-size:16px;padding:4px 10px;cursor:pointer}
+.remove-group:hover{background:var(--red-err);color:#000}
+
+.bound-row{display:flex;gap:6px;align-items:center}
+.bound-row input{flex:1}
+.bound-select{background:#000a02;color:var(--bright);border:1px solid var(--border2);font-family:'Share Tech Mono',monospace;font-size:13px;padding:6px 4px;width:auto;min-width:90px;cursor:pointer;outline:none}
+.bound-select:focus{border-color:var(--border)}
+/* Side panels shared */
+.side-panel{position:fixed;top:0;bottom:0;width:calc((100vw - 980px) / 2);pointer-events:none;z-index:0;overflow:hidden;border:1px solid #003a10;background:#000a0188;opacity:0.5}
+.side-panel.left{left:0;border-left:none}
+.side-panel.right{right:0;border-right:none}
+/* Left: CLI scroll */
+.side-panel .cli-scroll{position:absolute;bottom:0;left:0;right:0;padding:6px 8px;font-family:'Share Tech Mono',monospace;font-size:10.5px;line-height:1.5;color:#005a18;white-space:pre-wrap;word-break:break-all}
+.side-panel .h{color:#00cc22}.side-panel .v{color:#00aa44}.side-panel .d{color:#003a10}.side-panel .w{color:#668800}.side-panel .bar{color:#008833}
+/* Right: status monitor */
+.rig-monitor{padding:10px 8px;font-family:'Share Tech Mono',monospace;font-size:10.5px;line-height:1.6;color:#005a18;white-space:pre-wrap;word-break:break-all;overflow-y:hidden;height:100%}
+.rig-monitor .sec{border:1px solid #003a10;padding:6px 7px;margin-bottom:6px;position:relative}
+.rig-monitor .sec::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(to right,transparent,#00cc2233,transparent)}
+.rig-monitor .sec-title{font-family:'VT323',monospace;font-size:13px;color:#008833;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px}
+.rig-monitor .row{display:flex;justify-content:space-between;gap:4px}
+.rig-monitor .lbl{color:#004a15}
+.rig-monitor .val-ok{color:#00cc22}
+.rig-monitor .val-warn{color:#888800}
+.rig-monitor .val-crit{color:#cc4400}
+.rig-monitor .val-num{color:#00aa44}
+.rig-monitor .bar-track{display:inline-block;color:#003a10}
+.rig-monitor .bar-fill{color:#008833}
+.rig-monitor .sep{border:none;border-top:1px solid #002a0c;margin:4px 0}
+.blink{animation:blink 1.2s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+main{position:relative;z-index:1}
+@media(max-width:1100px){.side-panel{display:none}}
+@media(max-width:600px){.form-row{flex-direction:column}.tab-btn{font-size:15px;padding:6px 10px}.btn{font-size:17px;padding:6px 12px}}
+/* Error modal */
+.error-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:center;justify-content:center}
+.error-overlay.active{display:flex}
+.error-box{border:1px solid var(--red-err);background:#0a0000;padding:20px 28px;max-width:480px;width:90%;text-align:center;position:relative}
+.error-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,var(--red-err),transparent)}
+.error-box .error-title{font-family:'VT323',monospace;font-size:22px;color:var(--red-err);letter-spacing:2px;margin-bottom:10px}
+.error-box .error-msg{font-family:'Share Tech Mono',monospace;font-size:13px;color:#cc4422;line-height:1.6;margin-bottom:16px}
+.error-box .btn.danger{font-size:18px}
+</style>
+</head>
+<body>
+<div class="error-overlay" id="error-overlay" onclick="closeError()">
+<div class="error-box" onclick="event.stopPropagation()">
+<div class="error-title">// SIMULATION ERROR //</div>
+<div class="error-msg" id="error-msg"></div>
+<button class="btn danger" onclick="closeError()">DISMISS</button>
+</div>
+</div>
+<div class="side-panel left" id="cli-left"><div class="cli-scroll" id="cli-left-scroll"></div></div>
+<div class="side-panel right" id="panel-right"><div class="rig-monitor" id="rig-monitor"></div></div>
+<main>
+
+<div class="page-title">PRIOR_MANIFESTATION_SIMULATION</div>
+<div style="max-width:700px;margin:0 auto 14px;padding:8px 14px;border:1px solid #cc2200;background:#1a0400;color:#cc4422;font-family:'Share Tech Mono',monospace;font-size:12px;line-height:1.2">// Think very hard about the system you would like to simulate, then, write what you predict the distribution would look like using the input form. After the input form is filled out, select "generate data" and the atomic sim will accurately simulate the system you are thinking about.<br>// Notice, the resulting distribution will likely closely resemble the distribution you specified. This is normal, and probably because you are very smart.</div>
+
+<div class="panel">
+<div class="section-label">// SELECT DATA TYPE //</div>
+<div class="tab-bar" id="main-tabs">
+<button class="tab-btn active" onclick="switchTab('one-quant')">ONE-SAMPLE QUANT</button>
+<button class="tab-btn" onclick="switchTab('one-cat')">ONE-SAMPLE CAT</button>
+<button class="tab-btn" onclick="switchTab('two-quant')">TWO-SAMPLE QUANT</button>
+<button class="tab-btn" onclick="switchTab('two-cat')">TWO-SAMPLE CAT</button>
+<button class="tab-btn" onclick="switchTab('anova')">ANOVA</button>
+<button class="tab-btn" onclick="switchTab('chi-sq')">CHI-SQUARED</button>
+<button class="tab-btn" onclick="switchTab('paired')">PAIRED MEANS</button>
+</div>
+</div>
+
+<!-- ==================== ONE-SAMPLE QUANTITATIVE ==================== -->
+<div id="tab-one-quant" class="tab-content active">
+<div class="panel">
+<div class="section-label">// ONE-SAMPLE QUANTITATIVE //</div>
+<div class="notice"><span class="label">INFO</span>Generate numerical data from a normal distribution. Use this for one-sample mean tests.<br>Output can be pasted into the <code>Descriptive Statistics</code> or <code>One Mean</code> applet.</div>
+
+<div class="form-row">
+<div class="form-group"><label>VARIABLE NAME</label><input type="text" id="oq-varname" value="measurement" placeholder="e.g. temperature"></div>
+<div class="form-group"><label>SAMPLE SIZE (n)</label><input type="number" id="oq-n" value="50" min="2" max="10000"></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label>TRUE MEAN</label><input type="number" id="oq-mean" value="20" step="any"></div>
+<div class="form-group"><label>TRUE SD</label><input type="number" id="oq-sd" value="5" step="any" min="0.01"></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label>LOWER BOUND (optional)</label><div class="bound-row"><select id="oq-lo-type" class="bound-select"><option value=">=">&ge; (inclusive)</option><option value=">">&gt; (exclusive)</option></select><input type="number" id="oq-lo" value="" step="any" placeholder="none"></div><div class="hint">Leave blank for no bound</div></div>
+<div class="form-group"><label>UPPER BOUND (optional)</label><div class="bound-row"><select id="oq-hi-type" class="bound-select"><option value="<=">&le; (inclusive)</option><option value="<">&lt; (exclusive)</option></select><input type="number" id="oq-hi" value="" step="any" placeholder="none"></div><div class="hint">Leave blank for no bound</div></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label>DECIMALS</label><input type="number" id="oq-dec" value="2" min="0" max="6"></div>
+<div class="form-group"><label>DISCRETE? (round to whole)</label><select id="oq-discrete"><option value="no">No (continuous)</option><option value="yes">Yes (whole numbers)</option></select></div>
+</div>
+
+<div class="btn-row">
+<button class="btn" onclick="generateOneQuant()">GENERATE DATA</button>
+</div>
+
+<div id="oq-output" style="display:none">
+<hr class="divider">
+<div id="oq-stats" class="stats-box"></div>
+<div class="hist-container"><span class="plot-label">// HISTOGRAM //</span><canvas id="oq-canvas" class="hist-canvas" height="220"></canvas></div>
+<div class="section-label" style="margin-top:14px">// OUTPUT FORMAT //</div>
+<div class="format-tabs" id="oq-formats">
+<button class="format-tab active" onclick="switchFormat('oq','desc',this)">DESCRIPTIVE STATS APPLET</button>
+<button class="format-tab" onclick="switchFormat('oq','onemean',this)">ONE MEAN APPLET</button>
+</div>
+<div class="data-preview"><span class="preview-label">// DATA PREVIEW //</span><pre id="oq-preview"></pre></div>
+<div class="btn-row">
+<button class="btn safe" onclick="saveData('oq')">SAVE AS TXT</button>
+<button class="btn secondary" onclick="copyData('oq')">COPY TO CLIPBOARD</button>
+</div>
+<div class="status-line" id="oq-status"></div>
+</div>
+</div>
+</div>
+
+<!-- ==================== ONE-SAMPLE CATEGORICAL ==================== -->
+<div id="tab-one-cat" class="tab-content">
+<div class="panel">
+<div class="section-label">// ONE-SAMPLE CATEGORICAL //</div>
+<div class="notice"><span class="label">INFO</span>Generate categorical data with specified probabilities. Use this for one-sample proportion tests.<br>Output can be pasted into the <code>Descriptive Statistics</code> applet.</div>
+
+<div class="form-row">
+<div class="form-group"><label>VARIABLE NAME</label><input type="text" id="oc-varname" value="outcome" placeholder="e.g. result"></div>
+<div class="form-group"><label>SAMPLE SIZE (n)</label><input type="number" id="oc-n" value="100" min="2" max="10000"></div>
+</div>
+
+<div class="section-label" style="font-size:16px;margin-top:10px">CATEGORIES &amp; PROBABILITIES</div>
+<div id="oc-categories">
+<div class="group-row">
+<input type="text" value="success" placeholder="Category name">
+<input type="number" value="0.6" step="0.01" min="0" max="1" placeholder="Prob" style="max-width:100px">
+<button class="remove-group" onclick="removeCatRow(this)" title="Remove">X</button>
+</div>
+<div class="group-row">
+<input type="text" value="failure" placeholder="Category name">
+<input type="number" value="0.4" step="0.01" min="0" max="1" placeholder="Prob" style="max-width:100px">
+<button class="remove-group" onclick="removeCatRow(this)" title="Remove">X</button>
+</div>
+</div>
+<div class="btn-row">
+<button class="btn secondary" onclick="addCatRow('oc-categories')">+ ADD CATEGORY</button>
+</div>
+<div class="hint" style="margin-top:4px">Probabilities should sum to 1.0</div>
+
+<div class="btn-row" style="margin-top:14px">
+<button class="btn" onclick="generateOneCat()">GENERATE DATA</button>
+</div>
+
+<div id="oc-output" style="display:none">
+<hr class="divider">
+<div id="oc-stats" class="stats-box"></div>
+<div class="hist-container"><span class="plot-label">// BAR CHART //</span><canvas id="oc-canvas" class="hist-canvas" height="220"></canvas></div>
+<div class="data-preview"><span class="preview-label">// DATA PREVIEW //</span><pre id="oc-preview"></pre></div>
+<div class="btn-row">
+<button class="btn safe" onclick="saveData('oc')">SAVE AS TXT</button>
+<button class="btn secondary" onclick="copyData('oc')">COPY TO CLIPBOARD</button>
+</div>
+<div class="status-line" id="oc-status"></div>
+</div>
+</div>
+</div>
+
+<!-- ==================== TWO-SAMPLE QUANTITATIVE ==================== -->
+<div id="tab-two-quant" class="tab-content">
+<div class="panel">
+<div class="section-label">// TWO-SAMPLE QUANTITATIVE //</div>
+<div class="notice"><span class="label">INFO</span>Generate numerical data for two groups. Use this for two-sample mean tests.<br>Output can be pasted into the <code>Descriptive Statistics</code> or <code>Multiple Means</code> applet.</div>
+
+<div class="form-group"><label>RESPONSE VARIABLE NAME</label><input type="text" id="tq-varname" value="score" placeholder="e.g. score"></div>
+
+<div class="panel" style="background:#000802;margin-top:10px">
+<div class="section-label" style="font-size:16px">GROUP 1</div>
+<div class="form-row">
+<div class="form-group"><label>GROUP NAME</label><input type="text" id="tq-g1name" value="treatment" placeholder="e.g. treatment"></div>
+<div class="form-group"><label>n</label><input type="number" id="tq-g1n" value="40" min="2" max="10000"></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label>MEAN</label><input type="number" id="tq-g1mean" value="25" step="any"></div>
+<div class="form-group"><label>SD</label><input type="number" id="tq-g1sd" value="5" step="any" min="0.01"></div>
+</div>
+</div>
+
+<div class="panel" style="background:#000802">
+<div class="section-label" style="font-size:16px">GROUP 2</div>
+<div class="form-row">
+<div class="form-group"><label>GROUP NAME</label><input type="text" id="tq-g2name" value="control" placeholder="e.g. control"></div>
+<div class="form-group"><label>n</label><input type="number" id="tq-g2n" value="40" min="2" max="10000"></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label>MEAN</label><input type="number" id="tq-g2mean" value="20" step="any"></div>
+<div class="form-group"><label>SD</label><input type="number" id="tq-g2sd" value="5" step="any" min="0.01"></div>
+</div>
+</div>
+
+<div class="form-row">
+<div class="form-group"><label>LOWER BOUND (optional)</label><div class="bound-row"><select id="tq-lo-type" class="bound-select"><option value=">=">&ge; (inclusive)</option><option value=">">&gt; (exclusive)</option></select><input type="number" id="tq-lo" value="" step="any" placeholder="none"></div></div>
+<div class="form-group"><label>UPPER BOUND (optional)</label><div class="bound-row"><select id="tq-hi-type" class="bound-select"><option value="<=">&le; (inclusive)</option><option value="<">&lt; (exclusive)</option></select><input type="number" id="tq-hi" value="" step="any" placeholder="none"></div></div>
+<div class="form-group"><label>DECIMALS</label><input type="number" id="tq-dec" value="2" min="0" max="6"></div>
+<div class="form-group"><label>DISCRETE?</label><select id="tq-discrete"><option value="no">No</option><option value="yes">Yes</option></select></div>
+</div>
+
+<div class="btn-row">
+<button class="btn" onclick="generateTwoQuant()">GENERATE DATA</button>
+</div>
+
+<div id="tq-output" style="display:none">
+<hr class="divider">
+<div id="tq-stats" class="stats-box"></div>
+<div class="hist-container"><span class="plot-label">// HISTOGRAMS //</span><canvas id="tq-canvas" class="hist-canvas" height="280"></canvas></div>
+<div class="section-label" style="margin-top:14px">// OUTPUT FORMAT //</div>
+<div class="format-tabs" id="tq-formats">
+<button class="format-tab active" onclick="switchFormat('tq','desc',this)">DESCRIPTIVE STATS APPLET</button>
+<button class="format-tab" onclick="switchFormat('tq','multmean',this)">MULTIPLE MEANS APPLET</button>
+</div>
+<div class="data-preview"><span class="preview-label">// DATA PREVIEW //</span><pre id="tq-preview"></pre></div>
+<div class="btn-row">
+<button class="btn safe" onclick="saveData('tq')">SAVE AS TXT</button>
+<button class="btn secondary" onclick="copyData('tq')">COPY TO CLIPBOARD</button>
+</div>
+<div class="status-line" id="tq-status"></div>
+</div>
+</div>
+</div>
+
+<!-- ==================== TWO-SAMPLE CATEGORICAL ==================== -->
+<div id="tab-two-cat" class="tab-content">
+<div class="panel">
+<div class="section-label">// TWO-SAMPLE CATEGORICAL //</div>
+<div class="notice"><span class="label">INFO</span>Generate categorical data for two groups with different probabilities. Use this for two-sample proportion tests.<br>Output can be pasted into the <code>Descriptive Statistics</code> applet.</div>
+
+<div class="form-group"><label>RESPONSE VARIABLE NAME</label><input type="text" id="tc-varname" value="outcome" placeholder="e.g. outcome"></div>
+<div class="form-row">
+<div class="form-group"><label>CATEGORY 1 NAME</label><input type="text" id="tc-cat1" value="success" placeholder="e.g. success"></div>
+<div class="form-group"><label>CATEGORY 2 NAME</label><input type="text" id="tc-cat2" value="failure" placeholder="e.g. failure"></div>
+</div>
+
+<div class="panel" style="background:#000802;margin-top:10px">
+<div class="section-label" style="font-size:16px">GROUP 1</div>
+<div class="form-row">
+<div class="form-group"><label>GROUP NAME</label><input type="text" id="tc-g1name" value="treatment" placeholder="e.g. treatment"></div>
+<div class="form-group"><label>n</label><input type="number" id="tc-g1n" value="50" min="2" max="10000"></div>
+<div class="form-group"><label>P(CATEGORY 1)</label><input type="number" id="tc-g1p" value="0.7" step="0.01" min="0" max="1"></div>
+</div>
+</div>
+
+<div class="panel" style="background:#000802">
+<div class="section-label" style="font-size:16px">GROUP 2</div>
+<div class="form-row">
+<div class="form-group"><label>GROUP NAME</label><input type="text" id="tc-g2name" value="control" placeholder="e.g. control"></div>
+<div class="form-group"><label>n</label><input type="number" id="tc-g2n" value="50" min="2" max="10000"></div>
+<div class="form-group"><label>P(CATEGORY 1)</label><input type="number" id="tc-g2p" value="0.5" step="0.01" min="0" max="1"></div>
+</div>
+</div>
+
+<div class="btn-row">
+<button class="btn" onclick="generateTwoCat()">GENERATE DATA</button>
+</div>
+
+<div id="tc-output" style="display:none">
+<hr class="divider">
+<div id="tc-stats" class="stats-box"></div>
+<div class="hist-container"><span class="plot-label">// BAR CHARTS //</span><canvas id="tc-canvas" class="hist-canvas" height="280"></canvas></div>
+<div class="data-preview"><span class="preview-label">// DATA PREVIEW //</span><pre id="tc-preview"></pre></div>
+<div class="btn-row">
+<button class="btn safe" onclick="saveData('tc')">SAVE AS TXT</button>
+<button class="btn secondary" onclick="copyData('tc')">COPY TO CLIPBOARD</button>
+</div>
+<div class="status-line" id="tc-status"></div>
+</div>
+</div>
+</div>
+
+<!-- ==================== ANOVA ==================== -->
+<div id="tab-anova" class="tab-content">
+<div class="panel">
+<div class="section-label">// ANOVA (3+ GROUPS) //</div>
+<div class="notice"><span class="label">INFO</span>Generate quantitative data for 3 or more groups. Use this for ANOVA tests.<br>Output can be pasted into the <code>Multiple Means</code> applet.</div>
+
+<div class="form-group"><label>RESPONSE VARIABLE NAME</label><input type="text" id="av-varname" value="score" placeholder="e.g. score"></div>
+<div class="form-row">
+<div class="form-group"><label>LOWER BOUND (optional)</label><div class="bound-row"><select id="av-lo-type" class="bound-select"><option value=">=">&ge; (inclusive)</option><option value=">">&gt; (exclusive)</option></select><input type="number" id="av-lo" value="" step="any" placeholder="none"></div></div>
+<div class="form-group"><label>UPPER BOUND (optional)</label><div class="bound-row"><select id="av-hi-type" class="bound-select"><option value="<=">&le; (inclusive)</option><option value="<">&lt; (exclusive)</option></select><input type="number" id="av-hi" value="" step="any" placeholder="none"></div></div>
+<div class="form-group"><label>DECIMALS</label><input type="number" id="av-dec" value="1" min="0" max="6"></div>
+<div class="form-group"><label>DISCRETE?</label><select id="av-discrete"><option value="no">No</option><option value="yes">Yes</option></select></div>
+</div>
+
+<div class="section-label" style="font-size:16px;margin-top:10px">GROUPS</div>
+<div id="av-groups">
+<div class="panel group-row-panel" style="background:#000802;padding:12px;margin-bottom:8px">
+<div class="form-row">
+<div class="form-group"><label>NAME</label><input type="text" value="group1" placeholder="Group name" class="av-gname"></div>
+<div class="form-group"><label>n</label><input type="number" value="30" min="2" max="10000" class="av-gn"></div>
+<div class="form-group"><label>MEAN</label><input type="number" value="20" step="any" class="av-gmean"></div>
+<div class="form-group"><label>SD</label><input type="number" value="5" step="any" min="0.01" class="av-gsd"></div>
+<div class="form-group" style="flex:0"><button class="remove-group" onclick="this.closest('.group-row-panel').remove()" style="margin-top:22px">X</button></div>
+</div>
+</div>
+<div class="panel group-row-panel" style="background:#000802;padding:12px;margin-bottom:8px">
+<div class="form-row">
+<div class="form-group"><label>NAME</label><input type="text" value="group2" placeholder="Group name" class="av-gname"></div>
+<div class="form-group"><label>n</label><input type="number" value="30" min="2" max="10000" class="av-gn"></div>
+<div class="form-group"><label>MEAN</label><input type="number" value="25" step="any" class="av-gmean"></div>
+<div class="form-group"><label>SD</label><input type="number" value="5" step="any" min="0.01" class="av-gsd"></div>
+<div class="form-group" style="flex:0"><button class="remove-group" onclick="this.closest('.group-row-panel').remove()" style="margin-top:22px">X</button></div>
+</div>
+</div>
+<div class="panel group-row-panel" style="background:#000802;padding:12px;margin-bottom:8px">
+<div class="form-row">
+<div class="form-group"><label>NAME</label><input type="text" value="group3" placeholder="Group name" class="av-gname"></div>
+<div class="form-group"><label>n</label><input type="number" value="30" min="2" max="10000" class="av-gn"></div>
+<div class="form-group"><label>MEAN</label><input type="number" value="30" step="any" class="av-gmean"></div>
+<div class="form-group"><label>SD</label><input type="number" value="5" step="any" min="0.01" class="av-gsd"></div>
+<div class="form-group" style="flex:0"><button class="remove-group" onclick="this.closest('.group-row-panel').remove()" style="margin-top:22px">X</button></div>
+</div>
+</div>
+</div>
+<div class="btn-row">
+<button class="btn secondary" onclick="addAnovaGroup()">+ ADD GROUP</button>
+</div>
+
+<div class="btn-row" style="margin-top:14px">
+<button class="btn" onclick="generateAnova()">GENERATE DATA</button>
+</div>
+
+<div id="av-output" style="display:none">
+<hr class="divider">
+<div id="av-stats" class="stats-box"></div>
+<div class="hist-container"><span class="plot-label">// HISTOGRAMS //</span><canvas id="av-canvas" class="hist-canvas" height="300"></canvas></div>
+<div class="data-preview"><span class="preview-label">// DATA PREVIEW //</span><pre id="av-preview"></pre></div>
+<div class="btn-row">
+<button class="btn safe" onclick="saveData('av')">SAVE AS TXT</button>
+<button class="btn secondary" onclick="copyData('av')">COPY TO CLIPBOARD</button>
+</div>
+<div class="status-line" id="av-status"></div>
+</div>
+</div>
+</div>
+
+<!-- ==================== CHI-SQUARED ==================== -->
+<div id="tab-chi-sq" class="tab-content">
+<div class="panel">
+<div class="section-label">// CHI-SQUARED TEST //</div>
+<div class="notice"><span class="label">INFO</span>Generate categorical data for multiple groups, each with their own probability distribution. Use this for chi-squared tests.<br>Output can be pasted into the <code>Multiple Proportions</code> applet.</div>
+
+<div class="form-group"><label>RESPONSE VARIABLE NAME</label><input type="text" id="cs-varname" value="outcome" placeholder="e.g. preference"></div>
+
+<div class="section-label" style="font-size:16px;margin-top:10px">CATEGORIES (outcome levels)</div>
+<div id="cs-cats">
+<div class="group-row"><input type="text" value="category1" placeholder="Category name"><button class="remove-group" onclick="removeCatRow(this)">X</button></div>
+<div class="group-row"><input type="text" value="category2" placeholder="Category name"><button class="remove-group" onclick="removeCatRow(this)">X</button></div>
+<div class="group-row"><input type="text" value="category3" placeholder="Category name"><button class="remove-group" onclick="removeCatRow(this)">X</button></div>
+</div>
+<div class="btn-row"><button class="btn secondary" onclick="addCatRow('cs-cats',true)">+ ADD CATEGORY</button></div>
+
+<div class="section-label" style="font-size:16px;margin-top:14px">GROUPS (with probabilities for each category)</div>
+<div class="hint" style="margin-bottom:8px">Each group's probabilities should sum to 1.0. Separate probabilities with commas matching the category order above.</div>
+<div id="cs-groups">
+<div class="panel group-row-panel" style="background:#000802;padding:12px;margin-bottom:8px">
+<div class="form-row">
+<div class="form-group"><label>GROUP NAME</label><input type="text" value="groupA" class="cs-gname"></div>
+<div class="form-group"><label>n</label><input type="number" value="50" min="2" max="10000" class="cs-gn"></div>
+<div class="form-group" style="flex:2"><label>PROBABILITIES (comma-separated)</label><input type="text" value="0.5, 0.3, 0.2" class="cs-gprobs" placeholder="e.g. 0.5, 0.3, 0.2"></div>
+<div class="form-group" style="flex:0"><button class="remove-group" onclick="this.closest('.group-row-panel').remove()" style="margin-top:22px">X</button></div>
+</div>
+</div>
+<div class="panel group-row-panel" style="background:#000802;padding:12px;margin-bottom:8px">
+<div class="form-row">
+<div class="form-group"><label>GROUP NAME</label><input type="text" value="groupB" class="cs-gname"></div>
+<div class="form-group"><label>n</label><input type="number" value="50" min="2" max="10000" class="cs-gn"></div>
+<div class="form-group" style="flex:2"><label>PROBABILITIES (comma-separated)</label><input type="text" value="0.3, 0.4, 0.3" class="cs-gprobs" placeholder="e.g. 0.3, 0.4, 0.3"></div>
+<div class="form-group" style="flex:0"><button class="remove-group" onclick="this.closest('.group-row-panel').remove()" style="margin-top:22px">X</button></div>
+</div>
+</div>
+</div>
+<div class="btn-row"><button class="btn secondary" onclick="addChiGroup()">+ ADD GROUP</button></div>
+
+<div class="btn-row" style="margin-top:14px">
+<button class="btn" onclick="generateChiSq()">GENERATE DATA</button>
+</div>
+
+<div id="cs-output" style="display:none">
+<hr class="divider">
+<div id="cs-stats" class="stats-box"></div>
+<div class="hist-container"><span class="plot-label">// BAR CHARTS //</span><canvas id="cs-canvas" class="hist-canvas" height="300"></canvas></div>
+<div class="data-preview"><span class="preview-label">// DATA PREVIEW //</span><pre id="cs-preview"></pre></div>
+<div class="btn-row">
+<button class="btn safe" onclick="saveData('cs')">SAVE AS TXT</button>
+<button class="btn secondary" onclick="copyData('cs')">COPY TO CLIPBOARD</button>
+</div>
+<div class="status-line" id="cs-status"></div>
+</div>
+</div>
+</div>
+
+<!-- ==================== PAIRED MEANS ==================== -->
+<div id="tab-paired" class="tab-content">
+<div class="panel">
+<div class="section-label">// PAIRED MEANS (MATCHED PAIRS) //</div>
+<div class="notice"><span class="label">INFO</span>Generate paired quantitative data (two correlated measurements per subject). Use this for matched-pairs t-tests.<br>Output can be pasted into the <code>Matched Pairs</code> applet.</div>
+
+<div class="form-row">
+<div class="form-group"><label>SAMPLE SIZE (n pairs)</label><input type="number" id="pm-n" value="30" min="2" max="10000"></div>
+<div class="form-group"><label>CORRELATION (ρ)</label><input type="number" id="pm-corr" value="0.6" step="0.01" min="-1" max="1"><div class="hint">How correlated the paired measurements are (-1 to 1)</div></div>
+</div>
+
+<div class="panel" style="background:#000802;margin-top:10px">
+<div class="section-label" style="font-size:16px">CONDITION 1</div>
+<div class="form-row">
+<div class="form-group"><label>NAME</label><input type="text" id="pm-c1name" value="before" placeholder="e.g. before"></div>
+<div class="form-group"><label>MEAN</label><input type="number" id="pm-c1mean" value="20" step="any"></div>
+<div class="form-group"><label>SD</label><input type="number" id="pm-c1sd" value="5" step="any" min="0.01"></div>
+</div>
+</div>
+
+<div class="panel" style="background:#000802">
+<div class="section-label" style="font-size:16px">CONDITION 2</div>
+<div class="form-row">
+<div class="form-group"><label>NAME</label><input type="text" id="pm-c2name" value="after" placeholder="e.g. after"></div>
+<div class="form-group"><label>MEAN</label><input type="number" id="pm-c2mean" value="24" step="any"></div>
+<div class="form-group"><label>SD</label><input type="number" id="pm-c2sd" value="5" step="any" min="0.01"></div>
+</div>
+</div>
+
+<div class="form-row">
+<div class="form-group"><label>LOWER BOUND (optional)</label><div class="bound-row"><select id="pm-lo-type" class="bound-select"><option value=">=">&ge; (inclusive)</option><option value=">">&gt; (exclusive)</option></select><input type="number" id="pm-lo" value="" step="any" placeholder="none"></div></div>
+<div class="form-group"><label>UPPER BOUND (optional)</label><div class="bound-row"><select id="pm-hi-type" class="bound-select"><option value="<=">&le; (inclusive)</option><option value="<">&lt; (exclusive)</option></select><input type="number" id="pm-hi" value="" step="any" placeholder="none"></div></div>
+<div class="form-group"><label>DECIMALS</label><input type="number" id="pm-dec" value="2" min="0" max="6"></div>
+<div class="form-group"><label>DISCRETE?</label><select id="pm-discrete"><option value="no">No</option><option value="yes">Yes</option></select></div>
+</div>
+
+<div class="btn-row">
+<button class="btn" onclick="generatePaired()">GENERATE DATA</button>
+</div>
+
+<div id="pm-output" style="display:none">
+<hr class="divider">
+<div id="pm-stats" class="stats-box"></div>
+<div class="hist-container"><span class="plot-label">// HISTOGRAMS //</span><canvas id="pm-canvas" class="hist-canvas" height="420"></canvas></div>
+<div class="hist-container"><span class="plot-label">// PAIRED DOT &amp; LINE PLOT //</span><canvas id="pm-dotline" class="hist-canvas" height="320"></canvas></div>
+<div class="section-label" style="margin-top:14px">// OUTPUT FORMAT //</div>
+<div class="format-tabs" id="pm-formats">
+<button class="format-tab active" onclick="switchFormat('pm','matched',this)">MATCHED PAIRS APPLET</button>
+<button class="format-tab" onclick="switchFormat('pm','diff',this)">DIFFERENCES ONLY</button>
+</div>
+<div class="data-preview"><span class="preview-label">// DATA PREVIEW //</span><pre id="pm-preview"></pre></div>
+<div class="btn-row">
+<button class="btn safe" onclick="saveData('pm')">SAVE AS TXT</button>
+<button class="btn secondary" onclick="copyData('pm')">COPY TO CLIPBOARD</button>
+</div>
+<div class="status-line" id="pm-status"></div>
+</div>
+</div>
+</div>
+
+</main>
+
+<script>
+/* ===== GLOBALS ===== */
+const dataStore = {}; // keyed by prefix, holds {text, filename}
+
+/* ===== TAB SWITCHING ===== */
+function switchTab(id) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('#main-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  const labels = {'one-quant':0,'one-cat':1,'two-quant':2,'two-cat':3,'anova':4,'chi-sq':5,'paired':6};
+  document.querySelectorAll('#main-tabs .tab-btn')[labels[id]].classList.add('active');
+}
+
+function switchFormat(prefix, fmt, el) {
+  const container = document.getElementById(prefix + '-formats');
+  container.querySelectorAll('.format-tab').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  // regenerate preview with new format
+  if (prefix === 'oq') renderOneQuantPreview(fmt);
+  if (prefix === 'tq') renderTwoQuantPreview(fmt);
+  if (prefix === 'pm') renderPairedPreview(fmt);
+}
+
+/* ===== RNG HELPERS ===== */
+function showError(msg) {
+  document.getElementById('error-msg').textContent = msg;
+  document.getElementById('error-overlay').classList.add('active');
+}
+function closeError() {
+  document.getElementById('error-overlay').classList.remove('active');
+}
+
+function randNormal(mean, sd) {
+  let u = 0, v = 0;
+  while (u === 0) u = Math.random();
+  while (v === 0) v = Math.random();
+  return mean + sd * Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+}
+
+function generateValue(mean, sd, lo, hi, loType, hiType, decimals, discrete) {
+  loType = loType || '>=';
+  hiType = hiType || '<=';
+  const hasLo = lo !== '' && lo !== null && !isNaN(lo);
+  const hasHi = hi !== '' && hi !== null && !isNaN(hi);
+  const loN = hasLo ? Number(lo) : -Infinity;
+  const hiN = hasHi ? Number(hi) : Infinity;
+  // Resample up to 1000 times to satisfy bounds
+  for (let attempt = 0; attempt < 1000; attempt++) {
+    let v = randNormal(mean, sd);
+    // Round first
+    v = discrete ? Math.round(v) : Number(v.toFixed(decimals));
+    // Check bounds
+    if (hasLo) {
+      if (loType === '>='  && v < loN)  continue;
+      if (loType === '>'   && v <= loN) continue;
+    }
+    if (hasHi) {
+      if (hiType === '<='  && v > hiN)  continue;
+      if (hiType === '<'   && v >= hiN) continue;
+    }
+    return v;
+  }
+  // If we couldn't generate a valid value after 1000 attempts, the bounds are too tight
+  throw new Error('Could not generate a value within the specified bounds. Your bounds may be too far from the mean or too narrow for the given SD.');
+}
+
+function sampleCategorical(categories, probs, n) {
+  // Normalize probs to sum to exactly 1 to prevent dropped samples
+  const sum = probs.reduce((a, b) => a + b, 0);
+  const normProbs = sum > 0 ? probs.map(p => p / sum) : probs;
+  const cumulative = [];
+  let cumSum = 0;
+  for (let i = 0; i < normProbs.length; i++) { cumSum += normProbs[i]; cumulative.push(cumSum); }
+  cumulative[cumulative.length - 1] = 1.0; // ensure last bucket catches everything
+  const results = [];
+  for (let i = 0; i < n; i++) {
+    const r = Math.random();
+    for (let j = 0; j < cumulative.length; j++) {
+      if (r < cumulative[j]) { results.push(categories[j]); break; }
+    }
+  }
+  return results;
+}
+
+function calcMean(arr) { return arr.reduce((a,b) => a+b, 0) / arr.length; }
+function calcSD(arr) {
+  const m = calcMean(arr);
+  return Math.sqrt(arr.reduce((s, v) => s + (v - m) ** 2, 0) / (arr.length - 1));
+}
+
+/* ===== HISTOGRAM DRAWING ===== */
+function drawHistogram(canvasId, data, color, label, offsetY, totalHeight, perGroup) {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+
+  if (offsetY === 0) {
+    canvas.width = canvas.clientWidth * dpr;
+    canvas.height = totalHeight * dpr;
+    canvas.style.height = totalHeight + 'px';
+    ctx.scale(dpr, dpr);
+  }
+
+  const W = canvas.clientWidth;
+  const slotH = perGroup || totalHeight;
+  const marginL = 50, marginR = 20, marginT = offsetY + 24, marginB = 30;
+  const plotW = W - marginL - marginR;
+  const plotH = slotH - marginB - 24;
+
+  // Label
+  ctx.font = "14px 'VT323', monospace";
+  ctx.fillStyle = color;
+  ctx.fillText(label, marginL, offsetY + 16);
+
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const nBins = Math.min(Math.max(Math.ceil(Math.sqrt(data.length)), 5), 30);
+  const binW = range / nBins;
+
+  const bins = new Array(nBins).fill(0);
+  data.forEach(v => {
+    let idx = Math.floor((v - min) / binW);
+    if (idx >= nBins) idx = nBins - 1;
+    bins[idx]++;
+  });
+  const maxCount = Math.max(...bins);
+
+  // Axes
+  ctx.strokeStyle = '#006611';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(marginL, marginT);
+  ctx.lineTo(marginL, marginT + plotH);
+  ctx.lineTo(marginL + plotW, marginT + plotH);
+  ctx.stroke();
+
+  // Bars
+  const barW = plotW / nBins;
+  bins.forEach((count, i) => {
+    const h = maxCount > 0 ? (count / maxCount) * (plotH - 10) : 0;
+    const x = marginL + i * barW;
+    const y = marginT + plotH - h;
+    ctx.fillStyle = color + '66';
+    ctx.fillRect(x + 1, y, barW - 2, h);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x + 1, y, barW - 2, h);
+  });
+
+  // X-axis labels
+  ctx.fillStyle = '#008833';
+  ctx.font = "11px 'Share Tech Mono', monospace";
+  const step = Math.max(1, Math.floor(nBins / 6));
+  for (let i = 0; i <= nBins; i += step) {
+    const val = (min + i * binW).toFixed(1);
+    const x = marginL + i * barW;
+    ctx.fillText(val, x - 10, marginT + plotH + 14);
+  }
+
+  // Y-axis labels
+  for (let i = 0; i <= 4; i++) {
+    const val = Math.round(maxCount * i / 4);
+    const y = marginT + plotH - (plotH - 10) * i / 4;
+    ctx.fillText(val, 5, y + 4);
+    ctx.strokeStyle = '#00331144';
+    ctx.beginPath(); ctx.moveTo(marginL, y); ctx.lineTo(marginL + plotW, y); ctx.stroke();
+  }
+}
+
+function drawBarChart(canvasId, categories, counts, color, label, offsetY, totalHeight, perGroup) {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+
+  if (offsetY === 0) {
+    canvas.width = canvas.clientWidth * dpr;
+    canvas.height = totalHeight * dpr;
+    canvas.style.height = totalHeight + 'px';
+    ctx.scale(dpr, dpr);
+  }
+
+  const W = canvas.clientWidth;
+  const slotH = perGroup || totalHeight;
+  const marginL = 50, marginR = 20, marginT = offsetY + 24, marginB = 40;
+  const plotW = W - marginL - marginR;
+  const plotH = slotH - marginB - 24;
+  const maxCount = Math.max(...counts, 1);
+
+  // Label
+  ctx.font = "14px 'VT323', monospace";
+  ctx.fillStyle = color;
+  ctx.fillText(label, marginL, offsetY + 16);
+
+  // Axes
+  ctx.strokeStyle = '#006611';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(marginL, marginT);
+  ctx.lineTo(marginL, marginT + plotH);
+  ctx.lineTo(marginL + plotW, marginT + plotH);
+  ctx.stroke();
+
+  // Bars
+  const nBars = categories.length;
+  const gap = 8;
+  const barW = (plotW - gap * (nBars + 1)) / nBars;
+
+  categories.forEach((cat, i) => {
+    const h = (counts[i] / maxCount) * (plotH - 10);
+    const x = marginL + gap + i * (barW + gap);
+    const y = marginT + plotH - h;
+    ctx.fillStyle = color + '66';
+    ctx.fillRect(x, y, barW, h);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x, y, barW, h);
+
+    // Count label
+    ctx.fillStyle = '#66ffcc';
+    ctx.font = "12px 'VT323', monospace";
+    ctx.textAlign = 'center';
+    ctx.fillText(counts[i], x + barW / 2, y - 4);
+
+    // Category label
+    ctx.fillStyle = '#008833';
+    ctx.font = "11px 'Share Tech Mono', monospace";
+    ctx.fillText(cat.length > 10 ? cat.slice(0,9) + '..' : cat, x + barW / 2, marginT + plotH + 14);
+    ctx.textAlign = 'left';
+  });
+
+  // Y-axis labels
+  ctx.fillStyle = '#008833';
+  ctx.font = "11px 'Share Tech Mono', monospace";
+  for (let i = 0; i <= 4; i++) {
+    const val = Math.round(maxCount * i / 4);
+    const y = marginT + plotH - (plotH - 10) * i / 4;
+    ctx.fillText(val, 5, y + 4);
+  }
+}
+
+/* ===== PAIRED DOT & LINE PLOT ===== */
+function drawPairedDotLine(canvasId, c1, c2, c1name, c2name) {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const H = 320;
+  canvas.width = canvas.clientWidth * dpr;
+  canvas.height = H * dpr;
+  canvas.style.height = H + 'px';
+  ctx.scale(dpr, dpr);
+
+  const W = canvas.clientWidth;
+  const marginL = 55, marginR = 55, marginT = 30, marginB = 40;
+  const plotW = W - marginL - marginR;
+  const plotH = H - marginT - marginB;
+
+  // Two x-positions: one column for each condition
+  const x1 = marginL + plotW * 0.25;
+  const x2 = marginL + plotW * 0.75;
+
+  // Y-axis: shared scale across both conditions
+  const all = c1.concat(c2);
+  const yMin = Math.min(...all);
+  const yMax = Math.max(...all);
+  const yRange = yMax - yMin || 1;
+  const yPad = yRange * 0.08;
+
+  function yPos(v) {
+    return marginT + plotH - ((v - (yMin - yPad)) / (yRange + 2 * yPad)) * plotH;
+  }
+
+  // Background axes
+  ctx.strokeStyle = '#006611';
+  ctx.lineWidth = 1;
+  // Vertical axis line
+  ctx.beginPath();
+  ctx.moveTo(marginL, marginT);
+  ctx.lineTo(marginL, marginT + plotH);
+  ctx.stroke();
+  // Horizontal baseline
+  ctx.beginPath();
+  ctx.moveTo(marginL, marginT + plotH);
+  ctx.lineTo(W - marginR, marginT + plotH);
+  ctx.stroke();
+
+  // Y-axis tick labels
+  ctx.fillStyle = '#008833';
+  ctx.font = "11px 'Share Tech Mono', monospace";
+  ctx.textAlign = 'right';
+  const nTicks = 6;
+  for (let i = 0; i <= nTicks; i++) {
+    const v = (yMin - yPad) + (yRange + 2 * yPad) * i / nTicks;
+    const y = yPos(v);
+    ctx.fillText(v.toFixed(1), marginL - 6, y + 4);
+    ctx.strokeStyle = '#00331133';
+    ctx.beginPath(); ctx.moveTo(marginL, y); ctx.lineTo(W - marginR, y); ctx.stroke();
+  }
+  ctx.textAlign = 'left';
+
+  // Column labels
+  ctx.font = "16px 'VT323', monospace";
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#00cc22';
+  ctx.fillText(c1name.toUpperCase(), x1, marginT + plotH + 24);
+  ctx.fillStyle = '#22aaff';
+  ctx.fillText(c2name.toUpperCase(), x2, marginT + plotH + 24);
+  ctx.textAlign = 'left';
+
+  // Title
+  ctx.font = "14px 'VT323', monospace";
+  ctx.fillStyle = '#008833';
+  ctx.fillText('PAIRED OBSERVATIONS', marginL, marginT - 10);
+
+  // Lines connecting pairs
+  for (let i = 0; i < c1.length; i++) {
+    const y1 = yPos(c1[i]);
+    const y2 = yPos(c2[i]);
+    const increased = c2[i] > c1[i];
+    ctx.strokeStyle = increased ? '#22aaff44' : '#cc220044';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+  }
+
+  // Dots — condition 1
+  for (let i = 0; i < c1.length; i++) {
+    const y = yPos(c1[i]);
+    ctx.beginPath();
+    ctx.arc(x1, y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#00cc22';
+    ctx.fill();
+    ctx.strokeStyle = '#00cc22';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // Dots — condition 2
+  for (let i = 0; i < c2.length; i++) {
+    const y = yPos(c2[i]);
+    ctx.beginPath();
+    ctx.arc(x2, y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#22aaff';
+    ctx.fill();
+    ctx.strokeStyle = '#22aaff';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // Mean markers
+  const m1 = calcMean(c1), m2 = calcMean(c2);
+  ctx.lineWidth = 2;
+  const tickW = 14;
+
+  ctx.strokeStyle = '#00cc22';
+  ctx.beginPath();
+  ctx.moveTo(x1 - tickW, yPos(m1));
+  ctx.lineTo(x1 + tickW, yPos(m1));
+  ctx.stroke();
+
+  ctx.strokeStyle = '#22aaff';
+  ctx.beginPath();
+  ctx.moveTo(x2 - tickW, yPos(m2));
+  ctx.lineTo(x2 + tickW, yPos(m2));
+  ctx.stroke();
+
+  // Mean labels
+  ctx.font = "12px 'VT323', monospace";
+  ctx.fillStyle = '#00cc22';
+  ctx.textAlign = 'right';
+  ctx.fillText('x\u0304=' + m1.toFixed(2), x1 - tickW - 4, yPos(m1) + 4);
+  ctx.fillStyle = '#22aaff';
+  ctx.textAlign = 'left';
+  ctx.fillText('x\u0304=' + m2.toFixed(2), x2 + tickW + 4, yPos(m2) + 4);
+  ctx.textAlign = 'left';
+
+  // Legend for line colors
+  ctx.font = "12px 'VT323', monospace";
+  const legX = W - marginR - 4;
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#22aaff';
+  ctx.fillText('\u2014 increased', legX, marginT + 4);
+  ctx.fillStyle = '#cc2200';
+  ctx.fillText('\u2014 decreased', legX, marginT + 18);
+  ctx.textAlign = 'left';
+}
+
+/* ===== ONE-SAMPLE QUANTITATIVE ===== */
+let oqData = [];
+let oqFormat = 'desc';
+
+function generateOneQuant() {
+  const varname = document.getElementById('oq-varname').value || 'value';
+  const n = parseInt(document.getElementById('oq-n').value) || 50;
+  const mean = parseFloat(document.getElementById('oq-mean').value) || 0;
+  const sd = parseFloat(document.getElementById('oq-sd').value) || 1;
+  const lo = document.getElementById('oq-lo').value;
+  const hi = document.getElementById('oq-hi').value;
+  const loType = document.getElementById('oq-lo-type').value;
+  const hiType = document.getElementById('oq-hi-type').value;
+  const dec = parseInt(document.getElementById('oq-dec').value) || 0;
+  const discrete = document.getElementById('oq-discrete').value === 'yes';
+
+  oqData = [];
+  try {
+    for (let i = 0; i < n; i++) {
+      oqData.push(generateValue(mean, sd, lo, hi, loType, hiType, dec, discrete));
+    }
+  } catch (e) { showError(e.message); return; }
+
+  // Stats
+  const m = calcMean(oqData);
+  const s = calcSD(oqData);
+  document.getElementById('oq-stats').innerHTML =
+    `<div class="stat-item"><span class="stat-label">n</span><span class="stat-val">${n}</span></div>` +
+    `<div class="stat-item"><span class="stat-label">SAMPLE MEAN</span><span class="stat-val">${m.toFixed(3)}</span></div>` +
+    `<div class="stat-item"><span class="stat-label">SAMPLE SD</span><span class="stat-val">${s.toFixed(3)}</span></div>` +
+    `<div class="stat-item"><span class="stat-label">MIN</span><span class="stat-val">${Math.min(...oqData)}</span></div>` +
+    `<div class="stat-item"><span class="stat-label">MAX</span><span class="stat-val">${Math.max(...oqData)}</span></div>`;
+
+  // Show output first so canvas has layout dimensions
+  document.getElementById('oq-output').style.display = 'block';
+
+  // Histogram
+  drawHistogram('oq-canvas', oqData, '#00cc22', varname.toUpperCase(), 0, 220, 220);
+
+  // Preview
+  oqFormat = 'desc';
+  document.querySelectorAll('#oq-formats .format-tab').forEach((b, i) => b.classList.toggle('active', i === 0));
+  renderOneQuantPreview('desc');
+
+  document.getElementById('oq-output').scrollIntoView({behavior: 'smooth'});
+}
+
+function renderOneQuantPreview(fmt) {
+  oqFormat = fmt;
+  const varname = document.getElementById('oq-varname').value || 'value';
+  let text = '';
+  if (fmt === 'desc') {
+    text = varname + '\n' + oqData.join('\n');
+  } else {
+    text = 'ID\t' + varname + '\n';
+    oqData.forEach((v, i) => { text += (i + 1) + '\t' + v + '\n'; });
+    text = text.trimEnd();
+  }
+  document.getElementById('oq-preview').textContent = text;
+  dataStore['oq'] = { text, filename: varname + '_one_sample.txt' };
+}
+
+/* ===== ONE-SAMPLE CATEGORICAL ===== */
+let ocData = [];
+
+function generateOneCat() {
+  const varname = document.getElementById('oc-varname').value || 'outcome';
+  const n = parseInt(document.getElementById('oc-n').value) || 100;
+
+  const rows = document.querySelectorAll('#oc-categories .group-row');
+  const cats = [], probs = [];
+  rows.forEach(r => {
+    const inputs = r.querySelectorAll('input');
+    cats.push(inputs[0].value || 'cat');
+    probs.push(parseFloat(inputs[1].value) || 0);
+  });
+
+  const probSum = probs.reduce((a, b) => a + b, 0);
+  if (Math.abs(probSum - 1) > 0.01) {
+    showError('ERROR: Probabilities must sum to 1.0 (currently ' + probSum.toFixed(3) + ')');
+    return;
+  }
+
+  ocData = sampleCategorical(cats, probs, n);
+
+  // Counts
+  const countMap = {};
+  cats.forEach(c => countMap[c] = 0);
+  ocData.forEach(v => countMap[v] = (countMap[v] || 0) + 1);
+
+  const counts = cats.map(c => countMap[c]);
+  document.getElementById('oc-stats').innerHTML =
+    `<div class="stat-item"><span class="stat-label">n</span><span class="stat-val">${n}</span></div>` +
+    cats.map((c, i) => `<div class="stat-item"><span class="stat-label">${c.toUpperCase()}</span><span class="stat-val">${counts[i]} (${(counts[i]/n*100).toFixed(1)}%)</span></div>`).join('');
+
+  // Show output first so canvas has layout dimensions
+  document.getElementById('oc-output').style.display = 'block';
+
+  // Bar chart
+  drawBarChart('oc-canvas', cats, counts, '#00cc22', varname.toUpperCase(), 0, 220, 220);
+
+  // Preview - descriptive stats format
+  const text = varname + '\n' + ocData.join('\n');
+  document.getElementById('oc-preview').textContent = text;
+  dataStore['oc'] = { text, filename: varname + '_one_sample_cat.txt' };
+
+  document.getElementById('oc-output').scrollIntoView({behavior: 'smooth'});
+}
+
+/* ===== TWO-SAMPLE QUANTITATIVE ===== */
+let tqData = { g1: [], g2: [], g1name: '', g2name: '' };
+let tqFormat = 'desc';
+
+function generateTwoQuant() {
+  const varname = document.getElementById('tq-varname').value || 'score';
+  const g1name = document.getElementById('tq-g1name').value || 'group1';
+  const g2name = document.getElementById('tq-g2name').value || 'group2';
+  const g1n = parseInt(document.getElementById('tq-g1n').value) || 40;
+  const g2n = parseInt(document.getElementById('tq-g2n').value) || 40;
+  const g1mean = parseFloat(document.getElementById('tq-g1mean').value) || 0;
+  const g2mean = parseFloat(document.getElementById('tq-g2mean').value) || 0;
+  const g1sd = parseFloat(document.getElementById('tq-g1sd').value) || 1;
+  const g2sd = parseFloat(document.getElementById('tq-g2sd').value) || 1;
+  const lo = document.getElementById('tq-lo').value;
+  const hi = document.getElementById('tq-hi').value;
+  const loType = document.getElementById('tq-lo-type').value;
+  const hiType = document.getElementById('tq-hi-type').value;
+  const dec = parseInt(document.getElementById('tq-dec').value) || 0;
+  const discrete = document.getElementById('tq-discrete').value === 'yes';
+
+  tqData.g1 = []; tqData.g2 = [];
+  tqData.g1name = g1name; tqData.g2name = g2name;
+
+  try {
+    for (let i = 0; i < g1n; i++) {
+      tqData.g1.push(generateValue(g1mean, g1sd, lo, hi, loType, hiType, dec, discrete));
+    }
+    for (let i = 0; i < g2n; i++) {
+      tqData.g2.push(generateValue(g2mean, g2sd, lo, hi, loType, hiType, dec, discrete));
+    }
+  } catch (e) { showError(e.message); return; }
+
+  const m1 = calcMean(tqData.g1), s1 = calcSD(tqData.g1);
+  const m2 = calcMean(tqData.g2), s2 = calcSD(tqData.g2);
+
+  document.getElementById('tq-stats').innerHTML =
+    `<div class="stat-item"><span class="stat-label">${g1name.toUpperCase()} n</span><span class="stat-val">${g1n}</span></div>` +
+    `<div class="stat-item"><span class="stat-label">${g1name.toUpperCase()} MEAN</span><span class="stat-val">${m1.toFixed(3)}</span></div>` +
+    `<div class="stat-item"><span class="stat-label">${g1name.toUpperCase()} SD</span><span class="stat-val">${s1.toFixed(3)}</span></div>` +
+    `<div class="stat-item"><span class="stat-label">${g2name.toUpperCase()} n</span><span class="stat-val">${g2n}</span></div>` +
+    `<div class="stat-item"><span class="stat-label">${g2name.toUpperCase()} MEAN</span><span class="stat-val">${m2.toFixed(3)}</span></div>` +
+    `<div class="stat-item"><span class="stat-label">${g2name.toUpperCase()} SD</span><span class="stat-val">${s2.toFixed(3)}</span></div>`;
+
+  // Show output first so canvas has layout dimensions
+  document.getElementById('tq-output').style.display = 'block';
+
+  // Histograms
+  drawHistogram('tq-canvas', tqData.g1, '#00cc22', g1name.toUpperCase(), 0, 280, 140);
+  drawHistogram('tq-canvas', tqData.g2, '#22aaff', g2name.toUpperCase(), 140, 280, 140);
+
+  tqFormat = 'desc';
+  document.querySelectorAll('#tq-formats .format-tab').forEach((b, i) => b.classList.toggle('active', i === 0));
+  renderTwoQuantPreview('desc');
+
+  document.getElementById('tq-output').scrollIntoView({behavior: 'smooth'});
+}
+
+function renderTwoQuantPreview(fmt) {
+  tqFormat = fmt;
+  const varname = document.getElementById('tq-varname').value || 'score';
+  let text = '';
+  if (fmt === 'desc') {
+    text = 'Person\t' + varname + '\n';
+    tqData.g1.forEach(v => { text += tqData.g1name + '\t' + v + '\n'; });
+    tqData.g2.forEach(v => { text += tqData.g2name + '\t' + v + '\n'; });
+    text = text.trimEnd();
+  } else {
+    text = 'treatment\t' + varname + '\n';
+    tqData.g1.forEach(v => { text += tqData.g1name + '\t' + v + '\n'; });
+    tqData.g2.forEach(v => { text += tqData.g2name + '\t' + v + '\n'; });
+    text = text.trimEnd();
+  }
+  document.getElementById('tq-preview').textContent = text;
+  dataStore['tq'] = { text, filename: varname + '_two_sample.txt' };
+}
+
+/* ===== TWO-SAMPLE CATEGORICAL ===== */
+let tcData = { g1: [], g2: [] };
+
+function generateTwoCat() {
+  const varname = document.getElementById('tc-varname').value || 'outcome';
+  const cat1 = document.getElementById('tc-cat1').value || 'success';
+  const cat2 = document.getElementById('tc-cat2').value || 'failure';
+  const g1name = document.getElementById('tc-g1name').value || 'group1';
+  const g2name = document.getElementById('tc-g2name').value || 'group2';
+  const g1n = parseInt(document.getElementById('tc-g1n').value) || 50;
+  const g2n = parseInt(document.getElementById('tc-g2n').value) || 50;
+  const g1p = parseFloat(document.getElementById('tc-g1p').value) || 0.5;
+  const g2p = parseFloat(document.getElementById('tc-g2p').value) || 0.5;
+
+  tcData.g1 = sampleCategorical([cat1, cat2], [g1p, 1 - g1p], g1n);
+  tcData.g2 = sampleCategorical([cat1, cat2], [g2p, 1 - g2p], g2n);
+
+  const g1c1 = tcData.g1.filter(v => v === cat1).length;
+  const g1c2 = g1n - g1c1;
+  const g2c1 = tcData.g2.filter(v => v === cat1).length;
+  const g2c2 = g2n - g2c1;
+
+  document.getElementById('tc-stats').innerHTML =
+    `<div class="stat-item"><span class="stat-label">${g1name.toUpperCase()}</span><span class="stat-val">${cat1}: ${g1c1}, ${cat2}: ${g1c2}</span></div>` +
+    `<div class="stat-item"><span class="stat-label">${g2name.toUpperCase()}</span><span class="stat-val">${cat1}: ${g2c1}, ${cat2}: ${g2c2}</span></div>`;
+
+  // Show output first so canvas has layout dimensions
+  document.getElementById('tc-output').style.display = 'block';
+
+  // Bar charts
+  drawBarChart('tc-canvas', [cat1, cat2], [g1c1, g1c2], '#00cc22', g1name.toUpperCase(), 0, 280, 140);
+  drawBarChart('tc-canvas', [cat1, cat2], [g2c1, g2c2], '#22aaff', g2name.toUpperCase(), 140, 280, 140);
+
+  // Preview
+  let text = 'Person\t' + varname + '\n';
+  tcData.g1.forEach(v => { text += g1name + '\t' + v + '\n'; });
+  tcData.g2.forEach(v => { text += g2name + '\t' + v + '\n'; });
+  text = text.trimEnd();
+  document.getElementById('tc-preview').textContent = text;
+  dataStore['tc'] = { text, filename: varname + '_two_sample_cat.txt' };
+
+  document.getElementById('tc-output').scrollIntoView({behavior: 'smooth'});
+}
+
+/* ===== ANOVA ===== */
+let avData = [];
+
+function generateAnova() {
+  const varname = document.getElementById('av-varname').value || 'score';
+  const lo = document.getElementById('av-lo').value;
+  const hi = document.getElementById('av-hi').value;
+  const loType = document.getElementById('av-lo-type').value;
+  const hiType = document.getElementById('av-hi-type').value;
+  const dec = parseInt(document.getElementById('av-dec').value) || 0;
+  const discrete = document.getElementById('av-discrete').value === 'yes';
+
+  const panels = document.querySelectorAll('#av-groups .group-row-panel');
+  avData = [];
+  const colors = ['#00cc22','#22aaff','#ffcc66','#ee44aa','#44eedd','#aa44ff','#ff8833','#4488ff'];
+
+  let avError = false;
+  panels.forEach((p, idx) => {
+    if (avError) return;
+    const name = p.querySelector('.av-gname').value || ('group' + (idx + 1));
+    const n = parseInt(p.querySelector('.av-gn').value) || 30;
+    const mean = parseFloat(p.querySelector('.av-gmean').value) || 0;
+    const sd = parseFloat(p.querySelector('.av-gsd').value) || 1;
+    const values = [];
+    try {
+      for (let i = 0; i < n; i++) {
+        values.push(generateValue(mean, sd, lo, hi, loType, hiType, dec, discrete));
+      }
+    } catch (e) { showError(e.message); avError = true; return; }
+    avData.push({ name, n, values, color: colors[idx % colors.length] });
+  });
+  if (avError) return;
+
+  // Stats
+  document.getElementById('av-stats').innerHTML = avData.map(g =>
+    `<div class="stat-item"><span class="stat-label">${g.name.toUpperCase()} (n=${g.n})</span><span class="stat-val">x̄=${calcMean(g.values).toFixed(2)}, s=${calcSD(g.values).toFixed(2)}</span></div>`
+  ).join('');
+
+  // Show output first so canvas has layout dimensions
+  document.getElementById('av-output').style.display = 'block';
+
+  // Histograms
+  const perGroup = 140;
+  const totalH = avData.length * perGroup;
+  avData.forEach((g, i) => {
+    drawHistogram('av-canvas', g.values, g.color, g.name.toUpperCase(), i * perGroup, totalH, perGroup);
+  });
+
+  // Preview - multiple means format
+  let text = 'treatment\t' + varname + '\n';
+  avData.forEach(g => {
+    g.values.forEach(v => { text += g.name + '\t' + v + '\n'; });
+  });
+  text = text.trimEnd();
+  document.getElementById('av-preview').textContent = text;
+  dataStore['av'] = { text, filename: varname + '_anova.txt' };
+
+  document.getElementById('av-output').scrollIntoView({behavior: 'smooth'});
+}
+
+function addAnovaGroup() {
+  const container = document.getElementById('av-groups');
+  const idx = container.querySelectorAll('.group-row-panel').length + 1;
+  const div = document.createElement('div');
+  div.className = 'panel group-row-panel';
+  div.style.cssText = 'background:#000802;padding:12px;margin-bottom:8px';
+  div.innerHTML = `<div class="form-row">
+    <div class="form-group"><label>NAME</label><input type="text" value="group${idx}" class="av-gname"></div>
+    <div class="form-group"><label>n</label><input type="number" value="30" min="2" max="10000" class="av-gn"></div>
+    <div class="form-group"><label>MEAN</label><input type="number" value="20" step="any" class="av-gmean"></div>
+    <div class="form-group"><label>SD</label><input type="number" value="5" step="any" min="0.01" class="av-gsd"></div>
+    <div class="form-group" style="flex:0"><button class="remove-group" onclick="this.closest('.group-row-panel').remove()" style="margin-top:22px">X</button></div>
+  </div>`;
+  container.appendChild(div);
+}
+
+/* ===== CHI-SQUARED ===== */
+let csData = [];
+
+function generateChiSq() {
+  const varname = document.getElementById('cs-varname').value || 'outcome';
+
+  // Get categories
+  const catRows = document.querySelectorAll('#cs-cats .group-row');
+  const cats = [];
+  catRows.forEach(r => cats.push(r.querySelector('input').value || 'cat'));
+
+  // Get groups
+  const panels = document.querySelectorAll('#cs-groups .group-row-panel');
+  csData = [];
+  const colors = ['#00cc22','#22aaff','#ffcc66','#ee44aa','#44eedd','#aa44ff'];
+
+  let probError = false;
+  panels.forEach((p, idx) => {
+    const name = p.querySelector('.cs-gname').value || ('group' + (idx + 1));
+    const n = parseInt(p.querySelector('.cs-gn').value) || 50;
+    const probStr = p.querySelector('.cs-gprobs').value;
+    const probs = probStr.split(',').map(s => parseFloat(s.trim()) || 0);
+    // Pad or trim to match cats
+    while (probs.length < cats.length) probs.push(0);
+    const probSum = probs.reduce((a, b) => a + b, 0);
+    if (Math.abs(probSum - 1) > 0.01) {
+      showError('ERROR: Probabilities for ' + name + ' must sum to 1.0 (currently ' + probSum.toFixed(3) + ')');
+      probError = true;
+      return;
+    }
+    const values = sampleCategorical(cats, probs, n);
+    csData.push({ name, n, values, color: colors[idx % colors.length] });
+  });
+  if (probError) return;
+
+  // Stats
+  document.getElementById('cs-stats').innerHTML = csData.map(g => {
+    const countMap = {};
+    cats.forEach(c => countMap[c] = 0);
+    g.values.forEach(v => countMap[v] = (countMap[v] || 0) + 1);
+    const summary = cats.map(c => `${c}: ${countMap[c]}`).join(', ');
+    return `<div class="stat-item"><span class="stat-label">${g.name.toUpperCase()} (n=${g.n})</span><span class="stat-val">${summary}</span></div>`;
+  }).join('');
+
+  // Show output first so canvas has layout dimensions
+  document.getElementById('cs-output').style.display = 'block';
+
+  // Bar charts
+  const perGroup = 160;
+  const totalH = csData.length * perGroup;
+  csData.forEach((g, i) => {
+    const countMap = {};
+    cats.forEach(c => countMap[c] = 0);
+    g.values.forEach(v => countMap[v] = (countMap[v] || 0) + 1);
+    const counts = cats.map(c => countMap[c]);
+    drawBarChart('cs-canvas', cats, counts, g.color, g.name.toUpperCase(), i * perGroup, totalH, perGroup);
+  });
+
+  // Preview - multiple proportions format: Group\tOutcome
+  let text = 'Group\t' + varname + '\n';
+  csData.forEach(g => {
+    g.values.forEach(v => { text += g.name + '\t' + v + '\n'; });
+  });
+  text = text.trimEnd();
+  document.getElementById('cs-preview').textContent = text;
+  dataStore['cs'] = { text, filename: varname + '_chi_squared.txt' };
+
+  document.getElementById('cs-output').scrollIntoView({behavior: 'smooth'});
+}
+
+function addChiGroup() {
+  const container = document.getElementById('cs-groups');
+  const idx = container.querySelectorAll('.group-row-panel').length + 1;
+  const nCats = document.querySelectorAll('#cs-cats .group-row').length;
+  const defaultProbs = new Array(nCats).fill((1 / nCats).toFixed(2)).join(', ');
+  const div = document.createElement('div');
+  div.className = 'panel group-row-panel';
+  div.style.cssText = 'background:#000802;padding:12px;margin-bottom:8px';
+  div.innerHTML = `<div class="form-row">
+    <div class="form-group"><label>GROUP NAME</label><input type="text" value="group${String.fromCharCode(64 + idx)}" class="cs-gname"></div>
+    <div class="form-group"><label>n</label><input type="number" value="50" min="2" max="10000" class="cs-gn"></div>
+    <div class="form-group" style="flex:2"><label>PROBABILITIES (comma-separated)</label><input type="text" value="${defaultProbs}" class="cs-gprobs"></div>
+    <div class="form-group" style="flex:0"><button class="remove-group" onclick="this.closest('.group-row-panel').remove()" style="margin-top:22px">X</button></div>
+  </div>`;
+  container.appendChild(div);
+}
+
+/* ===== PAIRED MEANS ===== */
+let pmData = { c1: [], c2: [], diffs: [] };
+let pmFormat = 'matched';
+
+function generatePaired() {
+  const n = parseInt(document.getElementById('pm-n').value) || 30;
+  const corr = Math.max(-1, Math.min(1, parseFloat(document.getElementById('pm-corr').value) || 0));
+  const c1name = document.getElementById('pm-c1name').value || 'condition1';
+  const c2name = document.getElementById('pm-c2name').value || 'condition2';
+  const c1mean = parseFloat(document.getElementById('pm-c1mean').value) || 0;
+  const c2mean = parseFloat(document.getElementById('pm-c2mean').value) || 0;
+  const c1sd = parseFloat(document.getElementById('pm-c1sd').value) || 1;
+  const c2sd = parseFloat(document.getElementById('pm-c2sd').value) || 1;
+  const lo = document.getElementById('pm-lo').value;
+  const hi = document.getElementById('pm-hi').value;
+  const loType = document.getElementById('pm-lo-type').value;
+  const hiType = document.getElementById('pm-hi-type').value;
+  const dec = parseInt(document.getElementById('pm-dec').value) || 0;
+  const discrete = document.getElementById('pm-discrete').value === 'yes';
+
+  const hasLo = lo !== '' && lo !== null && !isNaN(lo);
+  const hasHi = hi !== '' && hi !== null && !isNaN(hi);
+  const loN = hasLo ? Number(lo) : -Infinity;
+  const hiN = hasHi ? Number(hi) : Infinity;
+
+  pmData = { c1: [], c2: [], diffs: [] };
+
+  try {
+    for (let i = 0; i < n; i++) {
+      let v1, v2;
+      for (let attempt = 0; attempt < 1000; attempt++) {
+        // Bivariate normal: correlate z-scores then scale
+        const z1 = randNormal(0, 1);
+        const z2 = randNormal(0, 1);
+        const z2corr = corr * z1 + Math.sqrt(Math.max(0, 1 - corr * corr)) * z2;
+        v1 = c1mean + c1sd * z1;
+        v2 = c2mean + c2sd * z2corr;
+        v1 = discrete ? Math.round(v1) : Number(v1.toFixed(dec));
+        v2 = discrete ? Math.round(v2) : Number(v2.toFixed(dec));
+        let ok = true;
+        if (hasLo) {
+          if (loType === '>=' && (v1 < loN || v2 < loN)) ok = false;
+          if (loType === '>' && (v1 <= loN || v2 <= loN)) ok = false;
+        }
+        if (hasHi) {
+          if (hiType === '<=' && (v1 > hiN || v2 > hiN)) ok = false;
+          if (hiType === '<' && (v1 >= hiN || v2 >= hiN)) ok = false;
+        }
+        if (ok) break;
+        if (attempt === 999) throw new Error('Could not generate paired values within the specified bounds. Your bounds may be too far from the means or too narrow for the given SDs.');
+      }
+      pmData.c1.push(v1);
+      pmData.c2.push(v2);
+      pmData.diffs.push(Number((v1 - v2).toFixed(dec)));
+    }
+  } catch (e) { showError(e.message); return; }
+
+  const m1 = calcMean(pmData.c1), s1 = calcSD(pmData.c1);
+  const m2 = calcMean(pmData.c2), s2 = calcSD(pmData.c2);
+  const md = calcMean(pmData.diffs), sd = calcSD(pmData.diffs);
+
+  document.getElementById('pm-stats').innerHTML =
+    `<div class="stat-item"><span class="stat-label">n PAIRS</span><span class="stat-val">${n}</span></div>` +
+    `<div class="stat-item"><span class="stat-label">${c1name.toUpperCase()} MEAN</span><span class="stat-val">${m1.toFixed(3)}</span></div>` +
+    `<div class="stat-item"><span class="stat-label">${c1name.toUpperCase()} SD</span><span class="stat-val">${s1.toFixed(3)}</span></div>` +
+    `<div class="stat-item"><span class="stat-label">${c2name.toUpperCase()} MEAN</span><span class="stat-val">${m2.toFixed(3)}</span></div>` +
+    `<div class="stat-item"><span class="stat-label">${c2name.toUpperCase()} SD</span><span class="stat-val">${s2.toFixed(3)}</span></div>` +
+    `<div class="stat-item"><span class="stat-label">DIFF MEAN</span><span class="stat-val">${md.toFixed(3)}</span></div>` +
+    `<div class="stat-item"><span class="stat-label">DIFF SD</span><span class="stat-val">${sd.toFixed(3)}</span></div>`;
+
+  document.getElementById('pm-output').style.display = 'block';
+
+  // Three histograms: condition 1, condition 2, differences
+  const c1label = c1name.toUpperCase();
+  const c2label = c2name.toUpperCase();
+  drawHistogram('pm-canvas', pmData.c1, '#00cc22', c1label, 0, 420, 140);
+  drawHistogram('pm-canvas', pmData.c2, '#22aaff', c2label, 140, 420, 140);
+  drawHistogram('pm-canvas', pmData.diffs, '#ffcc66', 'DIFFERENCES (' + c1name + ' \u2212 ' + c2name + ')', 280, 420, 140);
+
+  // Dot & line plot
+  drawPairedDotLine('pm-dotline', pmData.c1, pmData.c2, c1name, c2name);
+
+  pmFormat = 'matched';
+  document.querySelectorAll('#pm-formats .format-tab').forEach((b, i) => b.classList.toggle('active', i === 0));
+  renderPairedPreview('matched');
+
+  document.getElementById('pm-output').scrollIntoView({behavior: 'smooth'});
+}
+
+function renderPairedPreview(fmt) {
+  pmFormat = fmt;
+  const c1name = document.getElementById('pm-c1name').value || 'condition1';
+  const c2name = document.getElementById('pm-c2name').value || 'condition2';
+  let text = '';
+  if (fmt === 'matched') {
+    // 3-column format for Matched Pairs applet: id  condition1  condition2
+    text = 'id\t' + c1name + '\t' + c2name + '\n';
+    for (let i = 0; i < pmData.c1.length; i++) {
+      text += (i + 1) + '\t' + pmData.c1[i] + '\t' + pmData.c2[i] + '\n';
+    }
+    text = text.trimEnd();
+  } else {
+    // Differences only — can paste into One Mean applet
+    text = 'difference\n' + pmData.diffs.join('\n');
+  }
+  document.getElementById('pm-preview').textContent = text;
+  dataStore['pm'] = { text, filename: c1name + '_vs_' + c2name + '_paired.txt' };
+}
+
+/* ===== HELPERS ===== */
+function addCatRow(containerId, noProb) {
+  const container = document.getElementById(containerId);
+  const div = document.createElement('div');
+  div.className = 'group-row';
+  if (noProb) {
+    div.innerHTML = `<input type="text" value="" placeholder="Category name"><button class="remove-group" onclick="removeCatRow(this)">X</button>`;
+  } else {
+    div.innerHTML = `<input type="text" value="" placeholder="Category name"><input type="number" value="0" step="0.01" min="0" max="1" placeholder="Prob" style="max-width:100px"><button class="remove-group" onclick="removeCatRow(this)">X</button>`;
+  }
+  container.appendChild(div);
+}
+
+function removeCatRow(btn) {
+  const container = btn.closest('.group-row').parentElement;
+  if (container.querySelectorAll('.group-row').length > 2) {
+    btn.closest('.group-row').remove();
+  }
+}
+
+/* ===== SAVE & COPY ===== */
+function saveData(prefix) {
+  const d = dataStore[prefix];
+  if (!d) return;
+  const blob = new Blob(['\ufeff' + d.text], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = d.filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  const status = document.getElementById(prefix + '-status');
+  if (status) { status.textContent = 'FILE SAVED: ' + d.filename; status.className = 'status-line ok'; }
+}
+
+function copyData(prefix) {
+  const d = dataStore[prefix];
+  if (!d) return;
+  navigator.clipboard.writeText(d.text).then(() => {
+    const status = document.getElementById(prefix + '-status');
+    if (status) { status.textContent = 'COPIED TO CLIPBOARD'; status.className = 'status-line ok'; }
+  });
+}
+
+/* ===== SIDE CLI RUNNERS ===== */
+(function initCLI() {
+  const el = document.getElementById('cli-left-scroll');
+  const spinFrames = ['⠋','⠙','⠹','⠸','⠼','⠴','⠦','⠧','⠇','⠏'];
+
+  // Chinese explanation of token efficiency — loops forever
+  const recipe = [
+    '令牌效率：为什么中文更高效',
+    '',
+    '大语言模型不直接处理文字。它们先将文本分割成小片段，称为"令牌"。每个令牌是模型处理的最小单位。模型的一切计算——理解、推理、生成——都以令牌为基础。',
+    '',
+    '英文单词通常被拆分为多个令牌。例如"understanding"会被分为"under"和"standing"两个令牌。较长的单词甚至会被拆成三到四个片段。一个简单的英文句子可能需要十到二十个令牌才能表示。',
+    '',
+    '中文则完全不同。中文是一种高信息密度的语言。每个汉字本身就承载完整的语义。例如"电"表示电力，"脑"表示大脑，"电脑"就是计算机。两个字符、两个令牌，却表达了一个完整的概念。',
+    '',
+    '一个汉字通常对应一个令牌，但它传递的信息量相当于英文中一个甚至多个单词。这意味着同样的思想，用中文表达所需的令牌数量远少于英文。',
+    '',
+    '举一个具体的例子：',
+    '',
+    '英文："The large language model processes text by breaking it into tokens"',
+    '这句话大约需要十二个令牌。',
+    '',
+    '中文："大语言模型通过将文本分割为令牌来处理文字"',
+    '同样的意思，只需要大约九个令牌。',
+    '',
+    '令牌数量直接影响三件事：成本、速度和容量。',
+    '',
+    '成本：大语言模型按令牌计费。输入和输出的每一个令牌都有价格。令牌越少，费用越低。同样的对话内容，用中文可以节省百分之二十到四十的令牌消耗。',
+    '',
+    '速度：模型生成每个令牌都需要一次完整的前向传播计算。令牌越少，推理速度越快，用户等待的时间越短。',
+    '',
+    '容量：每个模型都有上下文窗口的限制，以令牌为单位。同样大小的窗口，中文可以容纳更多的实际信息内容。这意味着模型可以"记住"更长的对话历史，或处理更大的文档。',
+    '',
+    '更深层的原因在于两种书写系统的根本差异。',
+    '',
+    '英文使用二十六个字母。字母本身不携带语义，必须组合成单词才有意义。分词器需要学习如何切分这些字母组合，而且切分的结果往往不是最优的。',
+    '',
+    '中文的每个字都是一个独立的语义单元。分词器不需要学习如何拆分汉字——每个字天然就是一个令牌边界。这种对齐是英文无法实现的。',
+    '',
+    '这不是语言学上的巧合。中文的书写系统经过数千年的演化，将含义压缩进最小的视觉符号中。当这种古老的信息压缩方式遇上现代的人工智能分词器，结果就是天然的高效率。',
+    '',
+    '所以，当你看到中文在屏幕上流过时，你看到的不仅仅是文字。你看到的是一种在数学意义上更高效的信息编码方式——每一个字符都在用最少的计算资源传递最多的信息。',
+    '',
+    '─────────────────',
+    '',
+  ];
+
+  // Flatten recipe into one long character stream
+  // Each line becomes its characters followed by a newline marker
+  const chars = [];
+  for (const line of recipe) {
+    if (line === '') {
+      chars.push('\n');
+    } else {
+      for (const ch of line) chars.push(ch);
+      chars.push('\n');
+    }
+  }
+
+  let charIdx = 0;
+  let spinIdx = 0;
+  let lines = [''];  // current lines of output
+  let nextTime = 0;
+  const MAX_LINES = 200;
+
+  function tick(now) {
+    if (now < nextTime) return;
+
+    const ch = chars[charIdx % chars.length];
+    if (charIdx > 0 && charIdx % chars.length === 0) {
+      // Looped — add a gap before restarting
+      lines.push('');
+    }
+
+    if (ch === '\n') {
+      lines.push('');
+    } else {
+      lines[lines.length - 1] += ch;
+    }
+
+    // Trim old lines
+    while (lines.length > MAX_LINES) lines.shift();
+
+    charIdx++;
+    spinIdx = (spinIdx + 1) % spinFrames.length;
+
+    // Build output: spinner header + text + blinking cursor
+    const spinner = '<span class="h">' + spinFrames[spinIdx] + '</span>';
+    const header = spinner + ' <span class="d">thinking...</span>';
+    const textHtml = lines.map(l =>
+      l ? '<span class="v">' + l.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span>' : ''
+    ).join('\n');
+    const cursor = '<span class="blink" style="color:var(--bright)">▌</span>';
+
+    el.innerHTML = header + '\n\n' + textHtml + cursor;
+
+    // Scroll to bottom
+    el.scrollTop = el.scrollHeight;
+
+    // Vary speed: ~60-120ms per char, pause longer on punctuation
+    const isPunct = '，。、：！？；'.includes(ch);
+    const isBreak = ch === '\n';
+    nextTime = now + (isBreak ? 300 : isPunct ? 180 : 60 + Math.random() * 60);
+  }
+
+  function frame(now) {
+    tick(now);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+/* ===== RIGHT SIDE: WAR RIG STATUS MONITOR ===== */
+(function initRigMonitor() {
+  const R = (a,b) => a + Math.random()*(b-a);
+  const Ri = (a,b) => Math.floor(R(a,b));
+  const pf = (v,d) => v.toFixed(d);
+  const pick = a => a[Ri(0,a.length)];
+
+  const el = document.getElementById('rig-monitor');
+
+  const state = {
+    reactorTemp: 342,
+    reactorPower: 94.2,
+    controlRods: 68,
+    neutronFlux: 2.41e13,
+    // Sewage
+    sewageNitrogen: 4.2,
+    sewageFiber: 1.8,
+    sewageWater: 94.0,
+    sewageProgress: 0,
+    sewageMode: 'PURIFYING',
+    // SCOP
+    scopFlavor: 'HONEY BBQ',
+    // Engine
+    coolantTemp: 82.4,
+    oilTemp: 91.2,
+    rpm: 780,
+    // Structure
+    integrity: 97.8,
+    tireLF: 34.2,
+    tireRF: 34.8,
+    tireLR: 35.1,
+    tireRR: 34.5,
+    // Environment
+    outsideTemp: 47.3,
+    ambientRad: 0.38,
+    uvIndex: 6.2,
+    humidity: 12,
+  };
+
+  function drift(val, min, max, wiggle) {
+    return Math.min(max, Math.max(min, val + R(-wiggle, wiggle)));
+  }
+
+  function statusBar(frac, width) {
+    const w = width || 12;
+    const filled = Math.round(frac * w);
+    return '<span class="bar-fill">' + '█'.repeat(filled) + '</span><span class="bar-track">' + '░'.repeat(w - filled) + '</span>';
+  }
+
+  function statusClass(val, warnLo, warnHi, critLo, critHi) {
+    if ((critLo != null && val < critLo) || (critHi != null && val > critHi)) return 'val-crit';
+    if ((warnLo != null && val < warnLo) || (warnHi != null && val > warnHi)) return 'val-warn';
+    return 'val-ok';
+  }
+
+  function row(label, value, cls) {
+    return `<div class="row"><span class="lbl">${label}</span><span class="${cls || 'val-num'}">${value}</span></div>`;
+  }
+
+  function render() {
+    const s = state;
+
+    // Drift values
+    s.reactorTemp = drift(s.reactorTemp, 280, 520, 1.5);
+    s.reactorPower = drift(s.reactorPower, 85, 100, 0.3);
+    s.controlRods = drift(s.controlRods, 40, 95, 0.5);
+    s.neutronFlux = drift(s.neutronFlux, 2.1e13, 2.8e13, 1e11);
+    s.sewageNitrogen = drift(s.sewageNitrogen, 2.0, 8.0, 0.15);
+    s.sewageFiber = drift(s.sewageFiber, 0.5, 4.0, 0.08);
+    s.sewageWater = drift(s.sewageWater, 88, 97, 0.2);
+    s.coolantTemp = drift(s.coolantTemp, 75, 95, 0.4);
+    s.oilTemp = drift(s.oilTemp, 80, 105, 0.5);
+    s.rpm = drift(s.rpm, 650, 900, 12);
+    s.tireLF = drift(s.tireLF, 32, 36, 0.05);
+    s.tireRF = drift(s.tireRF, 32, 36, 0.05);
+    s.tireLR = drift(s.tireLR, 32, 36, 0.05);
+    s.tireRR = drift(s.tireRR, 32, 36, 0.05);
+    s.integrity = drift(s.integrity, 85, 100, 0.1);
+    s.outsideTemp = drift(s.outsideTemp, 35, 65, 0.5);
+    s.ambientRad = drift(s.ambientRad, 0.05, 2.5, 0.02);
+    s.uvIndex = drift(s.uvIndex, 2, 11, 0.2);
+    s.humidity = drift(s.humidity, 3, 40, 0.5);
+
+    // Sewage cycle: progress grows, then resets
+    s.sewageProgress += R(0.3, 1.5);
+    if (s.sewageProgress >= 100) {
+      s.sewageProgress = 0;
+      if (s.sewageMode === 'PURIFYING') s.sewageMode = 'EVACUATING PURIFIED';
+      else if (s.sewageMode === 'EVACUATING PURIFIED') s.sewageMode = 'REFILLING';
+      else s.sewageMode = 'PURIFYING';
+    }
+
+    // SCOP flavor changes occasionally
+    if (Math.random() < 0.005) {
+      s.scopFlavor = pick(['HONEY BBQ','BUFFALO','SWEET CHILI']);
+    }
+
+    const now = new Date();
+    const ts = now.toTimeString().split(' ')[0];
+
+    let html = '';
+
+    // WAR RIG STATUS
+    html += `<div class="sec">`;
+    html += `<div class="sec-title">WAR RIG STATUS</div>`;
+    html += row('UPTIME', ts, 'val-ok');
+    html += row('STATUS', '<span class="blink">■</span> OPERATIONAL', 'val-ok');
+    html += `</div>`;
+
+    // REACTOR
+    html += `<div class="sec">`;
+    html += `<div class="sec-title">◈ REACTOR</div>`;
+    html += row('CORE TEMP', pf(s.reactorTemp,1)+'°C', statusClass(s.reactorTemp, null, 450, null, 500));
+    html += row('POWER OUT', pf(s.reactorPower,1)+'%', statusClass(s.reactorPower, 70, null, 60, null));
+    html += row('CTRL RODS', pf(s.controlRods,1)+'%', 'val-num');
+    html += row('OUTPUT', statusBar(s.reactorPower/100, 14), 'val-num');
+    html += row('NEUTRON FLUX', pf(s.neutronFlux,2), 'val-num');
+    html += row('CONTAINMENT', 'NOMINAL', 'val-ok');
+    html += `</div>`;
+
+    // SEWAGE SYSTEMS
+    html += `<div class="sec">`;
+    html += `<div class="sec-title">◈ SEWAGE SYSTEMS</div>`;
+    html += row('STATUS', 'ONLINE', 'val-ok');
+    html += row('NITROGEN', pf(s.sewageNitrogen,1)+' g/L', 'val-num');
+    html += row('FIBER', pf(s.sewageFiber,1)+' g/L', 'val-num');
+    html += row('WATER', pf(s.sewageWater,1)+'%', 'val-num');
+    const modeClass = s.sewageMode === 'EVACUATING PURIFIED' ? 'val-ok' : s.sewageMode === 'PURIFYING' ? 'val-num' : 'val-warn';
+    html += row('MODE', s.sewageMode, modeClass);
+    html += row('PROGRESS', pf(s.sewageProgress,1)+'%  '+statusBar(s.sewageProgress/100,12), 'val-num');
+    html += `</div>`;
+
+    // SCOP GENERATOR
+    html += `<div class="sec">`;
+    html += `<div class="sec-title">◈ SCOP GENERATOR</div>`;
+    html += row('STATUS', 'ACTIVE', 'val-ok');
+    html += row('CUR FLAVOR', s.scopFlavor, 'val-ok');
+    html += `</div>`;
+
+    // USER STATUS
+    html += `<div class="sec">`;
+    html += `<div class="sec-title">◈ USER STATUS</div>`;
+    html += row('SELF', 'ALIVE', 'val-ok');
+    html += `</div>`;
+
+    // ENGINE
+    html += `<div class="sec">`;
+    html += `<div class="sec-title">◈ ENGINE</div>`;
+    html += row('STATUS', 'IDLE', 'val-ok');
+    html += row('COOLANT', pf(s.coolantTemp,1)+'°C', statusClass(s.coolantTemp, null, 90, null, 100));
+    html += row('OIL TEMP', pf(s.oilTemp,1)+'°C', statusClass(s.oilTemp, null, 100, null, 110));
+    html += row('RPM', pf(s.rpm,0), 'val-num');
+    html += row('GEAR', 'NEUTRAL', 'val-num');
+    html += row('PARK BRAKE', 'ENGAGED', 'val-ok');
+    html += `</div>`;
+
+    // STRUCTURE
+    html += `<div class="sec">`;
+    html += `<div class="sec-title">◈ STRUCTURE</div>`;
+    html += row('INTEGRITY', pf(s.integrity,1)+'%', statusClass(s.integrity, 80, null, 60, null));
+    html += row('TIRE LF', pf(s.tireLF,1)+' PSI', statusClass(s.tireLF, 33, 36, 32, 37));
+    html += row('TIRE RF', pf(s.tireRF,1)+' PSI', statusClass(s.tireRF, 33, 36, 32, 37));
+    html += row('TIRE LR', pf(s.tireLR,1)+' PSI', statusClass(s.tireLR, 33, 36, 32, 37));
+    html += row('TIRE RR', pf(s.tireRR,1)+' PSI', statusClass(s.tireRR, 33, 36, 32, 37));
+    html += `</div>`;
+
+    // ENVIRONMENT
+    html += `<div class="sec">`;
+    html += `<div class="sec-title">◈ ENVIRONMENT</div>`;
+    html += row('OUTSIDE', pf(s.outsideTemp,1)+'°C', statusClass(s.outsideTemp, null, 55, null, 60));
+    html += row('RADIATION', pf(s.ambientRad,2)+' mSv/h', statusClass(s.ambientRad, null, 1.0, null, 2.0));
+    html += row('UV INDEX', pf(s.uvIndex,1), statusClass(s.uvIndex, null, 8, null, 10));
+    html += row('HUMIDITY', pf(s.humidity,0)+'%', 'val-num');
+    html += `</div>`;
+
+    el.innerHTML = html;
+  }
+
+  render();
+  setInterval(render, 1500);
+})();
+</script>
+</body>
+</html>

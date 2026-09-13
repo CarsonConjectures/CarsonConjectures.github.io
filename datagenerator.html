@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>PRIOR_MANIFESTATION_SIMULATION</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#000501;--panel:#000d04;--border:#00cc22;--border2:#006611;--text:#33ff88;--bright:#66ffcc;--dim:#008833;--green:#44ee88;--red-err:#ff2200;--glow:0 0 6px #00ff4488}
+*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono','Courier New',monospace;font-size:15px;min-height:100vh;position:relative;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 3px,rgba(0,0,0,0.12) 3px,rgba(0,0,0,0.12) 4px);pointer-events:none;z-index:1000}
+main{max-width:960px;margin:0 auto;padding:24px 16px 64px}
+.panel{background:var(--panel);border:1px solid var(--border2);padding:20px;margin-bottom:18px;position:relative}
+.panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,var(--border),transparent)}
+h1,h2,h3,.mono-head{font-family:'VT323',monospace;letter-spacing:1px}
+.page-title{font-family:'VT323',monospace;font-size:36px;color:var(--border);text-shadow:var(--glow);text-align:center;padding:28px 16px 8px;letter-spacing:2px}
+.section-label{font-family:'VT323',monospace;font-size:20px;color:var(--border);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px}
+.btn{display:inline-block;background:transparent;border:1px solid var(--border);color:var(--bright);font-family:'VT323',monospace;font-size:20px;padding:7px 18px;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:background 0.12s,color 0.12s;outline:none}
+.btn::before{content:'> ';color:var(--border);font-size:14px}
+.btn:hover,.btn:focus{background:var(--border);color:#000}
+.btn:hover::before,.btn:focus::before{color:#000}
+.btn:disabled{border-color:var(--border2);color:var(--border2);cursor:not-allowed}
+.btn:disabled::before{color:var(--border2)}
+.btn.secondary{border-color:var(--dim);color:var(--text);font-size:17px}
+.btn.secondary::before{color:var(--dim)}
+.btn.secondary:hover{background:var(--dim);color:#000}
+.btn.danger{border-color:var(--red-err);color:var(--red-err)}
+.btn.danger:hover{background:var(--red-err);color:#000}
+.btn.safe{border-color:var(--green);color:var(--green)}
+.btn.safe:hover{background:var(--green);color:#000}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.notice{background:#000f03;border-left:3px solid var(--border);padding:10px 14px;margin:12px 0;color:var(--dim);font-size:13px;line-height:1.7}
+.notice .label{font-family:'VT323',monospace;font-size:16px;color:var(--border);display:block;margin-bottom:4px}
+.notice code{color:var(--bright)}
+.divider{border:none;border-top:1px solid var(--border2);margin:14px 0}
+
+.screen{display:none}.screen.active{display:block}
+
+/* Tab navigation */
+.tab-bar{display:flex;flex-wrap:wrap;gap:0;margin-bottom:0}
+.tab-btn{padding:8px 16px;border:1px solid var(--border2);background:transparent;color:var(--dim);font-family:'VT323',monospace;font-size:18px;cursor:pointer;letter-spacing:1px;transition:background 0.12s,color 0.12s}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{background:var(--border);color:#000;border-color:var(--border)}
+.tab-content{display:none}.tab-content.active{display:block}
+
+/* Form controls */
+.form-group{margin:12px 0}
+.form-group label{display:block;font-family:'VT323',monospace;font-size:17px;color:var(--border);margin-bottom:4px;letter-spacing:1px}
+.form-group input,.form-group select,.form-group textarea{background:#000a02;color:var(--bright);border:1px solid var(--border2);font-family:'Share Tech Mono',monospace;font-size:14px;padding:6px 10px;width:100%;outline:none}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--border)}
+.form-group input[type=number]{width:120px}
+.form-group .hint{font-size:11px;color:var(--dim);margin-top:2px}
+.form-row{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end}
+.form-row .form-group{flex:1;min-width:100px}
+
+/* Histogram */
+.hist-container{background:#000a00;border:1px solid var(--border2);padding:12px;margin:14px 0;min-height:200px;position:relative}
+.hist-container .plot-label{font-family:'VT323',monospace;font-size:18px;color:var(--border);display:block;margin-bottom:8px}
+canvas.hist-canvas{width:100%;background:transparent}
+
+/* Data preview */
+.data-preview{background:#000a02;border:1px solid var(--border2);padding:10px;margin:10px 0;max-height:200px;overflow-y:auto;font-size:12px;color:var(--text);white-space:pre;line-height:1.5;scrollbar-color:var(--border2) #000a02}
+.data-preview::-webkit-scrollbar{width:8px}
+.data-preview::-webkit-scrollbar-track{background:#000a02}
+.data-preview::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+.data-preview::-webkit-scrollbar-thumb:hover{background:var(--border)}
+.data-preview .preview-label{font-family:'VT323',monospace;font-size:16px;color:var(--border);display:block;margin-bottom:4px}
+
+/* Stats box */
+.stats-box{display:flex;flex-wrap:wrap;gap:16px;margin:10px 0}
+.stat-item{background:#000a02;border:1px solid var(--border2);padding:8px 14px;min-width:120px}
+.stat-item .stat-label{font-family:'VT323',monospace;font-size:14px;color:var(--dim);display:block}
+.stat-item .stat-val{font-family:'VT323',monospace;font-size:22px;color:var(--bright)}
+
+/* Format selector */
+.format-tabs{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}
+.format-tab{padding:4px 12px;border:1px solid var(--border2);background:transparent;color:var(--dim);font-family:'VT323',monospace;font-size:15px;cursor:pointer}
+.format-tab.active{border-color:var(--green);color:var(--green);background:#001a08}
+
+.status-line{margin-top:8px;font-size:13px;color:var(--dim);min-height:18px}
+.status-line.ok{color:var(--green)}
+.status-line.err{color:var(--red-err)}
+
+/* Standalone hint (outside .form-group) */
+.hint{font-size:11px;color:var(--dim);margin-top:2px}
+
+/* Group input rows for multi-group */
+.group-row{display:flex;gap:10px;align-items:center;margin:6px 0;flex-wrap:wrap}
+.group-row input{flex:1;min-width:60px;background:#000a02;color:var(--bright);border:1px solid var(--border2);font-family:'Share Tech Mono',monospace;font-size:14px;padding:6px 10px;outline:none}
+.group-row input:focus{border-color:var(--border)}
+.remove-group{background:transparent;border:1px solid var(--red-err);color:var(--red-err);font-family:'VT323',monospace;font-size:16px;padding:4px 10px;cursor:pointer}
+.remove-group:hover{background:var(--red-err);color:#000}
+
+.bound-row{display:flex;gap:6px;align-items:center}
+.bound-row input{flex:1}
+.bound-select{background:#000a02;color:var(--bright);border:1px solid var(--border2);font-family:'Share Tech Mono',monospace;font-size:13px;padding:6px 4px;width:auto;min-width:90px;cursor:pointer;outline:none}
+.bound-select:focus{border-color:var(--border)}
+/* Side panels shared */
+.side-panel{position:fixed;top:0;bottom:0;width:calc((100vw - 980px) / 2);pointer-events:none;z-index:0;overflow:hidden;border:1px solid #003a10;background:#000a0188;opacity:0.5}
+.side-panel.left{left:0;border-left:none}
+.side-panel.right{right:0;border-right:none}
+/* Left: CLI scroll */
+.side-panel .cli-scroll{position:absolute;bottom:0;left:0;right:0;padding:6px 8px;font-family:'Share Tech Mono',monospace;font-size:10.5px;line-height:1.5;color:#005a18;white-space:pre-wrap;word-break:break-all}
+.side-panel .h{color:#00cc22}.side-panel .v{color:#00aa44}.side-panel .d{color:#003a10}.side-panel .w{color:#668800}.side-panel .bar{color:#008833}
+/* Right: status monitor */
+.rig-monitor{padding:10px 8px;font-family:'Share Tech Mono',monospace;font-size:10.5px;line-height:1.6;color:#005a18;white-space:pre-wrap;word-break:break-all;overflow-y:hidden;height:100%}
+.rig-monitor .sec{border:1px solid #003a10;padding:6px 7px;margin-bottom:6px;position:relative}
+.rig-monitor .sec::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(to right,transparent,#00cc2233,transparent)}
+.rig-monitor .sec-title{font-family:'VT323',monospace;font-size:13px;color:#008833;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px}
+.rig-monitor .row{display:flex;justify-content:space-between;gap:4px}
+.rig-monitor .lbl{color:#004a15}
+.rig-monitor .val-ok{color:#00cc22}
+.rig-monitor .val-warn{color:#888800}
+.rig-monitor .val-crit{color:#cc4400}
+.rig-monitor .val-num{color:#00aa44}
+.rig-monitor .bar-track{display:inline-block;color:#003a10}
+.rig-monitor .bar-fill{color:#008833}
+.rig-monitor .sep{border:none;border-top:1px solid #002a0c;margin:4px 0}
+.blink{animation:blink 1.2s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+main{position:relative;z-index:1}
+@media(max-width:1100px){.side-panel{display:none}}
+@media(max-width:600px){.form-row{flex-direction:column}.tab-btn{font-size:15px;padding:6px 10px}.btn{font-size:17px;padding:6px 12px}}
+/* Error modal */
+.error-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:center;justify-content:center}
+.error-overlay.active{display:flex}
+.error-box{border:1px solid var(--red-err);background:#0a0000;padding:20px 28px;max-width:480px;width:90%;text-align:center;position:relative}
+.error-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,var(--red-err),transparent)}
+.error-box .error-title{font-family:'VT323',monospace;font-size:22px;color:var(--red-err);letter-spacing:2px;margin-bottom:10px}
+.error-box .error-msg{font-family:'Share Tech Mono',monospace;font-size:13px;color:#cc4422;line-height:1.6;margin-bottom:16px}
+.error-box .btn.danger{font-size:18px}
+.model-note{color:var(--text);font-size:12px;line-height:1.6}
+.warnings{border-color:#ffcc66;color:#ffcc66}
+.warnings p+p{margin-top:8px}
+.seed-panel{padding-top:8px;padding-bottom:8px}
+.seed-panel input[type=number]{width:190px}
+.stats-box .stat-item{max-width:100%;overflow-wrap:anywhere}
+.stat-item .stat-val{font-size:20px}
+.hint{color:#22b866;line-height:1.5}
+.plot-label{line-height:1.2}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="error-overlay" id="error-overlay" onclick="closeError()">
+<div class="error-box" onclick="event.stopPropagation()">
+<div class="error-title">// SIMULATION ERROR //</div>
+<div class="error-msg" id="error-msg"></div>
+<button class="btn danger" onclick="closeError()">DISMISS</button>
+</div>
+</div>
+<div class="side-panel left" id="cli-left"><div class="cli-scroll" id="cli-left-scroll"></div></div>
+<div class="side-panel right" id="panel-right"><div class="rig-monitor" id="rig-monitor"></div></div>
+<main>
+
+<div class="page-title">PRIOR_MANIFESTATION_SIMULATION</div>
+
+<div class="panel">
+<div class="section-label">// SELECT DATA TYPE //</div>
+<div class="tab-bar" id="main-tabs">
+<button class="tab-btn active" onclick="switchTab('one-quant')">ONE-SAMPLE QUANT</button>
+<button class="tab-btn" onclick="switchTab('one-cat')">ONE-SAMPLE CAT</button>
+<button class="tab-btn" onclick="switchTab('two-quant')">TWO-SAMPLE QUANT</button>
+<button class="tab-btn" onclick="switchTab('two-cat')">TWO-SAMPLE CAT</button>
+<button class="tab-btn" onclick="switchTab('anova')">ANOVA</button>
+<button class="tab-btn" onclick="switchTab('chi-sq')">CHI-SQUARED</button>
+<button class="tab-btn" onclick="switchTab('paired')">PAIRED MEANS</button>
+</div>
+</div>
+
+<div class="panel seed-panel">
+<div class="form-group"><label for="simulation-seed">RANDOM SEED (optional)</label><input type="number" id="simulation-seed" value="" min="0" max="4294967295" step="1" placeholder="new seed"><div class="hint">Leave blank for a new dataset each time. Reuse a seed and the same settings to reproduce a dataset. The seed used appears with your results.</div></div>
+</div>
+<!-- ==================== ONE-SAMPLE QUANTITATIVE ==================== -->
+<div id="tab-one-quant" class="tab-content active">
+<div class="panel">
+<div class="section-label">// ONE-SAMPLE QUANTITATIVE //</div>
+<div class="notice"><span class="label">INFO</span>Generate numerical data from a normal distribution. Use this for one-sample mean tests.<br>Output can be pasted into the <code>Descriptive Statistics</code> or <code>One Mean</code> applet.</div>
+<div class="notice model-note">Mean and SD describe the underlying normal distribution <strong>before rounding and bounds</strong>. Sample statistics vary from run to run. Bounds apply to the <strong>recorded value after rounding</strong>, so they can change the resulting population mean and SD. Whole-number output is a rounded normal distribution, not a Poisson or binomial count model.</div>
+
+<div class="form-row">
+<div class="form-group"><label>VARIABLE NAME</label><input type="text" id="oq-varname" value="measurement" placeholder="e.g. temperature"></div>
+<div class="form-group"><label>SAMPLE SIZE (n)</label><input type="number" id="oq-n" value="50" min="2" max="10000"></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label>UNDERLYING MEAN</label><input type="number" id="oq-mean" value="20" step="any"></div>
+<div class="form-group"><label>UNDERLYING SD</label><input type="number" id="oq-sd" value="5" step="any" min="0"></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label>LOWER BOUND (optional)</label><div class="bound-row"><select id="oq-lo-type" class="bound-select"><option value=">=">&ge; (inclusive)</option><option value=">">&gt; (exclusive)</option></select><input type="number" id="oq-lo" value="" step="any" placeholder="none"></div><div class="hint">Leave blank for no bound</div></div>
+<div class="form-group"><label>UPPER BOUND (optional)</label><div class="bound-row"><select id="oq-hi-type" class="bound-select"><option value="<=">&le; (inclusive)</option><option value="<">&lt; (exclusive)</option></select><input type="number" id="oq-hi" value="" step="any" placeholder="none"></div><div class="hint">Leave blank for no bound</div></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label>DECIMALS</label><input type="number" id="oq-dec" value="2" min="0" max="6"></div>
+<div class="form-group"><label>ROUND TO WHOLE NUMBERS?</label><select id="oq-discrete"><option value="no">No (use decimals)</option><option value="yes">Yes (whole numbers)</option></select></div>
+</div>
+
+<div class="btn-row">
+<button class="btn" onclick="generateOneQuant()">GENERATE DATA</button>
+</div>
+
+<div id="oq-output" style="display:none">
+<hr class="divider">
+<div id="oq-seed-used" class="hint"></div>
+<div id="oq-stats" class="stats-box"></div>
+<div id="oq-warnings" class="notice warnings" role="status" hidden></div>
+<div class="hist-container"><span class="plot-label">// HISTOGRAM · PERCENT OF OBSERVATIONS //</span><canvas id="oq-canvas" class="hist-canvas" height="220"></canvas></div>
+<div class="section-label" style="margin-top:14px">// OUTPUT FORMAT //</div>
+<div class="format-tabs" id="oq-formats">
+<button class="format-tab active" onclick="switchFormat('oq','desc',this)">DESCRIPTIVE STATS APPLET</button>
+<button class="format-tab" onclick="switchFormat('oq','onemean',this)">ONE MEAN APPLET</button>
+</div>
+<div class="data-preview"><span class="preview-label">// DATA PREVIEW //</span><pre id="oq-preview"></pre></div>
+<div class="btn-row">
+<button class="btn safe" onclick="saveData('oq')">SAVE AS TXT</button>
+<button class="btn secondary" onclick="copyData('oq')">COPY TO CLIPBOARD</button>
+<button class="btn secondary" onclick="saveSettings('oq')">SAVE SETTINGS</button>
+<button class="btn secondary" onclick="useSeed('oq')">REUSE SEED</button>
+</div>
+<div class="status-line" id="oq-status"></div>
+</div>
+</div>
+</div>
+
+<!-- ==================== ONE-SAMPLE CATEGORICAL ==================== -->
+<div id="tab-one-cat" class="tab-content">
+<div class="panel">
+<div class="section-label">// ONE-SAMPLE CATEGORICAL //</div>
+<div class="notice"><span class="label">INFO</span>Generate categorical data with specified probabilities. Use this for one-sample proportion tests.<br>Output can be pasted into the <code>Descriptive Statistics</code> applet.</div>
+
+<div class="form-row">
+<div class="form-group"><label>VARIABLE NAME</label><input type="text" id="oc-varname" value="outcome" placeholder="e.g. result"></div>
+<div class="form-group"><label>SAMPLE SIZE (n)</label><input type="number" id="oc-n" value="100" min="2" max="10000"></div>
+</div>
+
+<div class="section-label" style="font-size:16px;margin-top:10px">CATEGORIES &amp; PROBABILITIES</div>
+<div id="oc-categories">
+<div class="group-row">
+<input type="text" value="success" placeholder="Category name">
+<input type="number" value="0.6" step="0.01" min="0" max="1" placeholder="Prob" style="max-width:100px">
+<button class="remove-group" onclick="removeCatRow(this)" title="Remove">X</button>
+</div>
+<div class="group-row">
+<input type="text" value="failure" placeholder="Category name">
+<input type="number" value="0.4" step="0.01" min="0" max="1" placeholder="Prob" style="max-width:100px">
+<button class="remove-group" onclick="removeCatRow(this)" title="Remove">X</button>
+</div>
+</div>
+<div class="btn-row">
+<button class="btn secondary" onclick="addCatRow('oc-categories')">+ ADD CATEGORY</button>
+</div>
+<div class="hint" style="margin-top:4px">Probabilities must sum to 1.0</div>
+
+<div class="btn-row" style="margin-top:14px">
+<button class="btn" onclick="generateOneCat()">GENERATE DATA</button>
+</div>
+
+<div id="oc-output" style="display:none">
+<hr class="divider">
+<div id="oc-seed-used" class="hint"></div>
+<div id="oc-stats" class="stats-box"></div>
+<div id="oc-warnings" class="notice warnings" role="status" hidden></div>
+<div class="hist-container"><span class="plot-label">// CATEGORY COUNTS &amp; PERCENTAGES //</span><canvas id="oc-canvas" class="hist-canvas" height="220"></canvas></div>
+<div class="data-preview"><span class="preview-label">// DATA PREVIEW //</span><pre id="oc-preview"></pre></div>
+<div class="btn-row">
+<button class="btn safe" onclick="saveData('oc')">SAVE AS TXT</button>
+<button class="btn secondary" onclick="copyData('oc')">COPY TO CLIPBOARD</button>
+<button class="btn secondary" onclick="saveSettings('oc')">SAVE SETTINGS</button>
+<button class="btn secondary" onclick="useSeed('oc')">REUSE SEED</button>
+</div>
+<div class="status-line" id="oc-status"></div>
+</div>
+</div>
+</div>
+
+<!-- ==================== TWO-SAMPLE QUANTITATIVE ==================== -->
+<div id="tab-two-quant" class="tab-content">
+<div class="panel">
+<div class="section-label">// TWO-SAMPLE QUANTITATIVE //</div>
+<div class="notice"><span class="label">INFO</span>Generate numerical data for two groups. Use this for two-sample mean tests.<br>Output can be pasted into the <code>Descriptive Statistics</code> or <code>Multiple Means</code> applet.</div>
+<div class="notice model-note">Mean and SD describe the underlying normal distribution <strong>before rounding and bounds</strong>. Sample statistics vary from run to run. Bounds apply to the <strong>recorded value after rounding</strong>, so they can change the resulting population mean and SD. Whole-number output is a rounded normal distribution, not a Poisson or binomial count model.</div>
+
+<div class="form-group"><label>RESPONSE VARIABLE NAME</label><input type="text" id="tq-varname" value="score" placeholder="e.g. score"></div>
+
+<div class="panel" style="background:#000802;margin-top:10px">
+<div class="section-label" style="font-size:16px">GROUP 1</div>
+<div class="form-row">
+<div class="form-group"><label>GROUP NAME</label><input type="text" id="tq-g1name" value="treatment" placeholder="e.g. treatment"></div>
+<div class="form-group"><label>n</label><input type="number" id="tq-g1n" value="40" min="2" max="10000"></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label>UNDERLYING MEAN</label><input type="number" id="tq-g1mean" value="25" step="any"></div>
+<div class="form-group"><label>UNDERLYING SD</label><input type="number" id="tq-g1sd" value="5" step="any" min="0"></div>
+</div>
+</div>
+
+<div class="panel" style="background:#000802">
+<div class="section-label" style="font-size:16px">GROUP 2</div>
+<div class="form-row">
+<div class="form-group"><label>GROUP NAME</label><input type="text" id="tq-g2name" value="control" placeholder="e.g. control"></div>
+<div class="form-group"><label>n</label><input type="number" id="tq-g2n" value="40" min="2" max="10000"></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label>UNDERLYING MEAN</label><input type="number" id="tq-g2mean" value="20" step="any"></div>
+<div class="form-group"><label>UNDERLYING SD</label><input type="number" id="tq-g2sd" value="5" step="any" min="0"></div>
+</div>
+</div>
+
+<div class="form-row">
+<div class="form-group"><label>LOWER BOUND (optional)</label><div class="bound-row"><select id="tq-lo-type" class="bound-select"><option value=">=">&ge; (inclusive)</option><option value=">">&gt; (exclusive)</option></select><input type="number" id="tq-lo" value="" step="any" placeholder="none"></div></div>
+<div class="form-group"><label>UPPER BOUND (optional)</label><div class="bound-row"><select id="tq-hi-type" class="bound-select"><option value="<=">&le; (inclusive)</option><option value="<">&lt; (exclusive)</option></select><input type="number" id="tq-hi" value="" step="any" placeholder="none"></div></div>
+<div class="form-group"><label>DECIMALS</label><input type="number" id="tq-dec" value="2" min="0" max="6"></div>
+<div class="form-group"><label>ROUND TO WHOLE NUMBERS?</label><select id="tq-discrete"><option value="no">No</option><option value="yes">Yes</option></select></div>
+</div>
+
+<div class="btn-row">
+<button class="btn" onclick="generateTwoQuant()">GENERATE DATA</button>
+</div>
+
+<div id="tq-output" style="display:none">
+<hr class="divider">
+<div id="tq-seed-used" class="hint"></div>
+<div id="tq-stats" class="stats-box"></div>
+<div id="tq-warnings" class="notice warnings" role="status" hidden></div>
+<div class="hist-container"><span class="plot-label">// HISTOGRAMS · SHARED AXES · PERCENT //</span><canvas id="tq-canvas" class="hist-canvas" height="280"></canvas></div>
+<div class="section-label" style="margin-top:14px">// OUTPUT FORMAT //</div>
+<div class="format-tabs" id="tq-formats">
+<button class="format-tab active" onclick="switchFormat('tq','desc',this)">DESCRIPTIVE STATS APPLET</button>
+<button class="format-tab" onclick="switchFormat('tq','multmean',this)">MULTIPLE MEANS APPLET</button>
+</div>
+<div class="data-preview"><span class="preview-label">// DATA PREVIEW //</span><pre id="tq-preview"></pre></div>
+<div class="btn-row">
+<button class="btn safe" onclick="saveData('tq')">SAVE AS TXT</button>
+<button class="btn secondary" onclick="copyData('tq')">COPY TO CLIPBOARD</button>
+<button class="btn secondary" onclick="saveSettings('tq')">SAVE SETTINGS</button>
+<button class="btn secondary" onclick="useSeed('tq')">REUSE SEED</button>
+</div>
+<div class="status-line" id="tq-status"></div>
+</div>
+</div>
+</div>
+
+<!-- ==================== TWO-SAMPLE CATEGORICAL ==================== -->
+<div id="tab-two-cat" class="tab-content">
+<div class="panel">
+<div class="section-label">// TWO-SAMPLE CATEGORICAL //</div>
+<div class="notice"><span class="label">INFO</span>Generate categorical data for two groups with different probabilities. Use this for two-sample proportion tests.<br>Output can be pasted into the <code>Descriptive Statistics</code> applet.</div>
+
+<div class="form-group"><label>RESPONSE VARIABLE NAME</label><input type="text" id="tc-varname" value="outcome" placeholder="e.g. outcome"></div>
+<div class="form-row">
+<div class="form-group"><label>CATEGORY 1 NAME</label><input type="text" id="tc-cat1" value="success" placeholder="e.g. success"></div>
+<div class="form-group"><label>CATEGORY 2 NAME</label><input type="text" id="tc-cat2" value="failure" placeholder="e.g. failure"></div>
+</div>
+
+<div class="panel" style="background:#000802;margin-top:10px">
+<div class="section-label" style="font-size:16px">GROUP 1</div>
+<div class="form-row">
+<div class="form-group"><label>GROUP NAME</label><input type="text" id="tc-g1name" value="treatment" placeholder="e.g. treatment"></div>
+<div class="form-group"><label>n</label><input type="number" id="tc-g1n" value="50" min="2" max="10000"></div>
+<div class="form-group"><label>P(CATEGORY 1)</label><input type="number" id="tc-g1p" value="0.7" step="0.01" min="0" max="1"></div>
+</div>
+</div>
+
+<div class="panel" style="background:#000802">
+<div class="section-label" style="font-size:16px">GROUP 2</div>
+<div class="form-row">
+<div class="form-group"><label>GROUP NAME</label><input type="text" id="tc-g2name" value="control" placeholder="e.g. control"></div>
+<div class="form-group"><label>n</label><input type="number" id="tc-g2n" value="50" min="2" max="10000"></div>
+<div class="form-group"><label>P(CATEGORY 1)</label><input type="number" id="tc-g2p" value="0.5" step="0.01" min="0" max="1"></div>
+</div>
+</div>
+
+<div class="btn-row">
+<button class="btn" onclick="generateTwoCat()">GENERATE DATA</button>
+</div>
+
+<div id="tc-output" style="display:none">
+<hr class="divider">
+<div id="tc-seed-used" class="hint"></div>
+<div id="tc-stats" class="stats-box"></div>
+<div id="tc-warnings" class="notice warnings" role="status" hidden></div>
+<div class="hist-container"><span class="plot-label">// CATEGORY COUNTS &amp; PERCENTAGES · SHARED SCALE //</span><canvas id="tc-canvas" class="hist-canvas" height="280"></canvas></div>
+<div class="data-preview"><span class="preview-label">// DATA PREVIEW //</span><pre id="tc-preview"></pre></div>
+<div class="btn-row">
+<button class="btn safe" onclick="saveData('tc')">SAVE AS TXT</button>
+<button class="btn secondary" onclick="copyData('tc')">COPY TO CLIPBOARD</button>
+<button class="btn secondary" onclick="saveSettings('tc')">SAVE SETTINGS</button>
+<button class="btn secondary" onclick="useSeed('tc')">REUSE SEED</button>
+</div>
+<div class="status-line" id="tc-status"></div>
+</div>
+</div>
+</div>
+
+<!-- ==================== ANOVA ==================== -->
+<div id="tab-anova" class="tab-content">
+<div class="panel">
+<div class="section-label">// ANOVA (2+ GROUPS) //</div>
+<div class="notice"><span class="label">INFO</span>Generate quantitative data for two or more groups. Use this for ANOVA tests.<br>Output can be pasted into the <code>Multiple Means</code> applet.</div>
+<div class="notice model-note">Mean and SD describe the underlying normal distribution <strong>before rounding and bounds</strong>. Sample statistics vary from run to run. Bounds apply to the <strong>recorded value after rounding</strong>, so they can change the resulting population mean and SD. Whole-number output is a rounded normal distribution, not a Poisson or binomial count model.</div><div class="notice model-note">Classic ANOVA assumes independent observations, normal within-group distributions and equal population variances. Different SDs or bounds can violate those assumptions. These settings can also be used to explore what happens when assumptions fail.</div>
+
+<div class="form-group"><label>RESPONSE VARIABLE NAME</label><input type="text" id="av-varname" value="score" placeholder="e.g. score"></div>
+<div class="form-row">
+<div class="form-group"><label>LOWER BOUND (optional)</label><div class="bound-row"><select id="av-lo-type" class="bound-select"><option value=">=">&ge; (inclusive)</option><option value=">">&gt; (exclusive)</option></select><input type="number" id="av-lo" value="" step="any" placeholder="none"></div></div>
+<div class="form-group"><label>UPPER BOUND (optional)</label><div class="bound-row"><select id="av-hi-type" class="bound-select"><option value="<=">&le; (inclusive)</option><option value="<">&lt; (exclusive)</option></select><input type="number" id="av-hi" value="" step="any" placeholder="none"></div></div>
+<div class="form-group"><label>DECIMALS</label><input type="number" id="av-dec" value="1" min="0" max="6"></div>
+<div class="form-group"><label>ROUND TO WHOLE NUMBERS?</label><select id="av-discrete"><option value="no">No</option><option value="yes">Yes</option></select></div>
+</div>
+
+<div class="section-label" style="font-size:16px;margin-top:10px">GROUPS</div>
+<div id="av-groups">
+<div class="panel group-row-panel" style="background:#000802;padding:12px;margin-bottom:8px">
+<div class="form-row">
+<div class="form-group"><label>NAME</label><input type="text" value="group1" placeholder="Group name" class="av-gname"></div>
+<div class="form-group"><label>n</label><input type="number" value="30" min="2" max="10000" class="av-gn"></div>
+<div class="form-group"><label>UNDERLYING MEAN</label><input type="number" value="20" step="any" class="av-gmean"></div>
+<div class="form-group"><label>UNDERLYING SD</label><input type="number" value="5" step="any" min="0" class="av-gsd"></div>
+<div class="form-group" style="flex:0"><button class="remove-group" onclick="removeGroup(this, this.closest('#av-groups') ? 'av' : 'cs')" style="margin-top:22px">X</button></div>
+</div>
+</div>
+<div class="panel group-row-panel" style="background:#000802;padding:12px;margin-bottom:8px">
+<div class="form-row">
+<div class="form-group"><label>NAME</label><input type="text" value="group2" placeholder="Group name" class="av-gname"></div>
+<div class="form-group"><label>n</label><input type="number" value="30" min="2" max="10000" class="av-gn"></div>
+<div class="form-group"><label>UNDERLYING MEAN</label><input type="number" value="25" step="any" class="av-gmean"></div>
+<div class="form-group"><label>UNDERLYING SD</label><input type="number" value="5" step="any" min="0" class="av-gsd"></div>
+<div class="form-group" style="flex:0"><button class="remove-group" onclick="removeGroup(this, this.closest('#av-groups') ? 'av' : 'cs')" style="margin-top:22px">X</button></div>
+</div>
+</div>
+<div class="panel group-row-panel" style="background:#000802;padding:12px;margin-bottom:8px">
+<div class="form-row">
+<div class="form-group"><label>NAME</label><input type="text" value="group3" placeholder="Group name" class="av-gname"></div>
+<div class="form-group"><label>n</label><input type="number" value="30" min="2" max="10000" class="av-gn"></div>
+<div class="form-group"><label>UNDERLYING MEAN</label><input type="number" value="30" step="any" class="av-gmean"></div>
+<div class="form-group"><label>UNDERLYING SD</label><input type="number" value="5" step="any" min="0" class="av-gsd"></div>
+<div class="form-group" style="flex:0"><button class="remove-group" onclick="removeGroup(this, this.closest('#av-groups') ? 'av' : 'cs')" style="margin-top:22px">X</button></div>
+</div>
+</div>
+</div>
+<div class="btn-row">
+<button class="btn secondary" onclick="addAnovaGroup()">+ ADD GROUP</button>
+</div>
+
+<div class="btn-row" style="margin-top:14px">
+<button class="btn" onclick="generateAnova()">GENERATE DATA</button>
+</div>
+
+<div id="av-output" style="display:none">
+<hr class="divider">
+<div id="av-seed-used" class="hint"></div>
+<div id="av-stats" class="stats-box"></div>
+<div id="av-warnings" class="notice warnings" role="status" hidden></div>
+<div class="hist-container"><span class="plot-label">// HISTOGRAMS · SHARED AXES · PERCENT //</span><canvas id="av-canvas" class="hist-canvas" height="300"></canvas></div>
+<div class="data-preview"><span class="preview-label">// DATA PREVIEW //</span><pre id="av-preview"></pre></div>
+<div class="btn-row">
+<button class="btn safe" onclick="saveData('av')">SAVE AS TXT</button>
+<button class="btn secondary" onclick="copyData('av')">COPY TO CLIPBOARD</button>
+<button class="btn secondary" onclick="saveSettings('av')">SAVE SETTINGS</button>
+<button class="btn secondary" onclick="useSeed('av')">REUSE SEED</button>
+</div>
+<div class="status-line" id="av-status"></div>
+</div>
+</div>
+</div>
+
+<!-- ==================== CHI-SQUARED ==================== -->
+<div id="tab-chi-sq" class="tab-content">
+<div class="panel">
+<div class="section-label">// CHI-SQUARED TEST //</div>
+<div class="notice"><span class="label">INFO</span>Generate categorical data for multiple groups, each with their own probability distribution. Use this for chi-squared tests.<br>Output can be pasted into the <code>Multiple Proportions</code> applet.</div>
+
+<div class="form-group"><label>RESPONSE VARIABLE NAME</label><input type="text" id="cs-varname" value="outcome" placeholder="e.g. preference"></div>
+
+<div class="section-label" style="font-size:16px;margin-top:10px">CATEGORIES (outcome levels)</div>
+<div id="cs-cats">
+<div class="group-row"><input type="text" value="category1" placeholder="Category name"><button class="remove-group" onclick="removeCatRow(this)">X</button></div>
+<div class="group-row"><input type="text" value="category2" placeholder="Category name"><button class="remove-group" onclick="removeCatRow(this)">X</button></div>
+<div class="group-row"><input type="text" value="category3" placeholder="Category name"><button class="remove-group" onclick="removeCatRow(this)">X</button></div>
+</div>
+<div class="btn-row"><button class="btn secondary" onclick="addCatRow('cs-cats',true)">+ ADD CATEGORY</button></div>
+
+<div class="section-label" style="font-size:16px;margin-top:14px">GROUPS (with probabilities for each category)</div>
+<div class="hint" style="margin-bottom:8px">Each group's probabilities must sum to 1.0. Separate probabilities with commas matching the category order above.</div>
+<div id="cs-order" class="notice" aria-live="polite"></div>
+<div id="cs-groups">
+<div class="panel group-row-panel" style="background:#000802;padding:12px;margin-bottom:8px">
+<div class="form-row">
+<div class="form-group"><label>GROUP NAME</label><input type="text" value="groupA" class="cs-gname"></div>
+<div class="form-group"><label>n</label><input type="number" value="50" min="2" max="10000" class="cs-gn"></div>
+<div class="form-group" style="flex:2"><label>PROBABILITIES (comma-separated)</label><input type="text" value="0.5, 0.3, 0.2" class="cs-gprobs" placeholder="e.g. 0.5, 0.3, 0.2"></div>
+<div class="form-group" style="flex:0"><button class="remove-group" onclick="removeGroup(this, this.closest('#av-groups') ? 'av' : 'cs')" style="margin-top:22px">X</button></div>
+</div>
+</div>
+<div class="panel group-row-panel" style="background:#000802;padding:12px;margin-bottom:8px">
+<div class="form-row">
+<div class="form-group"><label>GROUP NAME</label><input type="text" value="groupB" class="cs-gname"></div>
+<div class="form-group"><label>n</label><input type="number" value="50" min="2" max="10000" class="cs-gn"></div>
+<div class="form-group" style="flex:2"><label>PROBABILITIES (comma-separated)</label><input type="text" value="0.3, 0.4, 0.3" class="cs-gprobs" placeholder="e.g. 0.3, 0.4, 0.3"></div>
+<div class="form-group" style="flex:0"><button class="remove-group" onclick="removeGroup(this, this.closest('#av-groups') ? 'av' : 'cs')" style="margin-top:22px">X</button></div>
+</div>
+</div>
+</div>
+<div class="btn-row"><button class="btn secondary" onclick="addChiGroup()">+ ADD GROUP</button></div>
+
+<div class="btn-row" style="margin-top:14px">
+<button class="btn" onclick="generateChiSq()">GENERATE DATA</button>
+</div>
+
+<div id="cs-output" style="display:none">
+<hr class="divider">
+<div id="cs-seed-used" class="hint"></div>
+<div id="cs-stats" class="stats-box"></div>
+<div id="cs-warnings" class="notice warnings" role="status" hidden></div>
+<div class="hist-container"><span class="plot-label">// CATEGORY COUNTS &amp; PERCENTAGES · SHARED SCALE //</span><canvas id="cs-canvas" class="hist-canvas" height="300"></canvas></div>
+<div class="data-preview"><span class="preview-label">// DATA PREVIEW //</span><pre id="cs-preview"></pre></div>
+<div class="btn-row">
+<button class="btn safe" onclick="saveData('cs')">SAVE AS TXT</button>
+<button class="btn secondary" onclick="copyData('cs')">COPY TO CLIPBOARD</button>
+<button class="btn secondary" onclick="saveSettings('cs')">SAVE SETTINGS</button>
+<button class="btn secondary" onclick="useSeed('cs')">REUSE SEED</button>
+</div>
+<div class="status-line" id="cs-status"></div>
+</div>
+</div>
+</div>
+
+<!-- ==================== PAIRED MEANS ==================== -->
+<div id="tab-paired" class="tab-content">
+<div class="panel">
+<div class="section-label">// PAIRED MEANS (MATCHED PAIRS) //</div>
+<div class="notice"><span class="label">INFO</span>Generate paired quantitative data (two correlated measurements per subject). Use this for matched-pairs t-tests.<br>Output can be pasted into the <code>Matched Pairs</code> applet.</div>
+<div class="notice model-note">Mean and SD describe the underlying normal distribution <strong>before rounding and bounds</strong>. Sample statistics vary from run to run. Bounds apply to the <strong>recorded value after rounding</strong>, so they can change the resulting population mean and SD. Whole-number output is a rounded normal distribution, not a Poisson or binomial count model.</div><div class="notice model-note">Positive correlation means subjects above average in one condition tend to be above average in the other, even when the means differ. Bounds and rounding can change that correlation. Differences are condition 1 minus condition 2.</div>
+
+<div class="form-row">
+<div class="form-group"><label>SAMPLE SIZE (n pairs)</label><input type="number" id="pm-n" value="30" min="2" max="10000"></div>
+<div class="form-group"><label>UNDERLYING CORRELATION (ρ)</label><input type="number" id="pm-corr" value="0.6" step="0.01" min="-1" max="1"><div class="hint">Correlation before bounds and rounding (−1 to 1). The condition means can differ at any correlation.</div></div>
+</div>
+
+<div class="panel" style="background:#000802;margin-top:10px">
+<div class="section-label" style="font-size:16px">CONDITION 1</div>
+<div class="form-row">
+<div class="form-group"><label>NAME</label><input type="text" id="pm-c1name" value="before" placeholder="e.g. before"></div>
+<div class="form-group"><label>UNDERLYING MEAN</label><input type="number" id="pm-c1mean" value="20" step="any"></div>
+<div class="form-group"><label>UNDERLYING SD</label><input type="number" id="pm-c1sd" value="5" step="any" min="0"></div>
+</div>
+</div>
+
+<div class="panel" style="background:#000802">
+<div class="section-label" style="font-size:16px">CONDITION 2</div>
+<div class="form-row">
+<div class="form-group"><label>NAME</label><input type="text" id="pm-c2name" value="after" placeholder="e.g. after"></div>
+<div class="form-group"><label>UNDERLYING MEAN</label><input type="number" id="pm-c2mean" value="24" step="any"></div>
+<div class="form-group"><label>UNDERLYING SD</label><input type="number" id="pm-c2sd" value="5" step="any" min="0"></div>
+</div>
+</div>
+
+<div class="form-row">
+<div class="form-group"><label>LOWER BOUND (optional)</label><div class="bound-row"><select id="pm-lo-type" class="bound-select"><option value=">=">&ge; (inclusive)</option><option value=">">&gt; (exclusive)</option></select><input type="number" id="pm-lo" value="" step="any" placeholder="none"></div></div>
+<div class="form-group"><label>UPPER BOUND (optional)</label><div class="bound-row"><select id="pm-hi-type" class="bound-select"><option value="<=">&le; (inclusive)</option><option value="<">&lt; (exclusive)</option></select><input type="number" id="pm-hi" value="" step="any" placeholder="none"></div></div>
+<div class="form-group"><label>DECIMALS</label><input type="number" id="pm-dec" value="2" min="0" max="6"></div>
+<div class="form-group"><label>ROUND TO WHOLE NUMBERS?</label><select id="pm-discrete"><option value="no">No</option><option value="yes">Yes</option></select></div>
+</div>
+
+<div class="btn-row">
+<button class="btn" onclick="generatePaired()">GENERATE DATA</button>
+</div>
+
+<div id="pm-output" style="display:none">
+<hr class="divider">
+<div id="pm-seed-used" class="hint"></div>
+<div id="pm-stats" class="stats-box"></div>
+<div id="pm-warnings" class="notice warnings" role="status" hidden></div>
+<div class="hist-container"><span class="plot-label">// HISTOGRAMS · SHARED AXES · PERCENT //</span><canvas id="pm-canvas" class="hist-canvas" height="420"></canvas></div>
+<div class="hist-container"><span class="plot-label">// PAIRED DOT &amp; LINE PLOT //</span><canvas id="pm-dotline" class="hist-canvas" height="320"></canvas></div>
+<div class="section-label" style="margin-top:14px">// OUTPUT FORMAT //</div>
+<div class="format-tabs" id="pm-formats">
+<button class="format-tab active" onclick="switchFormat('pm','matched',this)">MATCHED PAIRS APPLET</button>
+<button class="format-tab" onclick="switchFormat('pm','diff',this)">DIFFERENCES ONLY</button>
+</div>
+<div class="data-preview"><span class="preview-label">// DATA PREVIEW //</span><pre id="pm-preview"></pre></div>
+<div class="btn-row">
+<button class="btn safe" onclick="saveData('pm')">SAVE AS TXT</button>
+<button class="btn secondary" onclick="copyData('pm')">COPY TO CLIPBOARD</button>
+<button class="btn secondary" onclick="saveSettings('pm')">SAVE SETTINGS</button>
+<button class="btn secondary" onclick="useSeed('pm')">REUSE SEED</button>
+</div>
+<div class="status-line" id="pm-status"></div>
+</div>
+</div>
+</div>
+
+</main>
+
+<script>
+/* ===== SIMULATION ENGINE (standalone; no external libraries) ===== */
+const ENGINE_VERSION = '2.0.0';
+const dataStore = Object.create(null);
+const results = Object.create(null);
+const tabPrefixes = {'one-quant':'oq','one-cat':'oc','two-quant':'tq','two-cat':'tc',anova:'av','chi-sq':'cs',paired:'pm'};
+const colors = ['#00cc22','#22aaff','#ffcc66','#ee44aa','#44eedd','#aa44ff'];
+let activePrefix = 'oq';
+const el = id => document.getElementById(id);
+const all = selector => Array.from(document.querySelectorAll(selector));
+const escapeHTML = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function showError(message) { el('error-msg').textContent = message; el('error-overlay').classList.add('active'); }
+function closeError() { el('error-overlay').classList.remove('active'); }
+function requireThat(condition, message) { if (!condition) throw new Error(message); }
+function numberValue(raw, label, {min=-Infinity,max=Infinity,integer=false,positive=false}={}) {
+  const text = String(raw).trim();
+  const n = Number(text);
+  requireThat(/^[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?$/i.test(text) && Number.isFinite(n), label + ' must be a finite number.');
+  requireThat(!integer || Number.isInteger(n), label + ' must be a whole number.');
+  requireThat(!positive || n > 0, label + ' must be greater than zero.');
+  requireThat(n >= min && n <= max, label + ' must be between ' + min + ' and ' + max + '.');
+  return n;
+}
+function readNumber(input, label, rules={}, optional=false) {
+  requireThat(!input.validity?.badInput, label + ' must be a number.');
+  if (optional && input.value.trim() === '') return null;
+  return numberValue(input.value, label, rules);
+}
+function readName(input, label) {
+  const name = input.value.trim();
+  requireThat(name.length > 0 && name.length <= 60 && !/[\x00-\x1f\x7f]/.test(input.value), label + ' must contain 1–60 characters and no tabs or line breaks.');
+  return name;
+}
+function uniqueNames(names, label) {
+  requireThat(new Set(names.map(n => n.toLocaleLowerCase())).size === names.length, label + ' must have different names.');
+}
+function validateProbabilities(probs, count, label='Probabilities') {
+  requireThat(probs.length === count, label + ': enter exactly ' + count + ' probabilities, one per category.');
+  requireThat(probs.every(p => Number.isFinite(p) && p >= 0 && p <= 1), label + ' must each be between 0 and 1.');
+  const sum = probs.reduce((a,b) => a+b,0);
+  requireThat(Math.abs(sum-1) <= 1e-9, label + ' must sum to 1 (currently ' + Number(sum.toPrecision(12)) + ').');
+  return probs.map(p => p/sum); // Correct floating-point accumulation only.
+}
+function equalProbabilities(n) {
+  const p = Math.floor(1e6/n)/1e6;
+  return Array.from({length:n}, (_,i) => i === n-1 ? Number((1-p*(n-1)).toFixed(6)) : p);
+}
+
+// Mulberry32: a separate, repeatable stream for each simulation. Uniforms are in (0,1).
+function makeRng(seed) {
+  let state = seed >>> 0;
+  return () => {
+    state = (state + 0x6D2B79F5) >>> 0;
+    let t = Math.imul(state ^ state >>> 15, state | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return (((t ^ t >>> 14) >>> 0) + 0.5) / 4294967296;
+  };
+}
+function randNormal(mean, sd, rng) {
+  return mean + sd * Math.sqrt(-2*Math.log(rng())) * Math.cos(2*Math.PI*rng());
+}
+function spend(budget) {
+  if (--budget.remaining < 0) throw new Error('These bounds and correlation require too much sampling work for one run. Try fewer observations or wider bounds. Your previous successful dataset is still available.');
+}
+// Exact accept/reject sampler for a standard normal restricted to (a,b).
+// Tail proposals follow Robert (1995), https://arxiv.org/abs/0907.4010.
+// Uniform proposals handle narrow intervals; reflected exponential proposals handle either tail.
+function truncatedNormal(a, b, rng, budget) {
+  requireThat(a < b && !Number.isNaN(a) && !Number.isNaN(b), 'The bounds have no representable probability interval.');
+  requireThat(a <= 1e8 && b >= -1e8, 'The bounds are too many SDs from the mean for reliable numerical sampling. Use a larger SD or move the mean closer to the bounds.');
+  if (b < 0) return -truncatedNormal(-b,-a,rng,budget);
+  const width = b-a;
+  const mode = Math.max(a, Math.min(0,b));
+  if (Number.isFinite(width) && width * Math.max(1,Math.abs(mode)) <= 1.5) {
+    for (;;) {
+      spend(budget);
+      const x = a + width*rng();
+      if (Math.log(rng()) <= -0.5*(x-mode)*(x+mode)) return x;
+    }
+  }
+  if (a > 0) {
+    const rate = (a + Math.hypot(a,2))/2;
+    const mass = -Math.expm1(-rate*width); // Stable even for a narrow finite tail interval.
+    for (;;) {
+      spend(budget);
+      const x = a - Math.log1p(-rng()*mass)/rate;
+      if (x <= b && Math.log(rng()) <= -0.5*(x-rate)**2) return x;
+    }
+  }
+  for (;;) {
+    spend(budget);
+    const x = randNormal(0,1,rng);
+    if (x >= a && x <= b) return x;
+  }
+}
+
+// Bounds constrain the RECORDED (rounded) value. Sample the latent rounding cells directly.
+// This preserves round-then-condition semantics without repeatedly drawing an unbounded normal.
+function recordingSpec(decimals, whole, lower, upper, lowerType, upperType) {
+  const precision = whole ? 0 : decimals;
+  const scale = 10**precision;
+  requireThat(['>=','>'].includes(lowerType) && ['<=','<'].includes(upperType), 'Choose valid bound operators.');
+  requireThat(lower === null || upper === null || lower <= upper, 'The lower bound must not exceed the upper bound.');
+  const safe = x => x === null || Math.abs(x*scale) < Number.MAX_SAFE_INTEGER/4;
+  requireThat(safe(lower) && safe(upper), 'The bounds are too large for this decimal precision. Use smaller values or fewer decimals.');
+  let lowTick = -Infinity, highTick = Infinity;
+  if (lower !== null) {
+    lowTick = Math.floor(lower*scale);
+    while (lowerType === '>' ? lowTick/scale <= lower : lowTick/scale < lower) lowTick++;
+  }
+  if (upper !== null) {
+    highTick = Math.ceil(upper*scale);
+    while (upperType === '<' ? highTick/scale >= upper : highTick/scale > upper) highTick--;
+  }
+  requireThat(lowTick <= highTick, 'No recorded value fits these bounds at the selected precision. Widen the bounds or increase decimals.');
+  return {decimals,whole,precision,scale,lower,upper,lowerType,upperType,lowTick,highTick,latentLow:(lowTick-0.5)/scale,latentHigh:(highTick+0.5)/scale};
+}
+function recordValue(x, rec) {
+  requireThat(Number.isFinite(x) && Math.abs(x*rec.scale) < Number.MAX_SAFE_INTEGER/4, 'A value is too large for reliable rounding. Use smaller means/SDs or fewer decimals.');
+  const tick = Math.round(x*rec.scale);
+  requireThat(tick >= rec.lowTick && tick <= rec.highTick, 'Numerical precision was insufficient at a bound. Adjust the bound or decimal precision.');
+  return tick === 0 ? 0 : tick/rec.scale;
+}
+function normalValues(group, rec, rng, budget) {
+  const a = (rec.latentLow-group.mean)/group.sd, b = (rec.latentHigh-group.mean)/group.sd;
+  return Array.from({length:group.n}, () => recordValue(group.mean + group.sd*truncatedNormal(a,b,rng,budget),rec));
+}
+function sampleCategorical(categories, probabilities, n, rng) {
+  const probs = validateProbabilities(probabilities,categories.length);
+  const cumulative = [];
+  let sum = 0, lastPositive = -1;
+  probs.forEach((p,i) => { sum += p; cumulative.push(sum); if (p > 0) lastPositive = i; });
+  return Array.from({length:n}, () => {
+    const u = rng();
+    for (let i=0;i<probs.length;i++) if (probs[i] > 0 && u < cumulative[i]) return categories[i];
+    return categories[lastPositive]; // Floating-point endpoint fallback cannot select a zero-probability category.
+  });
+}
+
+function rectangleMode(a,b,c,d,rho) {
+  const clip = (x,lo,hi) => Math.max(lo,Math.min(hi,x));
+  const candidates = [];
+  if (a <= 0 && b >= 0 && c <= 0 && d >= 0) candidates.push([0,0]);
+  for (const x of [a,b]) if (Number.isFinite(x)) candidates.push([x,clip(rho*x,c,d)]);
+  for (const y of [c,d]) if (Number.isFinite(y)) candidates.push([clip(rho*y,a,b),y]);
+  const q = ([x,y]) => (x-y)**2/(1-rho) + (x+y)**2/(1+rho);
+  return candidates.reduce((best,v) => q(v) < q(best) ? v : best);
+}
+function pairedValues(settings, rng, budget) {
+  const [g1,g2] = settings.groups, rec = settings.recording, rho = settings.correlation;
+  const a = (rec.latentLow-g1.mean)/g1.sd, b = (rec.latentHigh-g1.mean)/g1.sd;
+  const c = (rec.latentLow-g2.mean)/g2.sd, d = (rec.latentHigh-g2.mean)/g2.sd;
+  const residualSD = Math.sqrt((1-rho)*(1+rho));
+  let draw;
+  if (Math.abs(rho) === 1) {
+    const lo = Math.max(a, rho === 1 ? c : -d), hi = Math.min(b, rho === 1 ? d : -c);
+    requireThat(lo < hi, 'Perfect correlation and these bounds cannot occur together for the selected means and SDs. Widen the bounds or change the correlation.');
+    draw = () => { const x=truncatedNormal(lo,hi,rng,budget); return [x,rho*x]; };
+  } else if (rho === 0) {
+    draw = () => [truncatedNormal(a,b,rng,budget),truncatedNormal(c,d,rng,budget)];
+  } else {
+    const mode = rectangleMode(a,b,c,d,rho), sign = Math.sign(rho), absRho = Math.abs(rho);
+    const proposalSD = Math.sqrt(1+absRho), k = absRho/(1-absRho);
+    const mean1 = -k*(mode[0]-sign*mode[1]), mean2 = -k*(mode[1]-sign*mode[0]);
+    const weight = absRho/(1-rho*rho);
+    // Two exact rejection proposals. Switching after rejected draws preserves the joint target.
+    // The first is efficient near perfect correlation when the intervals overlap.
+    // The second uses a diagonal Gaussian envelope tangent at the constrained joint mode.
+    // Q - I/(1+|rho|) is positive semidefinite; acceptance is exp(-weight*delta^2/2).
+    const distance = (lo,hi) => Math.max(lo, -hi, 0);
+    const swap = distance(c,d) > distance(a,b) || (distance(c,d) === distance(a,b) && d-c < b-a);
+    draw = () => {
+      for (let attempt=0;attempt<16;attempt++) {
+        spend(budget);
+        const first = truncatedNormal(swap?c:a,swap?d:b,rng,budget);
+        const second = rho*first + residualSD*randNormal(0,1,rng);
+        if (second >= (swap?a:c) && second <= (swap?b:d)) return swap ? [second,first] : [first,second];
+      }
+      for (;;) {
+        spend(budget);
+        const x = mean1 + proposalSD*truncatedNormal((a-mean1)/proposalSD,(b-mean1)/proposalSD,rng,budget);
+        const y = mean2 + proposalSD*truncatedNormal((c-mean2)/proposalSD,(d-mean2)/proposalSD,rng,budget);
+        const delta = (x-mode[0])-sign*(y-mode[1]);
+        if (Math.log(rng()) <= -0.5*weight*delta*delta) return [x,y];
+      }
+    };
+  }
+  const c1=[],c2=[],diffs=[];
+  for (let i=0;i<g1.n;i++) {
+    const [z1,z2]=draw();
+    const x=recordValue(g1.mean+g1.sd*z1,rec), y=recordValue(g2.mean+g2.sd*z2,rec);
+    c1.push(x); c2.push(y); diffs.push(Number((x-y).toFixed(rec.precision)));
+  }
+  return {c1,c2,diffs};
+}
+
+function calcMean(values) {
+  if (!values.length) return NaN;
+  let mean=0;
+  values.forEach((x,i) => { mean += (x-mean)/(i+1); });
+  return mean;
+}
+function calcSD(values) {
+  if (values.length < 2) return NaN;
+  const mean=calcMean(values);
+  return Math.sqrt(values.reduce((s,x) => s+(x-mean)**2,0)/(values.length-1));
+}
+function calcCorrelation(x,y) {
+  const mx=calcMean(x),my=calcMean(y),sx=calcSD(x),sy=calcSD(y);
+  if (!(sx > 0 && sy > 0)) return NaN;
+  return Math.max(-1,Math.min(1,x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0)/((x.length-1)*sx*sy)));
+}
+function categoryCounts(values,categories) {
+  const counts=new Map(categories.map(c=>[c,0]));
+  values.forEach(v => { requireThat(counts.has(v),'Generated an unknown category.'); counts.set(v,counts.get(v)+1); });
+  return categories.map(c=>counts.get(c));
+}
+
+/* ===== READ, VALIDATE, THEN SIMULATE WITHOUT MUTATING THE DISPLAYED DATA ===== */
+function readSettings(prefix) {
+  const quant = ['oq','tq','av','pm'].includes(prefix);
+  const seedInput=readNumber(el('simulation-seed'),'Seed',{integer:true,min:0,max:4294967295},true);
+  const seed=seedInput === null ? crypto.getRandomValues(new Uint32Array(1))[0] : seedInput;
+  const s={version:ENGINE_VERSION,type:prefix,seed,groups:[]};
+  const n = input => readNumber(input,'Sample size',{integer:true,min:2,max:10000});
+  const mean = input => readNumber(input,'Underlying mean');
+  const sd = input => readNumber(input,'Underlying SD',{positive:true});
+  const p = input => readNumber(input,'Probability',{min:0,max:1});
+  if (prefix !== 'pm') s.variable=readName(el(prefix+'-varname'),'Variable name');
+  if (quant) s.recording=recordingSpec(
+    readNumber(el(prefix+'-dec'),'Decimals',{integer:true,min:0,max:6}),
+    el(prefix+'-discrete').value==='yes',
+    readNumber(el(prefix+'-lo'),'Lower bound',{},true),readNumber(el(prefix+'-hi'),'Upper bound',{},true),
+    el(prefix+'-lo-type').value,el(prefix+'-hi-type').value);
+  if (prefix==='oq') s.groups=[{name:s.variable,n:n(el('oq-n')),mean:mean(el('oq-mean')),sd:sd(el('oq-sd'))}];
+  if (prefix==='tq' || prefix==='tc') {
+    if (prefix==='tc') s.categories=[readName(el('tc-cat1'),'Category 1'),readName(el('tc-cat2'),'Category 2')];
+    s.groups=[1,2].map(i => {
+      const key=prefix+'-g'+i;
+      const group={name:readName(el(key+'name'),'Group '+i),n:n(el(key+'n'))};
+      if (quant) { group.mean=mean(el(key+'mean')); group.sd=sd(el(key+'sd')); }
+      else { const probability=p(el(key+'p')); group.probabilities=[probability,1-probability]; }
+      return group;
+    });
+  }
+  if (prefix==='oc') {
+    const rows=all('#oc-categories .group-row');
+    s.categories=rows.map(r=>readName(r.querySelectorAll('input')[0],'Category'));
+    const probs=rows.map(r=>p(r.querySelectorAll('input')[1]));
+    s.groups=[{name:s.variable,n:n(el('oc-n')),probabilities:validateProbabilities(probs,s.categories.length)}];
+  }
+  if (prefix==='av') s.groups=all('#av-groups .group-row-panel').map(panel=>({
+    name:readName(panel.querySelector('.av-gname'),'Group name'),n:n(panel.querySelector('.av-gn')),
+    mean:mean(panel.querySelector('.av-gmean')),sd:sd(panel.querySelector('.av-gsd'))
+  }));
+  if (prefix==='cs') {
+    s.categories=all('#cs-cats .group-row').map(r=>readName(r.querySelector('input'),'Category'));
+    s.groups=all('#cs-groups .group-row-panel').map(panel=>{
+      const name=readName(panel.querySelector('.cs-gname'),'Group name');
+      const raw=panel.querySelector('.cs-gprobs').value.split(',');
+      const probabilities=raw.map(v=>numberValue(v,'Probability for '+name,{min:0,max:1}));
+      return {name,n:n(panel.querySelector('.cs-gn')),probabilities:validateProbabilities(probabilities,s.categories.length,'Probabilities for '+name)};
+    });
+  }
+  if (prefix==='pm') {
+    s.correlation=readNumber(el('pm-corr'),'Underlying correlation',{min:-1,max:1});
+    const size=n(el('pm-n'));
+    s.groups=[1,2].map(i=>({name:readName(el('pm-c'+i+'name'),'Condition '+i),n:size,mean:mean(el('pm-c'+i+'mean')),sd:sd(el('pm-c'+i+'sd'))}));
+  }
+  requireThat(s.groups.length >= (['av','cs'].includes(prefix)?2:1) && s.groups.length <= 20,'Use between 2 and 20 groups for a group comparison.');
+  uniqueNames(s.groups.map(g=>g.name),'Groups or conditions');
+  if (s.categories) {
+    requireThat(s.categories.length>=2 && s.categories.length<=20,'Use between 2 and 20 categories.');
+    uniqueNames(s.categories,'Categories');
+    s.groups.forEach(g=>{g.probabilities=validateProbabilities(g.probabilities,s.categories.length,'Probabilities for '+g.name);});
+  }
+  return s;
+}
+function simulate(settings) {
+  // Reconstruct derived bounds so a JSON settings record can reproduce the same run.
+  if(settings.recording) {
+    const r=settings.recording;
+    settings={...settings,recording:recordingSpec(r.decimals,r.whole,r.lower,r.upper,r.lowerType,r.upperType)};
+  }
+  const rng=makeRng(settings.seed),budget={remaining:5000000};
+  const result={settings,groups:[],warnings:[],generatedAt:new Date().toISOString(),format:settings.type==='pm'?'matched':'desc'};
+  if (settings.type==='pm') {
+    result.paired=pairedValues(settings,rng,budget);
+    result.groups=settings.groups.map((g,i)=>({...g,values:i===0?result.paired.c1:result.paired.c2}));
+  } else result.groups=settings.groups.map(g=>({...g,values:settings.categories?
+    sampleCategorical(settings.categories,g.probabilities,g.n,rng):normalValues(g,settings.recording,rng,budget)}));
+  if (settings.categories) result.groups.forEach(g=>{g.counts=categoryCounts(g.values,settings.categories);});
+  result.warnings=simulationWarnings(result);
+  return result;
+}
+function simulationWarnings(result) {
+  const {settings:s,groups}=result,warnings=[];
+  if (s.recording) {
+    if (s.recording.lower!==null || s.recording.upper!==null) warnings.push('Bounds select recorded values after rounding. Resulting population means, SDs and paired correlation can differ from the underlying inputs. Bounds can also change normality; check the assumptions of your intended test.');
+    const constant=groups.filter(g=>calcSD(g.values)===0).map(g=>g.name);
+    if (constant.length) warnings.push('No sample variation in '+constant.join(', ')+'. A t-test may be undefined; paired correlation is undefined if either condition is constant.');
+    if (s.type==='pm' && calcSD(result.paired.diffs)===0) warnings.push('All paired differences are equal. The usual paired t statistic is undefined because the difference SD is zero.');
+    if (['tq','av'].includes(s.type) && new Set(groups.map(g=>g.sd)).size>1) warnings.push(s.type==='av'?
+      'Underlying group SDs differ. Classic ANOVA assumes equal population variances; consider Welch’s ANOVA or use this to explore assumption violations.':
+      'Underlying group SDs differ. Use Welch’s two-sample t-test when equal population variances are not justified.');
+  }
+  if (s.type==='cs') {
+    const total=groups.reduce((sum,g)=>sum+g.n,0),totals=s.categories.map((_,i)=>groups.reduce((sum,g)=>sum+g.counts[i],0));
+    const empty=s.categories.filter((_,i)=>totals[i]===0);
+    if (empty.length) warnings.push('No observations in '+empty.join(', ')+'. Empty categories cannot be included in the usual chi-squared calculation.');
+    const small=groups.reduce((sum,g)=>sum+totals.filter(t=>g.n*t/total<5).length,0);
+    if (small) warnings.push(small+' expected cell counts are below 5 under independence. The chi-squared approximation may be unreliable; consider an exact or simulation-based test.');
+  }
+  if (s.type==='oc' && s.categories.length>2) warnings.push('A one-proportion test requires two outcomes, or a success category defined before examining the data.');
+  if (['oc','tc'].includes(s.type) && groups.some(g=>g.counts.some(c=>c<10))) warnings.push('Some category counts are small. Check the conditions for a normal-approximation proportion test, or use an exact/simulation-based method.');
+  return warnings;
+}
+function generate(prefix) {
+  try {
+    const settings=readSettings(prefix);
+    const next=simulate(settings); // All validation and sampling finish before committing anything.
+    const text=exportText(next,next.format);
+    results[prefix]=next;
+    dataStore[prefix]={text,filename:fileBase(next)+'.txt'};
+    closeError();
+    renderResult(prefix);
+    el(prefix+'-output').scrollIntoView({behavior:'smooth',block:'start'});
+  } catch (error) {
+    showError(error.message);
+    if (results[prefix]) setStatus(prefix,'Generation failed. The previous successful dataset and its settings are still shown.','err');
+  }
+}
+function generateOneQuant(){generate('oq');}
+function generateOneCat(){generate('oc');}
+function generateTwoQuant(){generate('tq');}
+function generateTwoCat(){generate('tc');}
+function generateAnova(){generate('av');}
+function generateChiSq(){generate('cs');}
+function generatePaired(){generate('pm');}
+
+/* ===== OUTPUT USES THE SUCCESSFUL SETTINGS SNAPSHOT ===== */
+function headerName(base,names) {
+  let name=base,i=2;
+  while (names.some(n=>n.toLowerCase()===name.toLowerCase())) name=base+'_'+i++;
+  return name;
+}
+function exportText(result,format) {
+  const {settings:s,groups}=result;
+  let rows;
+  if (s.type==='pm') {
+    if (format==='diff') rows=[['difference'],...result.paired.diffs.map(v=>[v])];
+    else rows=[[headerName('id',groups.map(g=>g.name)),groups[0].name,groups[1].name],...result.paired.c1.map((v,i)=>[i+1,v,result.paired.c2[i]])];
+  } else if (s.type==='oq' || s.type==='oc') {
+    if (s.type==='oq' && format==='onemean') rows=[[headerName('ID',[s.variable]),s.variable],...groups[0].values.map((v,i)=>[i+1,v])];
+    else rows=[[s.variable],...groups[0].values.map(v=>[v])];
+  } else {
+    const base=s.type==='av'||format==='multmean'?'treatment':s.type==='cs'?'Group':'Person';
+    rows=[[headerName(base,[s.variable]),s.variable]];
+    groups.forEach(g=>g.values.forEach(v=>rows.push([g.name,v])));
+  }
+  return rows.map(row=>row.join('\t')).join('\n');
+}
+function fileBase(result) {
+  const s=result.settings,name=s.variable||s.groups.map(g=>g.name).join('_vs_');
+  return 'data_'+name.replace(/[<>:"/\\|?*\x00-\x1f]/g,'_')+'_'+s.type;
+}
+function fmt(value,digits=3) { return Number.isFinite(value)?String(Number(value.toFixed(digits))):'undefined'; }
+function stat(label,value) { return '<div class="stat-item"><span class="stat-label">'+escapeHTML(label)+'</span><span class="stat-val">'+escapeHTML(value)+'</span></div>'; }
+function setStatus(prefix,text,kind='') { el(prefix+'-status').textContent=text; el(prefix+'-status').className='status-line '+kind; }
+function renderResult(prefix) {
+  const result=results[prefix],s=result.settings;
+  const stats=[];
+  result.groups.forEach(g=>{
+    stats.push(stat(g.name+' · n',g.n));
+    if (s.categories) stats.push(...s.categories.map((cat,i)=>stat(g.name+' · '+cat,g.counts[i]+' ('+fmt(100*g.counts[i]/g.n,1)+'%)')));
+    else { stats.push(stat(g.name+' · sample mean',fmt(calcMean(g.values))),stat(g.name+' · sample SD',fmt(calcSD(g.values)))); }
+  });
+  if (prefix==='oq') {
+    const values=result.groups[0].values;
+    stats.push(stat('MIN',Math.min(...values)),stat('MAX',Math.max(...values)));
+  }
+  if (prefix==='pm') stats.push(stat('SAMPLE CORRELATION',fmt(calcCorrelation(result.paired.c1,result.paired.c2))),stat('DIFF MEAN (1 − 2)',fmt(calcMean(result.paired.diffs))),stat('DIFF SD',fmt(calcSD(result.paired.diffs))));
+  el(prefix+'-stats').innerHTML=stats.join('');
+  el(prefix+'-warnings').innerHTML=result.warnings.map(w=>'<p>'+escapeHTML(w)+'</p>').join('');
+  el(prefix+'-warnings').hidden=result.warnings.length===0;
+  el(prefix+'-seed-used').textContent='Seed: '+s.seed+' · Data and saved settings describe the last successful generation.';
+  el(prefix+'-output').style.display='block';
+  all('#'+prefix+'-formats .format-tab').forEach((button,i)=>button.classList.toggle('active',i===0));
+  el(prefix+'-preview').textContent=dataStore[prefix].text;
+  setStatus(prefix,'Generated successfully.','ok');
+  drawResult(prefix);
+}
+function switchFormat(prefix,format,button) {
+  const result=results[prefix];
+  if (!result) return;
+  result.format=format;
+  const text=exportText(result,format);
+  dataStore[prefix].text=text;
+  el(prefix+'-preview').textContent=text;
+  all('#'+prefix+'-formats .format-tab').forEach(b=>b.classList.toggle('active',b===button));
+}
+function renderOneQuantPreview(format){switchFormat('oq',format);}
+function renderTwoQuantPreview(format){switchFormat('tq',format);}
+function renderPairedPreview(format){switchFormat('pm',format);}
+function switchTab(id) {
+  all('.tab-content').forEach(t=>t.classList.toggle('active',t.id==='tab-'+id));
+  const index=Object.keys(tabPrefixes).indexOf(id);
+  all('#main-tabs .tab-btn').forEach((b,i)=>b.classList.toggle('active',i===index));
+  activePrefix=tabPrefixes[id];
+  if (results[activePrefix]) drawResult(activePrefix);
+}
+function settingsChanged(prefix) {
+  if (results[prefix]) setStatus(prefix,'Inputs changed. Generate again to apply them; the preview, summaries and downloads still describe the last successful dataset.');
+}
+function useSeed(prefix) { el('simulation-seed').value=results[prefix].settings.seed; Object.keys(results).forEach(settingsChanged); }
+function savedSettings(prefix) {
+  const result=results[prefix];
+  const settings={...result.settings};
+  if(settings.recording) {
+    const r=settings.recording;
+    settings.recording={decimals:r.decimals,whole:r.whole,lower:r.lower,upper:r.upper,lowerType:r.lowerType,upperType:r.upperType};
+  }
+  return {engineVersion:ENGINE_VERSION,generatedAt:result.generatedAt,settings,outputFormat:result.format,
+    model:settings.type==='pm'?'Independent subjects with bivariate normal measurements.':settings.categories?'Independent categorical observations with fixed group sizes.':'Independent normal observations within and across groups.',
+    boundsRule:'Bounds constrain recorded values after rounding; underlying means, SDs and correlation are before these operations.',warnings:result.warnings};
+}
+function downloadText(text,filename,type) {
+  const url=URL.createObjectURL(new Blob([text],{type})),link=document.createElement('a');
+  link.href=url;link.download=filename;document.body.appendChild(link);
+  try {link.click();} finally {link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+}
+function saveData(prefix) {
+  if (!dataStore[prefix]) return;
+  try { downloadText('\ufeff'+dataStore[prefix].text,dataStore[prefix].filename,'text/plain;charset=utf-8');setStatus(prefix,'Download started: '+dataStore[prefix].filename,'ok'); }
+  catch(error){setStatus(prefix,'Could not start download: '+error.message,'err');}
+}
+function saveSettings(prefix) {
+  if (!results[prefix]) return;
+  try {downloadText(JSON.stringify(savedSettings(prefix),null,2),fileBase(results[prefix])+'_settings.json','application/json');setStatus(prefix,'Settings download started.','ok');}
+  catch(error){setStatus(prefix,'Could not save settings: '+error.message,'err');}
+}
+async function copyData(prefix) {
+  if (!dataStore[prefix]) return;
+  try {requireThat(navigator.clipboard?.writeText,'Clipboard access is unavailable. Select and copy the data preview, or save a TXT file.');await navigator.clipboard.writeText(dataStore[prefix].text);setStatus(prefix,'Copied to clipboard.','ok');}
+  catch(error){setStatus(prefix,'Could not copy automatically. Select and copy the data preview, or save a TXT file.','err');}
+}
+
+/* ===== EDITABLE GROUPS AND CATEGORIES ===== */
+function unusedName(stem,names) {
+  let i=1;
+  while (names.some(name=>name.toLowerCase()===(stem+i).toLowerCase())) i++;
+  return stem+i;
+}
+function syncChiProbabilities(index,add,previousCount) {
+  all('#cs-groups .cs-gprobs').forEach(input=>{
+    const values=input.value.split(',');
+    if (values.length!==previousCount) return; // Keep a malformed list visible for explicit validation.
+    if (add) values.push('0'); else values.splice(index,1);
+    input.value=values.map(v=>v.trim()).join(', ');
+  });
+  updateCategoryOrder();settingsChanged('cs');
+}
+function updateCategoryOrder() {
+  el('cs-order').textContent='Probability order: '+all('#cs-cats .group-row input').map(input=>input.value.trim()||'(unnamed)').join(' · ');
+}
+function addCatRow(containerId,noProb=false) {
+  const container=el(containerId),rows=Array.from(container.querySelectorAll('.group-row'));
+  if (rows.length>=20) {showError('Use at most 20 categories.');return;}
+  const names=rows.map(r=>r.querySelector('input').value.trim()),name=unusedName('category',names);
+  const div=document.createElement('div');div.className='group-row';
+  div.innerHTML='<input type="text" value="'+name+'" placeholder="Category name" aria-label="Category name">'+
+    (noProb?'':'<input type="number" value="0" step="any" min="0" max="1" placeholder="Probability" aria-label="Probability" style="max-width:100px">')+
+    '<button class="remove-group" onclick="removeCatRow(this)" aria-label="Remove category">X</button>';
+  container.appendChild(div);
+  if (containerId==='cs-cats') syncChiProbabilities(rows.length,true,rows.length);
+  else settingsChanged('oc');
+}
+function removeCatRow(button) {
+  const row=button.closest('.group-row'),container=row.parentElement,rows=Array.from(container.querySelectorAll('.group-row'));
+  if (rows.length<=2) {showError('Keep at least two categories.');return;}
+  const index=rows.indexOf(row);row.remove();
+  if (container.id==='cs-cats') syncChiProbabilities(index,false,rows.length);
+  else settingsChanged('oc');
+}
+function removeGroup(button,prefix) {
+  const panel=button.closest('.group-row-panel'),container=panel.parentElement;
+  if (container.querySelectorAll('.group-row-panel').length<=2) {showError('Keep at least two groups.');return;}
+  panel.remove();settingsChanged(prefix);
+}
+function addAnovaGroup() {
+  const container=el('av-groups'),panels=Array.from(container.querySelectorAll('.group-row-panel'));
+  if (panels.length>=20) {showError('Use at most 20 groups.');return;}
+  const name=unusedName('group',panels.map(p=>p.querySelector('.av-gname').value.trim()));
+  const div=document.createElement('div');div.className='panel group-row-panel';
+  div.style.cssText='background:#000802;padding:12px;margin-bottom:8px';
+  div.innerHTML='<div class="form-row">'+
+    '<div class="form-group"><label>NAME</label><input type="text" value="'+name+'" class="av-gname" aria-label="Group name"></div>'+
+    '<div class="form-group"><label>n</label><input type="number" value="30" min="2" max="10000" class="av-gn" aria-label="Sample size"></div>'+
+    '<div class="form-group"><label>UNDERLYING MEAN</label><input type="number" value="20" step="any" class="av-gmean" aria-label="Underlying mean"></div>'+
+    '<div class="form-group"><label>UNDERLYING SD</label><input type="number" value="5" step="any" min="0" class="av-gsd" aria-label="Underlying SD"></div>'+
+    '<div class="form-group" style="flex:0"><button class="remove-group" onclick="removeGroup(this,\'av\')">X</button></div></div>';
+  container.appendChild(div);settingsChanged('av');
+}
+function addChiGroup() {
+  const container=el('cs-groups'),panels=Array.from(container.querySelectorAll('.group-row-panel'));
+  if (panels.length>=20) {showError('Use at most 20 groups.');return;}
+  const name=unusedName('group',panels.map(p=>p.querySelector('.cs-gname').value.trim()));
+  const probs=equalProbabilities(all('#cs-cats .group-row').length).join(', ');
+  const div=document.createElement('div');div.className='panel group-row-panel';
+  div.style.cssText='background:#000802;padding:12px;margin-bottom:8px';
+  div.innerHTML='<div class="form-row">'+
+    '<div class="form-group"><label>GROUP NAME</label><input type="text" value="'+name+'" class="cs-gname" aria-label="Group name"></div>'+
+    '<div class="form-group"><label>n</label><input type="number" value="50" min="2" max="10000" class="cs-gn" aria-label="Sample size"></div>'+
+    '<div class="form-group" style="flex:2"><label>PROBABILITIES (comma-separated)</label><input type="text" value="'+probs+'" class="cs-gprobs" aria-label="Category probabilities"></div>'+
+    '<div class="form-group" style="flex:0"><button class="remove-group" onclick="removeGroup(this,\'cs\')">X</button></div></div>';
+  container.appendChild(div);settingsChanged('cs');
+}
+
+/* ===== COMPARABLE CHARTS: COMMON BINS AND PERCENTAGE SCALES ===== */
+function histogramSpec(groups,precision) {
+  let min=Infinity,max=-Infinity,maxN=0;
+  groups.forEach(g=>{maxN=Math.max(maxN,g.values.length);g.values.forEach(x=>{min=Math.min(min,x);max=Math.max(max,x);});});
+  const unit=10**-precision,slots=Math.round((max-min)/unit)+1;
+  let nBins,binWidth;
+  if (slots<=30) {nBins=Math.max(1,slots);binWidth=unit;min-=unit/2;}
+  else {nBins=Math.min(30,Math.max(5,Math.ceil(Math.sqrt(maxN))));binWidth=(max-min)/nBins;}
+  const bins=groups.map(g=>{
+    const counts=new Array(nBins).fill(0);
+    g.values.forEach(x=>{const i=Math.max(0,Math.min(nBins-1,Math.floor((x-min)/binWidth)));counts[i]++;});
+    return counts.map(n=>n/g.values.length);
+  });
+  return {min,max:min+nBins*binWidth,nBins,binWidth,bins,maxFraction:Math.max(...bins.flat(),0.01)};
+}
+function axisNumber(value,step) {
+  const decimals=Math.max(0,Math.min(8,Math.ceil(-Math.log10(Math.abs(step)))+1));
+  // A fixed significant-digit format would hide small differences around large means.
+  if (value!==0 && Math.abs(value)<1e-6) return value.toExponential(Math.max(2,Math.min(8,Math.ceil(Math.log10(Math.abs(value/step)))+1)));
+  return String(Number(value.toFixed(decimals)));
+}
+function prepareCanvas(id,height) {
+  const canvas=el(id),ctx=canvas.getContext('2d'),width=canvas.clientWidth;
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=width*dpr;canvas.height=height*dpr;canvas.style.height=height+'px';ctx.scale(dpr,dpr);
+  return {ctx,width};
+}
+function drawHistograms(id,groups,precision) {
+  const slot=190,height=slot*groups.length,{ctx,width}=prepareCanvas(id,height);
+  if (width<100) return;
+  const spec=histogramSpec(groups,precision),left=56,right=22,plotW=width-left-right,plotH=115;
+  groups.forEach((g,j)=>{
+    const top=j*slot+32,color=g.color||colors[j%colors.length];
+    ctx.fillStyle=color;ctx.font="16px 'VT323',monospace";ctx.fillText(g.name+' (n='+g.values.length+')',left,top-13,plotW);
+    ctx.fillStyle='#33ff88';ctx.font="11px 'Share Tech Mono',monospace";
+    ctx.fillText('%',8,top-9);
+    for(let i=0;i<=4;i++) {
+      const fraction=spec.maxFraction*i/4,y=top+plotH-plotH*i/4;
+      ctx.fillText(fmt(100*fraction,1),5,y+4);ctx.strokeStyle='#006611';ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(width-right,y);ctx.stroke();
+    }
+    spec.bins[j].forEach((fraction,i)=>{
+      const barW=plotW/spec.nBins,h=plotH*fraction/spec.maxFraction,x=left+i*barW,y=top+plotH-h;
+      ctx.fillStyle=color+'66';ctx.fillRect(x+1,y,Math.max(1,barW-2),h);ctx.strokeStyle=color;ctx.strokeRect(x+1,y,Math.max(1,barW-2),h);
+    });
+    ctx.fillStyle='#33ff88';ctx.textAlign='center';
+    const ticks=width<500?3:5;
+    for(let i=0;i<=ticks;i++) ctx.fillText(axisNumber(spec.min+(spec.max-spec.min)*i/ticks,(spec.max-spec.min)/ticks),left+plotW*i/ticks,top+plotH+19);
+    ctx.textAlign='left';
+  });
+}
+function drawCategoryCharts(id,groups,categories) {
+  const slot=60+categories.length*27,{ctx,width}=prepareCanvas(id,slot*groups.length);
+  if(width<150)return;
+  const left=Math.min(170,width*.3),right=Math.min(140,width*.28),plotW=width-left-right;
+  const maxFraction=Math.max(0.01,...groups.flatMap(g=>g.counts.map(n=>n/g.n)));
+  groups.forEach((g,j)=>{
+    const top=j*slot+30,color=colors[j%colors.length];
+    ctx.fillStyle=color;ctx.font="16px 'VT323',monospace";ctx.fillText(g.name+' (n='+g.n+')',8,top-12,width-16);
+    categories.forEach((cat,i)=>{
+      const y=top+i*27,fraction=g.counts[i]/g.n;
+      ctx.fillStyle='#33ff88';ctx.font="12px 'Share Tech Mono',monospace";ctx.textAlign='right';ctx.fillText(cat,left-10,y+14,left-12);ctx.textAlign='left';
+      ctx.fillStyle=color+'66';ctx.fillRect(left,y,plotW*fraction/maxFraction,19);ctx.strokeStyle=color;ctx.strokeRect(left,y,plotW*fraction/maxFraction,19);
+      ctx.fillStyle='#66ffcc';ctx.fillText(g.counts[i]+' ('+fmt(100*fraction,1)+'%)',left+plotW+8,y+14,right-10);
+    });
+    ctx.fillStyle='#33ff88';ctx.font="11px 'Share Tech Mono',monospace";ctx.fillText('0%',left,top+categories.length*27+11);ctx.textAlign='right';ctx.fillText(fmt(100*maxFraction,1)+'%',left+plotW,top+categories.length*27+11);ctx.textAlign='left';
+  });
+}
+function drawPairedDotLine(id,c1,c2,name1,name2) {
+  const height=320,{ctx,width}=prepareCanvas(id,height);
+  if(width<150)return;
+  let min=Infinity,max=-Infinity;
+  [...c1,...c2].forEach(v=>{min=Math.min(min,v);max=Math.max(max,v);});
+  let range=max-min;
+  if(range===0){range=1;min-=.5;max+=.5;}
+  const low=min-range*.08,high=max+range*.08,left=65,right=25,top=35,plotH=230;
+  const x1=left+(width-left-right)*.22,x2=left+(width-left-right)*.78;
+  const y=v=>top+plotH*(high-v)/(high-low);
+  ctx.font="11px 'Share Tech Mono',monospace";
+  for(let i=0;i<=5;i++) {
+    const value=low+(high-low)*i/5;ctx.fillStyle='#33ff88';ctx.textAlign='right';ctx.fillText(axisNumber(value,(high-low)/5),left-7,y(value)+4);
+    ctx.strokeStyle='#006611';ctx.beginPath();ctx.moveTo(left,y(value));ctx.lineTo(width-right,y(value));ctx.stroke();
+  }
+  ctx.textAlign='left';
+  c1.forEach((v,i)=>{
+    ctx.strokeStyle=c2[i]>v?'#22aaff44':c2[i]<v?'#cc220044':'#aaaaaa44';
+    ctx.beginPath();ctx.moveTo(x1,y(v));ctx.lineTo(x2,y(c2[i]));ctx.stroke();
+  });
+  [[c1,x1,colors[0],name1],[c2,x2,colors[1],name2]].forEach(([values,x,color,name])=>{
+    ctx.fillStyle=color;
+    values.forEach(v=>{ctx.beginPath();ctx.arc(x,y(v),3,0,2*Math.PI);ctx.fill();});
+    ctx.strokeStyle=color;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x-12,y(calcMean(values)));ctx.lineTo(x+12,y(calcMean(values)));ctx.stroke();ctx.lineWidth=1;
+    ctx.textAlign='center';ctx.font="15px 'VT323',monospace";ctx.fillText(name,x,top+plotH+25,(width-left-right)*.45);
+  });
+  ctx.textAlign='left';ctx.font="12px 'Share Tech Mono',monospace";ctx.fillStyle='#33ff88';ctx.fillText('Blue: increased · Red: decreased · Gray: unchanged',8,17,width-16);
+}
+function drawResult(prefix) {
+  const result=results[prefix];if(!result)return;
+  if(result.settings.categories) drawCategoryCharts(prefix+'-canvas',result.groups,result.settings.categories);
+  else {
+    const groups=result.groups.map((g,i)=>({...g,color:colors[i%colors.length]}));
+    if(prefix==='pm') {
+      groups.push({name:'Differences ('+groups[0].name+' − '+groups[1].name+')',values:result.paired.diffs,color:colors[2]});
+      drawPairedDotLine('pm-dotline',result.paired.c1,result.paired.c2,groups[0].name,groups[1].name);
+    }
+    drawHistograms(prefix+'-canvas',groups,result.settings.recording.precision);
+  }
+}
+
+document.addEventListener('input',event=>{
+  if(event.target.id==='simulation-seed')Object.keys(results).forEach(settingsChanged);
+  const tab=event.target.closest('.tab-content');
+  if(tab)settingsChanged(tabPrefixes[tab.id.slice(4)]);
+  if(event.target.closest('#cs-cats'))updateCategoryOrder();
+});
+document.addEventListener('change',event=>{const tab=event.target.closest('.tab-content');if(tab)settingsChanged(tabPrefixes[tab.id.slice(4)]);});
+document.addEventListener('keydown',event=>{if(event.key==='Escape')closeError();});
+let resizePending=false;
+window.addEventListener('resize',()=>{if(!resizePending){resizePending=true;requestAnimationFrame(()=>{resizePending=false;drawResult(activePrefix);});}});
+if(document.fonts?.ready)document.fonts.ready.then(()=>drawResult(activePrefix));
+updateCategoryOrder();
+
+/* ===== SIDE CLI RUNNERS ===== */
+(function initCLI() {
+  const el = document.getElementById('cli-left-scroll');
+  const spinFrames = ['⠋','⠙','⠹','⠸','⠼','⠴','⠦','⠧','⠇','⠏'];
+
+  // Chinese explanation of token efficiency — loops forever
+  const recipe = [
+    '令牌效率：为什么中文更高效',
+    '',
+    '大语言模型不直接处理文字。它们先将文本分割成小片段，称为"令牌"。每个令牌是模型处理的最小单位。模型的一切计算——理解、推理、生成——都以令牌为基础。',
+    '',
+    '英文单词通常被拆分为多个令牌。例如"understanding"会被分为"under"和"standing"两个令牌。较长的单词甚至会被拆成三到四个片段。一个简单的英文句子可能需要十到二十个令牌才能表示。',
+    '',
+    '中文则完全不同。中文是一种高信息密度的语言。每个汉字本身就承载完整的语义。例如"电"表示电力，"脑"表示大脑，"电脑"就是计算机。两个字符、两个令牌，却表达了一个完整的概念。',
+    '',
+    '一个汉字通常对应一个令牌，但它传递的信息量相当于英文中一个甚至多个单词。这意味着同样的思想，用中文表达所需的令牌数量远少于英文。',
+    '',
+    '举一个具体的例子：',
+    '',
+    '英文："The large language model processes text by breaking it into tokens"',
+    '这句话大约需要十二个令牌。',
+    '',
+    '中文："大语言模型通过将文本分割为令牌来处理文字"',
+    '同样的意思，只需要大约九个令牌。',
+    '',
+    '令牌数量直接影响三件事：成本、速度和容量。',
+    '',
+    '成本：大语言模型按令牌计费。输入和输出的每一个令牌都有价格。令牌越少，费用越低。同样的对话内容，用中文可以节省百分之二十到四十的令牌消耗。',
+    '',
+    '速度：模型生成每个令牌都需要一次完整的前向传播计算。令牌越少，推理速度越快，用户等待的时间越短。',
+    '',
+    '容量：每个模型都有上下文窗口的限制，以令牌为单位。同样大小的窗口，中文可以容纳更多的实际信息内容。这意味着模型可以"记住"更长的对话历史，或处理更大的文档。',
+    '',
+    '更深层的原因在于两种书写系统的根本差异。',
+    '',
+    '英文使用二十六个字母。字母本身不携带语义，必须组合成单词才有意义。分词器需要学习如何切分这些字母组合，而且切分的结果往往不是最优的。',
+    '',
+    '中文的每个字都是一个独立的语义单元。分词器不需要学习如何拆分汉字——每个字天然就是一个令牌边界。这种对齐是英文无法实现的。',
+    '',
+    '这不是语言学上的巧合。中文的书写系统经过数千年的演化，将含义压缩进最小的视觉符号中。当这种古老的信息压缩方式遇上现代的人工智能分词器，结果就是天然的高效率。',
+    '',
+    '所以，当你看到中文在屏幕上流过时，你看到的不仅仅是文字。你看到的是一种在数学意义上更高效的信息编码方式——每一个字符都在用最少的计算资源传递最多的信息。',
+    '',
+    '─────────────────',
+    '',
+  ];
+
+  // Flatten recipe into one long character stream
+  // Each line becomes its characters followed by a newline marker
+  const chars = [];
+  for (const line of recipe) {
+    if (line === '') {
+      chars.push('\n');
+    } else {
+      for (const ch of line) chars.push(ch);
+      chars.push('\n');
+    }
+  }
+
+  let charIdx = 0;
+  let spinIdx = 0;
+  let lines = [''];  // current lines of output
+  let nextTime = 0;
+  const MAX_LINES = 200;
+
+  function tick(now) {
+    if (now < nextTime) return;
+
+    const ch = chars[charIdx % chars.length];
+    if (charIdx > 0 && charIdx % chars.length === 0) {
+      // Looped — add a gap before restarting
+      lines.push('');
+    }
+
+    if (ch === '\n') {
+      lines.push('');
+    } else {
+      lines[lines.length - 1] += ch;
+    }
+
+    // Trim old lines
+    while (lines.length > MAX_LINES) lines.shift();
+
+    charIdx++;
+    spinIdx = (spinIdx + 1) % spinFrames.length;
+
+    // Build output: spinner header + text + blinking cursor
+    const spinner = '<span class="h">' + spinFrames[spinIdx] + '</span>';
+    const header = spinner + ' <span class="d">thinking...</span>';
+    const textHtml = lines.map(l =>
+      l ? '<span class="v">' + l.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span>' : ''
+    ).join('\n');
+    const cursor = '<span class="blink" style="color:var(--bright)">▌</span>';
+
+    el.innerHTML = header + '\n\n' + textHtml + cursor;
+
+    // Scroll to bottom
+    el.scrollTop = el.scrollHeight;
+
+    // Vary speed: ~60-120ms per char, pause longer on punctuation
+    const isPunct = '，。、：！？；'.includes(ch);
+    const isBreak = ch === '\n';
+    nextTime = now + (isBreak ? 300 : isPunct ? 180 : 60 + Math.random() * 60);
+  }
+
+  function frame(now) {
+    tick(now);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+/* ===== RIGHT SIDE: WAR RIG STATUS MONITOR ===== */
+(function initRigMonitor() {
+  const R = (a,b) => a + Math.random()*(b-a);
+  const Ri = (a,b) => Math.floor(R(a,b));
+  const pf = (v,d) => v.toFixed(d);
+  const pick = a => a[Ri(0,a.length)];
+
+  const el = document.getElementById('rig-monitor');
+
+  const state = {
+    reactorTemp: 342,
+    reactorPower: 94.2,
+    controlRods: 68,
+    neutronFlux: 2.41e13,
+    // Sewage
+    sewageNitrogen: 4.2,
+    sewageFiber: 1.8,
+    sewageWater: 94.0,
+    sewageProgress: 0,
+    sewageMode: 'PURIFYING',
+    // SCOP
+    scopFlavor: 'HONEY BBQ',
+    // Engine
+    coolantTemp: 82.4,
+    oilTemp: 91.2,
+    rpm: 780,
+    // Structure
+    integrity: 97.8,
+    tireLF: 34.2,
+    tireRF: 34.8,
+    tireLR: 35.1,
+    tireRR: 34.5,
+    // Environment
+    outsideTemp: 47.3,
+    ambientRad: 0.38,
+    uvIndex: 6.2,
+    humidity: 12,
+  };
+
+  function drift(val, min, max, wiggle) {
+    return Math.min(max, Math.max(min, val + R(-wiggle, wiggle)));
+  }
+
+  function statusBar(frac, width) {
+    const w = width || 12;
+    const filled = Math.round(frac * w);
+    return '<span class="bar-fill">' + '█'.repeat(filled) + '</span><span class="bar-track">' + '░'.repeat(w - filled) + '</span>';
+  }
+
+  function statusClass(val, warnLo, warnHi, critLo, critHi) {
+    if ((critLo != null && val < critLo) || (critHi != null && val > critHi)) return 'val-crit';
+    if ((warnLo != null && val < warnLo) || (warnHi != null && val > warnHi)) return 'val-warn';
+    return 'val-ok';
+  }
+
+  function row(label, value, cls) {
+    return `<div class="row"><span class="lbl">${label}</span><span class="${cls || 'val-num'}">${value}</span></div>`;
+  }
+
+  function render() {
+    const s = state;
+
+    // Drift values
+    s.reactorTemp = drift(s.reactorTemp, 280, 520, 1.5);
+    s.reactorPower = drift(s.reactorPower, 85, 100, 0.3);
+    s.controlRods = drift(s.controlRods, 40, 95, 0.5);
+    s.neutronFlux = drift(s.neutronFlux, 2.1e13, 2.8e13, 1e11);
+    s.sewageNitrogen = drift(s.sewageNitrogen, 2.0, 8.0, 0.15);
+    s.sewageFiber = drift(s.sewageFiber, 0.5, 4.0, 0.08);
+    s.sewageWater = drift(s.sewageWater, 88, 97, 0.2);
+    s.coolantTemp = drift(s.coolantTemp, 75, 95, 0.4);
+    s.oilTemp = drift(s.oilTemp, 80, 105, 0.5);
+    s.rpm = drift(s.rpm, 650, 900, 12);
+    s.tireLF = drift(s.tireLF, 32, 36, 0.05);
+    s.tireRF = drift(s.tireRF, 32, 36, 0.05);
+    s.tireLR = drift(s.tireLR, 32, 36, 0.05);
+    s.tireRR = drift(s.tireRR, 32, 36, 0.05);
+    s.integrity = drift(s.integrity, 85, 100, 0.1);
+    s.outsideTemp = drift(s.outsideTemp, 35, 65, 0.5);
+    s.ambientRad = drift(s.ambientRad, 0.05, 2.5, 0.02);
+    s.uvIndex = drift(s.uvIndex, 2, 11, 0.2);
+    s.humidity = drift(s.humidity, 3, 40, 0.5);
+
+    // Sewage cycle: progress grows, then resets
+    s.sewageProgress += R(0.3, 1.5);
+    if (s.sewageProgress >= 100) {
+      s.sewageProgress = 0;
+      if (s.sewageMode === 'PURIFYING') s.sewageMode = 'EVACUATING PURIFIED';
+      else if (s.sewageMode === 'EVACUATING PURIFIED') s.sewageMode = 'REFILLING';
+      else s.sewageMode = 'PURIFYING';
+    }
+
+    // SCOP flavor changes occasionally
+    if (Math.random() < 0.005) {
+      s.scopFlavor = pick(['HONEY BBQ','BUFFALO','SWEET CHILI']);
+    }
+
+    const now = new Date();
+    const ts = now.toTimeString().split(' ')[0];
+
+    let html = '';
+
+    // WAR RIG STATUS
+    html += `<div class="sec">`;
+    html += `<div class="sec-title">WAR RIG STATUS</div>`;
+    html += row('UPTIME', ts, 'val-ok');
+    html += row('STATUS', '<span class="blink">■</span> OPERATIONAL', 'val-ok');
+    html += `</div>`;
+
+    // REACTOR
+    html += `<div class="sec">`;
+    html += `<div class="sec-title">◈ REACTOR</div>`;
+    html += row('CORE TEMP', pf(s.reactorTemp,1)+'°C', statusClass(s.reactorTemp, null, 450, null, 500));
+    html += row('POWER OUT', pf(s.reactorPower,1)+'%', statusClass(s.reactorPower, 70, null, 60, null));
+    html += row('CTRL RODS', pf(s.controlRods,1)+'%', 'val-num');
+    html += row('OUTPUT', statusBar(s.reactorPower/100, 14), 'val-num');
+    html += row('NEUTRON FLUX', pf(s.neutronFlux,2), 'val-num');
+    html += row('CONTAINMENT', 'NOMINAL', 'val-ok');
+    html += `</div>`;
+
+    // SEWAGE SYSTEMS
+    html += `<div class="sec">`;
+    html += `<div class="sec-title">◈ SEWAGE SYSTEMS</div>`;
+    html += row('STATUS', 'ONLINE', 'val-ok');
+    html += row('NITROGEN', pf(s.sewageNitrogen,1)+' g/L', 'val-num');
+    html += row('FIBER', pf(s.sewageFiber,1)+' g/L', 'val-num');
+    html += row('WATER', pf(s.sewageWater,1)+'%', 'val-num');
+    const modeClass = s.sewageMode === 'EVACUATING PURIFIED' ? 'val-ok' : s.sewageMode === 'PURIFYING' ? 'val-num' : 'val-warn';
+    html += row('MODE', s.sewageMode, modeClass);
+    html += row('PROGRESS', pf(s.sewageProgress,1)+'%  '+statusBar(s.sewageProgress/100,12), 'val-num');
+    html += `</div>`;
+
+    // SCOP GENERATOR
+    html += `<div class="sec">`;
+    html += `<div class="sec-title">◈ SCOP GENERATOR</div>`;
+    html += row('STATUS', 'ACTIVE', 'val-ok');
+    html += row('CUR FLAVOR', s.scopFlavor, 'val-ok');
+    html += `</div>`;
+
+    // USER STATUS
+    html += `<div class="sec">`;
+    html += `<div class="sec-title">◈ USER STATUS</div>`;
+    html += row('SELF', 'ALIVE', 'val-ok');
+    html += `</div>`;
+
+    // ENGINE
+    html += `<div class="sec">`;
+    html += `<div class="sec-title">◈ ENGINE</div>`;
+    html += row('STATUS', 'IDLE', 'val-ok');
+    html += row('COOLANT', pf(s.coolantTemp,1)+'°C', statusClass(s.coolantTemp, null, 90, null, 100));
+    html += row('OIL TEMP', pf(s.oilTemp,1)+'°C', statusClass(s.oilTemp, null, 100, null, 110));
+    html += row('RPM', pf(s.rpm,0), 'val-num');
+    html += row('GEAR', 'NEUTRAL', 'val-num');
+    html += row('PARK BRAKE', 'ENGAGED', 'val-ok');
+    html += `</div>`;
+
+    // STRUCTURE
+    html += `<div class="sec">`;
+    html += `<div class="sec-title">◈ STRUCTURE</div>`;
+    html += row('INTEGRITY', pf(s.integrity,1)+'%', statusClass(s.integrity, 80, null, 60, null));
+    html += row('TIRE LF', pf(s.tireLF,1)+' PSI', statusClass(s.tireLF, 33, 36, 32, 37));
+    html += row('TIRE RF', pf(s.tireRF,1)+' PSI', statusClass(s.tireRF, 33, 36, 32, 37));
+    html += row('TIRE LR', pf(s.tireLR,1)+' PSI', statusClass(s.tireLR, 33, 36, 32, 37));
+    html += row('TIRE RR', pf(s.tireRR,1)+' PSI', statusClass(s.tireRR, 33, 36, 32, 37));
+    html += `</div>`;
+
+    // ENVIRONMENT
+    html += `<div class="sec">`;
+    html += `<div class="sec-title">◈ ENVIRONMENT</div>`;
+    html += row('OUTSIDE', pf(s.outsideTemp,1)+'°C', statusClass(s.outsideTemp, null, 55, null, 60));
+    html += row('RADIATION', pf(s.ambientRad,2)+' mSv/h', statusClass(s.ambientRad, null, 1.0, null, 2.0));
+    html += row('UV INDEX', pf(s.uvIndex,1), statusClass(s.uvIndex, null, 8, null, 10));
+    html += row('HUMIDITY', pf(s.humidity,0)+'%', 'val-num');
+    html += `</div>`;
+
+    el.innerHTML = html;
+  }
+
+  render();
+  setInterval(render, 1500);
+})();
+</script>
+</body>
+</html>

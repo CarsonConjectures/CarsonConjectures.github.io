@@ -31,9 +31,6 @@ h1,h2,h3,.mono-head{font-family:'VT323',monospace;letter-spacing:1px}
 .btn.safe{border-color:var(--green);color:var(--green)}
 .btn.safe:hover{background:var(--green);color:#000}
 .btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
-.notice{background:#000f03;border-left:3px solid var(--border);padding:10px 14px;margin:12px 0;color:var(--dim);font-size:13px;line-height:1.7}
-.notice .label{font-family:'VT323',monospace;font-size:16px;color:var(--border);display:block;margin-bottom:4px}
-.notice code{color:var(--bright)}
 .divider{border:none;border-top:1px solid var(--border2);margin:14px 0}
 
 .screen{display:none}.screen.active{display:block}
@@ -51,7 +48,6 @@ h1,h2,h3,.mono-head{font-family:'VT323',monospace;letter-spacing:1px}
 .form-group input,.form-group select,.form-group textarea{background:#000a02;color:var(--bright);border:1px solid var(--border2);font-family:'Share Tech Mono',monospace;font-size:14px;padding:6px 10px;width:100%;outline:none}
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--border)}
 .form-group input[type=number]{width:120px}
-.form-group .hint{font-size:11px;color:var(--dim);margin-top:2px}
 .form-row{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end}
 .form-row .form-group{flex:1;min-width:100px}
 
@@ -83,8 +79,6 @@ canvas.hist-canvas{width:100%;background:transparent}
 .status-line.ok{color:var(--green)}
 .status-line.err{color:var(--red-err)}
 
-/* Standalone hint (outside .form-group) */
-.hint{font-size:11px;color:var(--dim);margin-top:2px}
 
 /* Group input rows for multi-group */
 .group-row{display:flex;gap:10px;align-items:center;margin:6px 0;flex-wrap:wrap}
@@ -131,16 +125,14 @@ main{position:relative;z-index:1}
 .error-box .error-title{font-family:'VT323',monospace;font-size:22px;color:var(--red-err);letter-spacing:2px;margin-bottom:10px}
 .error-box .error-msg{font-family:'Share Tech Mono',monospace;font-size:13px;color:#cc4422;line-height:1.6;margin-bottom:16px}
 .error-box .btn.danger{font-size:18px}
-.model-note{color:var(--text);font-size:12px;line-height:1.6}
-.warnings{border-color:#ffcc66;color:#ffcc66}
-.warnings p+p{margin-top:8px}
 .seed-panel{padding-top:8px;padding-bottom:8px}
 .seed-panel input[type=number]{width:190px}
 .stats-box .stat-item{max-width:100%;overflow-wrap:anywhere}
 .stat-item .stat-val{font-size:20px}
-.hint{color:#22b866;line-height:1.5}
 .plot-label{line-height:1.2}
 [hidden]{display:none!important}
+.applet-use{font-size:12px;color:var(--text);margin:8px 0 14px}
+.seed-value{font-size:12px;color:var(--dim);margin-bottom:8px}
 </style>
 </head>
 <body>
@@ -171,14 +163,14 @@ main{position:relative;z-index:1}
 </div>
 
 <div class="panel seed-panel">
-<div class="form-group"><label for="simulation-seed">RANDOM SEED (optional)</label><input type="number" id="simulation-seed" value="" min="0" max="4294967295" step="1" placeholder="new seed"><div class="hint">Leave blank for a new dataset each time. Reuse a seed and the same settings to reproduce a dataset. The seed used appears with your results.</div></div>
+<div class="form-group"><label for="simulation-seed">RANDOM SEED (optional)</label><input type="number" id="simulation-seed" value="" min="0" max="4294967295" step="1" placeholder="new seed"></div>
 </div>
 <!-- ==================== ONE-SAMPLE QUANTITATIVE ==================== -->
 <div id="tab-one-quant" class="tab-content active">
 <div class="panel">
 <div class="section-label">// ONE-SAMPLE QUANTITATIVE //</div>
-<div class="notice"><span class="label">INFO</span>Generate numerical data from a normal distribution. Use this for one-sample mean tests.<br>Output can be pasted into the <code>Descriptive Statistics</code> or <code>One Mean</code> applet.</div>
-<div class="notice model-note">Mean and SD describe the underlying normal distribution <strong>before rounding and bounds</strong>. Sample statistics vary from run to run. Bounds apply to the <strong>recorded value after rounding</strong>, so they can change the resulting population mean and SD. Whole-number output is a rounded normal distribution, not a Poisson or binomial count model.</div>
+<div class="applet-use">Useful for Descriptive Statistics or One Mean applet.</div>
+
 
 <div class="form-row">
 <div class="form-group"><label>VARIABLE NAME</label><input type="text" id="oq-varname" value="measurement" placeholder="e.g. temperature"></div>
@@ -189,8 +181,8 @@ main{position:relative;z-index:1}
 <div class="form-group"><label>UNDERLYING SD</label><input type="number" id="oq-sd" value="5" step="any" min="0"></div>
 </div>
 <div class="form-row">
-<div class="form-group"><label>LOWER BOUND (optional)</label><div class="bound-row"><select id="oq-lo-type" class="bound-select"><option value=">=">&ge; (inclusive)</option><option value=">">&gt; (exclusive)</option></select><input type="number" id="oq-lo" value="" step="any" placeholder="none"></div><div class="hint">Leave blank for no bound</div></div>
-<div class="form-group"><label>UPPER BOUND (optional)</label><div class="bound-row"><select id="oq-hi-type" class="bound-select"><option value="<=">&le; (inclusive)</option><option value="<">&lt; (exclusive)</option></select><input type="number" id="oq-hi" value="" step="any" placeholder="none"></div><div class="hint">Leave blank for no bound</div></div>
+<div class="form-group"><label>LOWER BOUND (optional)</label><div class="bound-row"><select id="oq-lo-type" class="bound-select"><option value=">=">&ge; (inclusive)</option><option value=">">&gt; (exclusive)</option></select><input type="number" id="oq-lo" value="" step="any" placeholder="none"></div></div>
+<div class="form-group"><label>UPPER BOUND (optional)</label><div class="bound-row"><select id="oq-hi-type" class="bound-select"><option value="<=">&le; (inclusive)</option><option value="<">&lt; (exclusive)</option></select><input type="number" id="oq-hi" value="" step="any" placeholder="none"></div></div>
 </div>
 <div class="form-row">
 <div class="form-group"><label>DECIMALS</label><input type="number" id="oq-dec" value="2" min="0" max="6"></div>
@@ -203,9 +195,8 @@ main{position:relative;z-index:1}
 
 <div id="oq-output" style="display:none">
 <hr class="divider">
-<div id="oq-seed-used" class="hint"></div>
+<div id="oq-seed-used" class="seed-value"></div>
 <div id="oq-stats" class="stats-box"></div>
-<div id="oq-warnings" class="notice warnings" role="status" hidden></div>
 <div class="hist-container"><span class="plot-label">// HISTOGRAM · PERCENT OF OBSERVATIONS //</span><canvas id="oq-canvas" class="hist-canvas" height="220"></canvas></div>
 <div class="section-label" style="margin-top:14px">// OUTPUT FORMAT //</div>
 <div class="format-tabs" id="oq-formats">
@@ -228,7 +219,7 @@ main{position:relative;z-index:1}
 <div id="tab-one-cat" class="tab-content">
 <div class="panel">
 <div class="section-label">// ONE-SAMPLE CATEGORICAL //</div>
-<div class="notice"><span class="label">INFO</span>Generate categorical data with specified probabilities. Use this for one-sample proportion tests.<br>Output can be pasted into the <code>Descriptive Statistics</code> applet.</div>
+<div class="applet-use">Useful for Descriptive Statistics applet.</div>
 
 <div class="form-row">
 <div class="form-group"><label>VARIABLE NAME</label><input type="text" id="oc-varname" value="outcome" placeholder="e.g. result"></div>
@@ -251,7 +242,7 @@ main{position:relative;z-index:1}
 <div class="btn-row">
 <button class="btn secondary" onclick="addCatRow('oc-categories')">+ ADD CATEGORY</button>
 </div>
-<div class="hint" style="margin-top:4px">Probabilities must sum to 1.0</div>
+
 
 <div class="btn-row" style="margin-top:14px">
 <button class="btn" onclick="generateOneCat()">GENERATE DATA</button>
@@ -259,9 +250,8 @@ main{position:relative;z-index:1}
 
 <div id="oc-output" style="display:none">
 <hr class="divider">
-<div id="oc-seed-used" class="hint"></div>
+<div id="oc-seed-used" class="seed-value"></div>
 <div id="oc-stats" class="stats-box"></div>
-<div id="oc-warnings" class="notice warnings" role="status" hidden></div>
 <div class="hist-container"><span class="plot-label">// CATEGORY COUNTS &amp; PERCENTAGES //</span><canvas id="oc-canvas" class="hist-canvas" height="220"></canvas></div>
 <div class="data-preview"><span class="preview-label">// DATA PREVIEW //</span><pre id="oc-preview"></pre></div>
 <div class="btn-row">
@@ -279,8 +269,8 @@ main{position:relative;z-index:1}
 <div id="tab-two-quant" class="tab-content">
 <div class="panel">
 <div class="section-label">// TWO-SAMPLE QUANTITATIVE //</div>
-<div class="notice"><span class="label">INFO</span>Generate numerical data for two groups. Use this for two-sample mean tests.<br>Output can be pasted into the <code>Descriptive Statistics</code> or <code>Multiple Means</code> applet.</div>
-<div class="notice model-note">Mean and SD describe the underlying normal distribution <strong>before rounding and bounds</strong>. Sample statistics vary from run to run. Bounds apply to the <strong>recorded value after rounding</strong>, so they can change the resulting population mean and SD. Whole-number output is a rounded normal distribution, not a Poisson or binomial count model.</div>
+<div class="applet-use">Useful for Descriptive Statistics or Multiple Means applet.</div>
+
 
 <div class="form-group"><label>RESPONSE VARIABLE NAME</label><input type="text" id="tq-varname" value="score" placeholder="e.g. score"></div>
 
@@ -321,9 +311,8 @@ main{position:relative;z-index:1}
 
 <div id="tq-output" style="display:none">
 <hr class="divider">
-<div id="tq-seed-used" class="hint"></div>
+<div id="tq-seed-used" class="seed-value"></div>
 <div id="tq-stats" class="stats-box"></div>
-<div id="tq-warnings" class="notice warnings" role="status" hidden></div>
 <div class="hist-container"><span class="plot-label">// HISTOGRAMS · SHARED AXES · PERCENT //</span><canvas id="tq-canvas" class="hist-canvas" height="280"></canvas></div>
 <div class="section-label" style="margin-top:14px">// OUTPUT FORMAT //</div>
 <div class="format-tabs" id="tq-formats">
@@ -346,7 +335,7 @@ main{position:relative;z-index:1}
 <div id="tab-two-cat" class="tab-content">
 <div class="panel">
 <div class="section-label">// TWO-SAMPLE CATEGORICAL //</div>
-<div class="notice"><span class="label">INFO</span>Generate categorical data for two groups with different probabilities. Use this for two-sample proportion tests.<br>Output can be pasted into the <code>Descriptive Statistics</code> applet.</div>
+<div class="applet-use">Useful for Descriptive Statistics applet.</div>
 
 <div class="form-group"><label>RESPONSE VARIABLE NAME</label><input type="text" id="tc-varname" value="outcome" placeholder="e.g. outcome"></div>
 <div class="form-row">
@@ -378,9 +367,8 @@ main{position:relative;z-index:1}
 
 <div id="tc-output" style="display:none">
 <hr class="divider">
-<div id="tc-seed-used" class="hint"></div>
+<div id="tc-seed-used" class="seed-value"></div>
 <div id="tc-stats" class="stats-box"></div>
-<div id="tc-warnings" class="notice warnings" role="status" hidden></div>
 <div class="hist-container"><span class="plot-label">// CATEGORY COUNTS &amp; PERCENTAGES · SHARED SCALE //</span><canvas id="tc-canvas" class="hist-canvas" height="280"></canvas></div>
 <div class="data-preview"><span class="preview-label">// DATA PREVIEW //</span><pre id="tc-preview"></pre></div>
 <div class="btn-row">
@@ -398,8 +386,8 @@ main{position:relative;z-index:1}
 <div id="tab-anova" class="tab-content">
 <div class="panel">
 <div class="section-label">// ANOVA (2+ GROUPS) //</div>
-<div class="notice"><span class="label">INFO</span>Generate quantitative data for two or more groups. Use this for ANOVA tests.<br>Output can be pasted into the <code>Multiple Means</code> applet.</div>
-<div class="notice model-note">Mean and SD describe the underlying normal distribution <strong>before rounding and bounds</strong>. Sample statistics vary from run to run. Bounds apply to the <strong>recorded value after rounding</strong>, so they can change the resulting population mean and SD. Whole-number output is a rounded normal distribution, not a Poisson or binomial count model.</div><div class="notice model-note">Classic ANOVA assumes independent observations, normal within-group distributions and equal population variances. Different SDs or bounds can violate those assumptions. These settings can also be used to explore what happens when assumptions fail.</div>
+<div class="applet-use">Useful for Multiple Means applet.</div>
+
 
 <div class="form-group"><label>RESPONSE VARIABLE NAME</label><input type="text" id="av-varname" value="score" placeholder="e.g. score"></div>
 <div class="form-row">
@@ -449,9 +437,8 @@ main{position:relative;z-index:1}
 
 <div id="av-output" style="display:none">
 <hr class="divider">
-<div id="av-seed-used" class="hint"></div>
+<div id="av-seed-used" class="seed-value"></div>
 <div id="av-stats" class="stats-box"></div>
-<div id="av-warnings" class="notice warnings" role="status" hidden></div>
 <div class="hist-container"><span class="plot-label">// HISTOGRAMS · SHARED AXES · PERCENT //</span><canvas id="av-canvas" class="hist-canvas" height="300"></canvas></div>
 <div class="data-preview"><span class="preview-label">// DATA PREVIEW //</span><pre id="av-preview"></pre></div>
 <div class="btn-row">
@@ -469,7 +456,7 @@ main{position:relative;z-index:1}
 <div id="tab-chi-sq" class="tab-content">
 <div class="panel">
 <div class="section-label">// CHI-SQUARED TEST //</div>
-<div class="notice"><span class="label">INFO</span>Generate categorical data for multiple groups, each with their own probability distribution. Use this for chi-squared tests.<br>Output can be pasted into the <code>Multiple Proportions</code> applet.</div>
+<div class="applet-use">Useful for Multiple Proportions applet.</div>
 
 <div class="form-group"><label>RESPONSE VARIABLE NAME</label><input type="text" id="cs-varname" value="outcome" placeholder="e.g. preference"></div>
 
@@ -482,8 +469,7 @@ main{position:relative;z-index:1}
 <div class="btn-row"><button class="btn secondary" onclick="addCatRow('cs-cats',true)">+ ADD CATEGORY</button></div>
 
 <div class="section-label" style="font-size:16px;margin-top:14px">GROUPS (with probabilities for each category)</div>
-<div class="hint" style="margin-bottom:8px">Each group's probabilities must sum to 1.0. Separate probabilities with commas matching the category order above.</div>
-<div id="cs-order" class="notice" aria-live="polite"></div>
+
 <div id="cs-groups">
 <div class="panel group-row-panel" style="background:#000802;padding:12px;margin-bottom:8px">
 <div class="form-row">
@@ -510,9 +496,8 @@ main{position:relative;z-index:1}
 
 <div id="cs-output" style="display:none">
 <hr class="divider">
-<div id="cs-seed-used" class="hint"></div>
+<div id="cs-seed-used" class="seed-value"></div>
 <div id="cs-stats" class="stats-box"></div>
-<div id="cs-warnings" class="notice warnings" role="status" hidden></div>
 <div class="hist-container"><span class="plot-label">// CATEGORY COUNTS &amp; PERCENTAGES · SHARED SCALE //</span><canvas id="cs-canvas" class="hist-canvas" height="300"></canvas></div>
 <div class="data-preview"><span class="preview-label">// DATA PREVIEW //</span><pre id="cs-preview"></pre></div>
 <div class="btn-row">
@@ -530,12 +515,12 @@ main{position:relative;z-index:1}
 <div id="tab-paired" class="tab-content">
 <div class="panel">
 <div class="section-label">// PAIRED MEANS (MATCHED PAIRS) //</div>
-<div class="notice"><span class="label">INFO</span>Generate paired quantitative data (two correlated measurements per subject). Use this for matched-pairs t-tests.<br>Output can be pasted into the <code>Matched Pairs</code> applet.</div>
-<div class="notice model-note">Mean and SD describe the underlying normal distribution <strong>before rounding and bounds</strong>. Sample statistics vary from run to run. Bounds apply to the <strong>recorded value after rounding</strong>, so they can change the resulting population mean and SD. Whole-number output is a rounded normal distribution, not a Poisson or binomial count model.</div><div class="notice model-note">Positive correlation means subjects above average in one condition tend to be above average in the other, even when the means differ. Bounds and rounding can change that correlation. Differences are condition 1 minus condition 2.</div>
+<div class="applet-use">Useful for Matched Pairs applet.</div>
+
 
 <div class="form-row">
 <div class="form-group"><label>SAMPLE SIZE (n pairs)</label><input type="number" id="pm-n" value="30" min="2" max="10000"></div>
-<div class="form-group"><label>UNDERLYING CORRELATION (ρ)</label><input type="number" id="pm-corr" value="0.6" step="0.01" min="-1" max="1"><div class="hint">Correlation before bounds and rounding (−1 to 1). The condition means can differ at any correlation.</div></div>
+<div class="form-group"><label>UNDERLYING CORRELATION (ρ)</label><input type="number" id="pm-corr" value="0.6" step="0.01" min="-1" max="1"></div>
 </div>
 
 <div class="panel" style="background:#000802;margin-top:10px">
@@ -569,9 +554,8 @@ main{position:relative;z-index:1}
 
 <div id="pm-output" style="display:none">
 <hr class="divider">
-<div id="pm-seed-used" class="hint"></div>
+<div id="pm-seed-used" class="seed-value"></div>
 <div id="pm-stats" class="stats-box"></div>
-<div id="pm-warnings" class="notice warnings" role="status" hidden></div>
 <div class="hist-container"><span class="plot-label">// HISTOGRAMS · SHARED AXES · PERCENT //</span><canvas id="pm-canvas" class="hist-canvas" height="420"></canvas></div>
 <div class="hist-container"><span class="plot-label">// PAIRED DOT &amp; LINE PLOT //</span><canvas id="pm-dotline" class="hist-canvas" height="320"></canvas></div>
 <div class="section-label" style="margin-top:14px">// OUTPUT FORMAT //</div>
@@ -922,7 +906,7 @@ function generate(prefix) {
     el(prefix+'-output').scrollIntoView({behavior:'smooth',block:'start'});
   } catch (error) {
     showError(error.message);
-    if (results[prefix]) setStatus(prefix,'Generation failed. The previous successful dataset and its settings are still shown.','err');
+    if (results[prefix]) setStatus(prefix,'Generation failed. Previous data retained.','err');
   }
 }
 function generateOneQuant(){generate('oq');}
@@ -976,13 +960,11 @@ function renderResult(prefix) {
   }
   if (prefix==='pm') stats.push(stat('SAMPLE CORRELATION',fmt(calcCorrelation(result.paired.c1,result.paired.c2))),stat('DIFF MEAN (1 − 2)',fmt(calcMean(result.paired.diffs))),stat('DIFF SD',fmt(calcSD(result.paired.diffs))));
   el(prefix+'-stats').innerHTML=stats.join('');
-  el(prefix+'-warnings').innerHTML=result.warnings.map(w=>'<p>'+escapeHTML(w)+'</p>').join('');
-  el(prefix+'-warnings').hidden=result.warnings.length===0;
-  el(prefix+'-seed-used').textContent='Seed: '+s.seed+' · Data and saved settings describe the last successful generation.';
+  el(prefix+'-seed-used').textContent='Seed: '+s.seed;
   el(prefix+'-output').style.display='block';
   all('#'+prefix+'-formats .format-tab').forEach((button,i)=>button.classList.toggle('active',i===0));
   el(prefix+'-preview').textContent=dataStore[prefix].text;
-  setStatus(prefix,'Generated successfully.','ok');
+  setStatus(prefix,'');
   drawResult(prefix);
 }
 function switchFormat(prefix,format,button) {
@@ -1005,7 +987,7 @@ function switchTab(id) {
   if (results[activePrefix]) drawResult(activePrefix);
 }
 function settingsChanged(prefix) {
-  if (results[prefix]) setStatus(prefix,'Inputs changed. Generate again to apply them; the preview, summaries and downloads still describe the last successful dataset.');
+  if (results[prefix]) setStatus(prefix,'Inputs changed. Generate to update.');
 }
 function useSeed(prefix) { el('simulation-seed').value=results[prefix].settings.seed; Object.keys(results).forEach(settingsChanged); }
 function savedSettings(prefix) {
@@ -1053,10 +1035,7 @@ function syncChiProbabilities(index,add,previousCount) {
     if (add) values.push('0'); else values.splice(index,1);
     input.value=values.map(v=>v.trim()).join(', ');
   });
-  updateCategoryOrder();settingsChanged('cs');
-}
-function updateCategoryOrder() {
-  el('cs-order').textContent='Probability order: '+all('#cs-cats .group-row input').map(input=>input.value.trim()||'(unnamed)').join(' · ');
+  settingsChanged('cs');
 }
 function addCatRow(containerId,noProb=false) {
   const container=el(containerId),rows=Array.from(container.querySelectorAll('.group-row'));
@@ -1223,14 +1202,12 @@ document.addEventListener('input',event=>{
   if(event.target.id==='simulation-seed')Object.keys(results).forEach(settingsChanged);
   const tab=event.target.closest('.tab-content');
   if(tab)settingsChanged(tabPrefixes[tab.id.slice(4)]);
-  if(event.target.closest('#cs-cats'))updateCategoryOrder();
 });
 document.addEventListener('change',event=>{const tab=event.target.closest('.tab-content');if(tab)settingsChanged(tabPrefixes[tab.id.slice(4)]);});
 document.addEventListener('keydown',event=>{if(event.key==='Escape')closeError();});
 let resizePending=false;
 window.addEventListener('resize',()=>{if(!resizePending){resizePending=true;requestAnimationFrame(()=>{resizePending=false;drawResult(activePrefix);});}});
 if(document.fonts?.ready)document.fonts.ready.then(()=>drawResult(activePrefix));
-updateCategoryOrder();
 
 /* ===== SIDE CLI RUNNERS ===== */
 (function initCLI() {

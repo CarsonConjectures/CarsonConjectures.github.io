@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#090d18">
+<meta name="description" content="Explore a bivariate joint distribution, its marginals, and its conditional distributions in an interactive isometric probability space.">
+<title>Joint Space — a probability explorer</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230a1020'/%3E%3Cpath d='M5 12 16 6 27 12 16 18ZM5 12v9l11 6 11-6v-9M16 18v9' fill='none' stroke='%2360e8de' stroke-width='2'/%3E%3C/svg%3E">
+<style>
+:root{color-scheme:dark;--bg:#090e18;--panel:#101724;--line:#253043;--text:#dce6f3;--muted:#8393aa;--cyan:#66e7de;--violet:#b496ff;--amber:#ffbc76;--font:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--mono:Consolas,"Liberation Mono",monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 var(--font)}button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer;border:1px solid var(--line);background:transparent;border-radius:5px;padding:7px 11px}button:hover{background:#1c2738;border-color:#425470}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,canvas:focus-visible,summary:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}button:disabled,input:disabled{opacity:.4;cursor:default}input,select,textarea{width:100%;padding:8px 9px;border:1px solid var(--line);border-radius:5px;background:#0a111d;outline:none}input:focus,textarea:focus{border-color:#6d928e}input[type=number]{appearance:textfield}input[type=number]::-webkit-inner-spin-button{appearance:none}textarea{font:13px/1.75 var(--mono);resize:vertical;min-height:110px}select{cursor:pointer}label{display:block}input[type=range]{accent-color:var(--cyan);border:0;padding:0;background:transparent;height:18px;cursor:pointer}input[type=checkbox]{width:15px;height:15px;accent-color:var(--cyan)}input[type=color]{width:24px;height:24px;border:0;background:none;padding:0;cursor:pointer}input[type=color]::-webkit-color-swatch{border:0;border-radius:50%}svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;vertical-align:-3px}h1,h2,h3,p{margin:0}[hidden]{display:none!important}.sr-only{position:absolute;width:1px;height:1px;clip:rect(0,0,0,0);overflow:hidden;white-space:nowrap}.small,.inline-hint{font-size:12px;color:var(--muted);line-height:1.6}.topbar{height:56px;display:flex;align-items:center;justify-content:flex-end;padding:0 20px;border-bottom:1px solid var(--line);gap:12px}.top-actions{display:flex;gap:7px}.icon-button{width:33px;padding:6px}.workspace{display:grid;grid-template-columns:244px minmax(0,1fr);height:calc(100dvh - 56px);min-height:530px}.sidebar{padding:23px 18px;border-right:1px solid var(--line);overflow:auto}.field{margin-bottom:18px}.field>label,.field-head>label{font-size:13px;color:#9cacc3;margin-bottom:7px}.field-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:7px}.field-head label{margin:0}.formula-label{font:italic 17px Georgia,serif;color:var(--cyan)!important}.domain{display:grid;grid-template-columns:15px 1fr 12px 1fr;gap:6px;align-items:center;margin-top:9px}.domain b{font:italic 16px Georgia,serif;color:#aebfd3}.domain span{color:#62758f;font-size:12px}.domain input{min-width:0;font:12px var(--mono);padding:8px}.primary{width:100%;margin-top:18px;background:#a8e7d9;border-color:#a8e7d9;color:#112a25;font-weight:600}.primary:hover{background:#c2f5e9;border-color:#c2f5e9}.error{font-size:12px;color:#ffaaa3;line-height:1.6;margin-top:12px}.main{min-width:0;min-height:0;display:flex;flex-direction:column}.stage{position:relative;isolation:isolate;flex:1;min-height:0;overflow:hidden;background:radial-gradient(ellipse at 50% 55%,#17253655,transparent 65%)}.stage:before{content:'';position:absolute;inset:0;z-index:-1;background-image:radial-gradient(#53677f23 .65px,transparent .65px);background-size:24px 24px}.view-actions{position:absolute;z-index:3;right:19px;top:18px;display:flex;gap:3px;align-items:center;border:1px solid var(--line);border-radius:6px;padding:3px;background:#0e1623d9}.view-actions button{font-size:11px;border:0;padding:6px 9px;min-width:28px;color:#8194ad}.view-actions button[aria-pressed=true],.view-actions button:hover{background:#223244;color:#d9e8f3}.view-separator{height:15px;border-left:1px solid var(--line);margin:0 3px}#plot{display:block;position:absolute;inset:0;width:100%;height:100%;cursor:grab;touch-action:none}#plot:active{cursor:grabbing}.plot-tooltip{position:absolute;pointer-events:none;z-index:5;white-space:pre;background:#111b2bf2;border:1px solid #3e5068;border-radius:5px;padding:9px 12px;font:12px/1.8 var(--mono);box-shadow:0 8px 30px #0005}.statusbar{display:flex;justify-content:space-between;gap:15px;align-items:center;min-height:31px;padding:7px 20px;border-top:1px solid #1c2939;color:#6f859e;font:10px var(--mono)}.statusbar .ok{color:#9abdb2}.value{font:12px var(--mono);color:var(--cyan)}.segment{display:flex;border:1px solid var(--line);border-radius:5px;padding:3px;gap:3px;margin-bottom:18px}.segment button{flex:1;border:0;font-size:12px;padding:6px}.segment button[aria-pressed=true]{background:#253d40;color:#c2f0e5}.color-row{display:flex;gap:8px;align-items:center;margin:10px 0}.color-row label{flex:1;display:flex;align-items:center;gap:7px;font-size:13px}.color-row .formula{font:11px var(--mono);color:var(--muted)}.appearance-grid{display:grid;grid-template-columns:1fr 1fr;gap:17px;margin-top:18px}.appearance-grid .field-head{gap:5px}.modal{color:var(--text);background:#111a28;border:1px solid #34425a;border-radius:9px;max-width:540px;width:calc(100% - 32px);padding:23px;box-shadow:0 18px 90px #0008}.modal::backdrop{background:#02061099;backdrop-filter:blur(3px)}.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;gap:15px}.modal h2{font-size:17px;font-weight:500}.modal-close{padding:2px 8px;font-size:19px}.modal p{font-size:14px;line-height:1.8;color:#acbdd2;margin:12px 0}.modal code{font:12px var(--mono);color:var(--cyan)}.modal .key{border:1px solid #3c4f67;border-radius:3px;padding:1px 5px;font:12px var(--mono)}.settings-modal{position:fixed;inset:68px 15px auto auto;margin:0;max-width:320px;max-height:calc(100dvh - 85px);overflow:auto;scrollbar-width:thin;scrollbar-color:#3a4b61 transparent;padding:19px}.settings-modal::backdrop{backdrop-filter:none;background:#0003}.settings-modal h3{font-size:13px;font-weight:500;color:#c0d1e4;margin-bottom:14px}.settings-modal hr{border:0;border-top:1px solid var(--line);margin:19px 0}.settings-modal .small,.settings-modal .inline-hint{font-size:11px;line-height:1.5;margin:7px 0 0}.settings-modal .field:last-child{margin-bottom:0}summary{cursor:pointer;color:#aac0d7}.modal b{font-weight:550;color:#e0eaf5}
+@media(max-width:820px){.workspace{grid-template-columns:220px minmax(0,1fr)}.sidebar{padding:20px 14px}.view-actions{right:12px;top:13px}.statusbar{padding:7px 12px}.statusbar>span:last-child{display:none}}
+@media(max-width:620px){.topbar{height:51px;padding:0 14px}.workspace{height:auto;min-height:0;display:flex;flex-direction:column}.sidebar{order:0;border-right:0;border-bottom:1px solid var(--line);padding:15px;display:grid;grid-template-columns:minmax(0,1fr) 64px;gap:0 12px}.sidebar #continuousInput{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:12px;min-width:0}.sidebar .field{margin:0}.sidebar .field-head{margin-bottom:6px}.sidebar textarea{min-height:100px;height:100px;font-size:11px;padding:7px}.sidebar .domain{margin-top:6px;grid-template-columns:10px 1fr 7px 1fr;gap:4px}.sidebar .domain:first-of-type{margin-top:30px}.sidebar .domain input{padding:6px 3px;font-size:11px}.sidebar .domain span{font-size:10px}.sidebar .primary{align-self:end;margin:0;height:34px}.sidebar .error{grid-column:1 / -1}.main{order:1}.stage{height:calc(100dvh - 234px);min-height:430px;flex:none}.statusbar{min-height:29px;font-size:9px}.settings-modal{inset:62px 10px auto auto;max-height:calc(100dvh - 76px)}.top-actions{gap:5px}}
+@media(max-width:380px){.sidebar{grid-template-columns:minmax(0,1fr) 46px;gap:0 8px}.sidebar #continuousInput{gap:8px}.primary{padding:6px}.sidebar textarea{font-size:10px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style>
+</head>
+
+<body>
+<header class="topbar"><div class="top-actions"><button id="settingsBtn" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h7m4 0h5M4 17h3m4 0h9M11 4v6M7 14v6"/></svg> Settings</button><button id="exportBtn" class="icon-button" aria-label="Save image" title="Save image"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4 M4 16v5h16v-5"/></svg></button><button id="helpBtn" class="icon-button" aria-label="Help" title="Help"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 8.5a2.6 2.6 0 0 1 5 1c0 2-2.5 2-2.5 4 M12 16.5h.01"/></svg></button></div></header>
+<div class="workspace">
+ <aside class="sidebar" aria-label="Joint and bounds">
+  <div id="continuousInput"><div class="field"><div class="field-head"><label for="expression" class="formula-label">f(x, y)</label></div><textarea id="expression" spellcheck="false" aria-label="Joint density expression" title="Use x, y, + − * / ^, exp(), sqrt(), sin(). Ctrl+Enter to plot.">exp(-(x^2 - 1.3*x*y + y^2) / 1.155)</textarea></div><div class="field"><label class="sr-only">Bounds</label><div class="domain"><b>x</b><input id="xmin" type="number" value="-3.5" step="0.5" aria-label="X minimum"><span>to</span><input id="xmax" type="number" value="3.5" step="0.5" aria-label="X maximum"></div><div class="domain"><b>y</b><input id="ymin" type="number" value="-3.5" step="0.5" aria-label="Y minimum"><span>to</span><input id="ymax" type="number" value="3.5" step="0.5" aria-label="Y maximum"></div></div></div>
+  <div id="matrixInput" hidden><div class="field"><label for="matrix">p(x, y)</label><textarea id="matrix" spellcheck="false" rows="5" title="Rows = y; columns = x. Paste CSV or a JSON array of nonnegative weights.">0.30, 0.10, 0.05
+0.05, 0.20, 0.10
+0.02, 0.08, 0.10</textarea></div></div>
+  <button class="primary" id="applyBtn">Plot</button><p id="inputError" class="error" role="alert" hidden></p><span id="normalizationHint" hidden></span>
+ </aside>
+ <main class="main"><section class="stage" id="stage" aria-label="Probability chart"><h1 id="plotTitle" class="sr-only">Correlated Gaussian</h1><div class="view-actions" aria-label="Camera"><button id="isoBtn" aria-pressed="true" title="Joint closest to you">Front</button><button id="backBtn" aria-pressed="false" title="Joint farthest from you; opposite view">Back</button><button id="leftBtn" aria-pressed="false" title="View from the left side">Left</button><button id="rightBtn" aria-pressed="false" title="View from the right side">Right</button><span class="view-separator"></span><button id="zoomOut" aria-label="Zoom out">−</button><button id="zoomIn" aria-label="Zoom in">+</button><button id="resetView" aria-label="Reset camera" title="Reset camera (R)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 1 1 1 8 M4 4v6h6"/></svg></button></div><canvas id="plot" tabindex="0" aria-label="Probability chart. Drag to orbit, scroll to zoom. Arrow keys rotate; R resets.">This chart requires canvas support.</canvas><div id="tooltip" class="plot-tooltip" hidden></div></section><footer class="statusbar"><span id="status" class="ok" role="status" aria-live="polite"></span><span id="scaleStatus">Per-family scale</span><span id="correlationStat"></span></footer></main>
+</div>
+<dialog id="settingsDialog" class="modal settings-modal"><div class="modal-head"><h2>Settings</h2><button id="closeSettings" class="modal-close" aria-label="Close settings">×</button></div>
+ <div class="field"><label for="preset">Example</label><select id="preset"><option value="gaussian">Correlated Gaussian</option><option value="independent">Independent Gaussians</option><option value="mixture">Two-component mixture</option><option value="banana">Curved relationship</option><option value="ring">Ring distribution</option><option value="uniform">Uniform</option><option value="custom">Custom density</option><option value="matrix">Discrete table</option></select></div>
+ <div class="field" id="rhoField"><div class="field-head"><label for="rho">ρ</label><output class="value" id="rhoValue">+0.65</output></div><input id="rho" type="range" min="-0.95" max="0.95" step="0.01" value="0.65"></div>
+ <hr><h3>Conditionals</h3><div class="segment" aria-label="Conditional display"><button id="slicesMode" aria-pressed="true">Slices</button><button id="surfaceMode" aria-pressed="false">∞ Surface</button></div><span id="infinityNote" hidden></span>
+ <div id="sliceSettings"><div class="field"><div class="field-head"><label for="sliceCount">Count</label><output id="countValue" class="value">3</output></div><input id="sliceCount" type="range" min="1" max="12" step="1" value="3"></div><div class="field"><label for="placement">Values</label><select id="placement"><option value="even">Even spacing</option><option value="interval">Fixed interval</option><option value="custom">Exact values</option></select></div><div class="field" id="coverageField"><div class="field-head"><label for="coverage">Coverage</label><output class="value" id="coverageValue">44%</output></div><input id="coverage" type="range" min="5" max="100" value="44"></div><div id="intervalField" class="field" hidden><label for="interval">Interval</label><input id="interval" type="number" min="0.01" step="0.1" value="1"></div><div id="customValues" hidden><div class="field"><label for="xValues">x =</label><input id="xValues" value="-1.5, 0, 1.5"></div><div class="field"><label for="yValues">y =</label><input id="yValues" value="-1.5, 0, 1.5"></div></div></div><p id="sliceError" class="error" role="alert" hidden></p>
+ <hr><h3>Appearance</h3><div class="color-row"><label><input id="showJoint" type="checkbox" checked>Joint</label><input id="jointColor" type="color" value="#66e7de" aria-label="Joint color"></div><div class="color-row"><label><input id="showX" type="checkbox" checked>X family</label><input id="xColor" type="color" value="#b496ff" aria-label="X color"></div><div class="color-row"><label><input id="showY" type="checkbox" checked>Y family</label><input id="yColor" type="color" value="#ffbc76" aria-label="Y color"></div>
+ <div class="appearance-grid"><div class="field"><div class="field-head"><label for="opacity">Opacity</label><output id="opacityValue" class="value">34%</output></div><input id="opacity" type="range" min="10" max="85" value="34"></div><div class="field"><div class="field-head"><label for="glow">Glow</label><output id="glowValue" class="value">65%</output></div><input id="glow" type="range" min="0" max="100" value="65"></div></div><div class="field"><label for="heightScale">Height</label><select id="heightScale"><option value="family">Fit each family</option><option value="shared">Shared density scale</option></select></div><p id="scaleHint" class="inline-hint">Heights across families use different scales.</p>
+</dialog>
+<dialog class="modal" id="helpDialog"><div class="modal-head"><h2>Read the space.</h2><button class="modal-close" id="closeHelp" aria-label="Close help">×</button></div><p><b>The corner is the joint.</b> Its height is the joint density f(x, y), or probability mass for a discrete table. The two arms keep the layout of a contingency table.</p><p><b>The first ridge on each arm is a marginal.</b> Integrating over Y gives f(x); integrating over X gives f(y). Discrete tables use sums.</p><p><b>The remaining ridges are conditionals.</b> A violet slice extends the X axis at a fixed Y coordinate and shows f(x | y). An amber slice extends the Y axis at a fixed X coordinate and shows f(y | x). The slices run perpendicular to their denominator marginal: f(y) for f(x | y), and f(x) for f(y | x). Each defined slice integrates (or sums) to 1.</p><p><b>∞ Continuous</b> joins all conditioning values into two surfaces. Along an arm, the predicted variable varies. Across an arm, the conditioning value stays aligned with the same row or column of the joint. This is a finite-resolution rendering of a continuous family.</p><p><b>Scale matters.</b> “Fit each family” makes the shapes easy to see; heights across families are not comparable. Choose “Shared density scale” to compare numerical heights. The chart normalizes over your selected domain, so changing its bounds changes the distribution.</p><p>Drag to orbit; scroll or pinch to zoom. Focus the chart and use <span class="key">←</span> <span class="key">→</span> <span class="key">↑</span> <span class="key">↓</span>, <span class="key">+</span> / <span class="key">−</span>, or <span class="key">R</span> to reset. Hover over a surface or ridge to inspect its value.</p><details><summary>Density expression reference</summary><p>Numbers, <code>x</code>, <code>y</code>, <code>pi</code>, <code>e</code>, <code>+ - * / ^</code>, comparisons and <code>&amp;&amp; ||</code> are supported. Functions: <code>exp log sqrt abs sin cos tan pow min max</code>. Use explicit multiplication, e.g. <code>2*x</code>. Comparisons evaluate to 0 or 1: <code>(x &gt; 0) * exp(-x-y) * (y &gt; 0)</code>. Only finite, nonnegative densities are accepted.</p></details><p class="small">Continuous inputs use trapezoidal quadrature on a 65 × 65 grid with linear interpolation between samples. Very narrow peaks need a tighter domain. A zero marginal makes that conditional undefined; gaps are left in the plot.</p></dialog>
+<script>
+'use strict';
+/* Joint Space. Dependency-free: this file is the entire app.
+   Probability engine, scene geometry, and canvas renderer are kept separate. */
+const $ = id => document.getElementById(id);
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const fmt = v => Math.abs(v) < 0.00001 ? '0' : (Math.abs(v) >= 10000 || Math.abs(v) < 0.001 ? v.toExponential(2) : +v.toFixed(3) + '');
+const rgba = (hex, a) => { const c = parseInt(hex.slice(1), 16); return `rgba(${c >> 16},${(c >> 8) & 255},${c & 255},${a})`; };
+const functions = {exp:[Math.exp,1],log:[Math.log,1],ln:[Math.log,1],sqrt:[Math.sqrt,1],abs:[Math.abs,1],sin:[Math.sin,1],cos:[Math.cos,1],tan:[Math.tan,1],pow:[Math.pow,2],min:[Math.min,2],max:[Math.max,2],floor:[Math.floor,1],ceil:[Math.ceil,1]};
+// A small expression parser. User expressions never run as JavaScript.
+function compileExpression(source) {
+ if (!source.trim()) throw Error('Enter a density expression.');
+ if (source.length > 1500) throw Error('Keep expressions under 1,500 characters.');
+ const tokens = []; let offset = 0;
+ while (offset < source.length) {
+  const tail = source.slice(offset), space = /^\s+/.exec(tail);
+  if (space) { offset += space[0].length; continue; }
+  const m = /^(?:(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?|[a-zA-Z_][a-zA-Z_0-9]*|\*\*|<=|>=|==|!=|&&|\|\||[+\-*/^(),<>])/.exec(tail);
+  if (!m) throw Error(`Unexpected character “${source[offset]}”. Use explicit multiplication, e.g. 2*x.`);
+  tokens.push(m[0]); offset += m[0].length;
+ }
+ let pos = 0, depth = 0;
+ const precedence = {'||':1,'&&':2,'==':3,'!=':3,'<':4,'>':4,'<=':4,'>=':4,'+':5,'-':5,'*':6,'/':6,'^':8,'**':8};
+ const binary = (op, a, b) => (x,y) => {const u=a(x,y),v=b(x,y);switch(op){case '+':return u+v;case '-':return u-v;case '*':return u*v;case '/':return u/v;case '^':case '**':return u**v;case '<':return +(u<v);case '>':return +(u>v);case '<=':return +(u<=v);case '>=':return +(u>=v);case '==':return +(u===v);case '!=':return +(u!==v);case '&&':return +(!!u&&!!v);case '||':return +(!!u||!!v);}};
+ function parse(min = 0) {
+  if (++depth > 90) throw Error('This expression is nested too deeply.');
+  const token=tokens[pos++]; let left;
+  if (token === '+' || token === '-') { const inner=parse(7);left=token==='-'?(x,y)=>-inner(x,y):inner; }
+  else if (token === '(') { left=parse();if(tokens[pos++]!==')')throw Error('Missing closing parenthesis.'); }
+  else if (token && /^(\d|\.)/.test(token)) { const n=Number(token);left=()=>n; }
+  else if (token === 'x') left=(x,y)=>x;
+  else if (token === 'y') left=(x,y)=>y;
+  else if (token === 'pi' || token === 'e') {const c=token==='pi'?Math.PI:Math.E;left=()=>c;}
+  else if (Object.hasOwn(functions, token)) {
+   const [fn,arity]=functions[token];if(tokens[pos++]!=='(')throw Error(`Use ${token}(…).`);
+   const args=[parse()];while(tokens[pos]===','){pos++;args.push(parse());}
+   if(tokens[pos++]!==')')throw Error(`Missing closing parenthesis for ${token}().`);
+   if(args.length!==arity)throw Error(`${token}() needs ${arity} argument${arity===1?'':'s'}.`);
+   left=(x,y)=>fn(...args.map(f=>f(x,y)));
+  } else throw Error(token ? `Unknown term “${token}”.` : 'The expression is incomplete.');
+  while (Object.hasOwn(precedence,tokens[pos]) && precedence[tokens[pos]] >= min) {
+   const op=tokens[pos++],p=precedence[op],right=parse(p+(['^','**'].includes(op)?0:1));left=binary(op,left,right);
+  }
+  depth--;return left;
+ }
+ const fn=parse();if(pos!==tokens.length)throw Error(`Unexpected “${tokens[pos]}”. Use * between multiplied terms.`);return fn;
+}
+function makeDistribution(config) {
+ const discrete=config.kind==='matrix';let xs,ys,raw,dx=1,dy=1;
+ if (discrete) {
+  const str=config.matrix.trim();if(!str)throw Error('Enter a probability table.');
+  try {raw=str.startsWith('[')?JSON.parse(str):str.split(/\r?\n/).filter(s=>s.trim()).map(row=>row.trim().split(/[,;\s]+/).map(Number));}catch{throw Error('Use a CSV table or a JSON array of rows.');}
+  if(!Array.isArray(raw)||raw.length<2||raw.length>40||!Array.isArray(raw[0])||raw[0].length<2||raw[0].length>40)throw Error('The table must have 2–40 rows and 2–40 columns.');
+  const cols=raw[0].length;if(raw.some(row=>!Array.isArray(row)||row.length!==cols||row.some(v=>typeof v!=='number'||!Number.isFinite(v)||v<0)))throw Error('Every row needs the same number of finite, nonnegative values.');
+  xs=Array.from({length:cols},(_,i)=>i);ys=Array.from({length:raw.length},(_,i)=>i);
+ } else {
+  const {xmin,xmax,ymin,ymax}=config;
+  if(![xmin,xmax,ymin,ymax].every(Number.isFinite)||xmin>=xmax||ymin>=ymax)throw Error('Each domain needs a finite minimum smaller than its maximum.');
+  if(Math.max(Math.abs(xmin),Math.abs(xmax),Math.abs(ymin),Math.abs(ymax))>1e6 || Math.min(xmax-xmin,ymax-ymin)<1e-6)throw Error('Use bounds within ±1,000,000 and a domain width of at least 0.000001.');
+  const fn=compileExpression(config.expression),n=65;dx=(xmax-xmin)/(n-1);dy=(ymax-ymin)/(n-1);
+  xs=Array.from({length:n},(_,i)=>xmin+i*dx);ys=Array.from({length:n},(_,j)=>ymin+j*dy);
+  raw=ys.map(y=>xs.map(x=>{const v=fn(x,y);if(!Number.isFinite(v)||v<0)throw Error(`Density must be finite and nonnegative; check x=${fmt(x)}, y=${fmt(y)}.`);return v;}));
+ }
+ const nx=xs.length,ny=ys.length;
+ const wx=xs.map((_,i)=>discrete?1:dx*(i===0||i===nx-1?.5:1));
+ const wy=ys.map((_,j)=>discrete?1:dy*(j===0||j===ny-1?.5:1));
+ // Scale first to avoid overflow for large unnormalized input weights.
+ const peak=Math.max(...raw.flat());if(!(peak>0))throw Error('This distribution has zero mass. Try different bounds or a positive density.');
+ const scaled=raw.map(row=>row.map(v=>v/peak));let total=0;
+ for(let j=0;j<ny;j++)for(let i=0;i<nx;i++)total+=scaled[j][i]*wx[i]*wy[j];
+ if(!Number.isFinite(total)||total<=0)throw Error('The total mass cannot be normalized on this domain.');
+ const pdf=scaled.map(row=>row.map(v=>v/total));
+ const mx=xs.map((_,i)=>pdf.reduce((s,row,j)=>s+row[i]*wy[j],0));
+ const my=ys.map((_,j)=>pdf[j].reduce((s,v,i)=>s+v*wx[i],0));
+ let ex=0,ey=0,ex2=0,ey2=0,exy=0,mass=0;
+ for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){const p=pdf[j][i]*wx[i]*wy[j];mass+=p;ex+=xs[i]*p;ey+=ys[j]*p;ex2+=xs[i]**2*p;ey2+=ys[j]**2*p;exy+=xs[i]*ys[j]*p;}
+ const variance=(ex2-ex*ex)*(ey2-ey*ey),rho=variance>1e-20?clamp((exy-ex*ey)/Math.sqrt(variance),-1,1):null;
+ const maxJoint=Math.max(...pdf.flat()),maxMX=Math.max(...mx),maxMY=Math.max(...my);
+ const validX=mx.map(v=>v>0),validY=my.map(v=>v>0);
+ const cx=pdf.map((row,j)=>row.map(v=>validY[j]?v/my[j]:0));
+ const cy=pdf.map(row=>row.map((v,i)=>validX[i]?v/mx[i]:0));
+ return {discrete,xs,ys,pdf,mx,my,wx,wy,nx,ny,dx,dy,mass,rho,maxJoint,maxMX,maxMY,cx,cy,validX,validY,maxCX:Math.max(...cx.flat()),maxCY:Math.max(...cy.flat())};
+}
+function sample1(values,t){const n=values.length-1,u=clamp(t,0,1)*n,i=Math.min(n-1,Math.floor(u));return lerp(values[i],values[i+1],u-i);}
+function sample2(values,u,v){return sample1(values.map(row=>sample1(row,u)),v);}
+function conditional(d,axis,value){
+ const isX=axis==='x',fixed=isX?d.ys:d.xs,marginal=isX?d.my:d.mx,max=isX?d.maxMY:d.maxMX;
+ const t=(value-fixed[0])/(fixed[fixed.length-1]-fixed[0]);
+ if(d.discrete){const k=Math.round(value);if(Math.abs(k-value)>1e-7||k<0||k>=fixed.length)return null;const den=marginal[k];if(den<=0)return null;return isX?d.pdf[k].map(v=>v/den):d.pdf.map(row=>row[k]/den);}
+ const den=sample1(marginal,t);if(den<=0)return null;
+ return isX?d.xs.map((_,i)=>sample1(d.pdf.map(row=>row[i]),t)/den):d.pdf.map(row=>sample1(row,t)/den);
+}
+const presets={
+ gaussian:{title:'Correlated Gaussian',expression:'exp(-(x^2 - 1.3*x*y + y^2) / 1.155)',bounds:[-3.5,3.5,-3.5,3.5]},
+ independent:{title:'Independent Gaussians',expression:'exp(-(x^2 + y^2)/2)',bounds:[-3.5,3.5,-3.5,3.5]},
+ mixture:{title:'Two-component mixture',expression:'exp(-((x+1.3)^2 + (y+0.8)^2)/0.85) + 0.75*exp(-((x-1.2)^2 + (y-1)^2)/1.2)',bounds:[-4,4,-4,4]},
+ banana:{title:'Curved relationship',expression:'exp(-x^2/2 - (y - 0.6*(x^2-1))^2/0.5)',bounds:[-3,3,-2.5,4]},
+ ring:{title:'Ring distribution',expression:'exp(-((sqrt(x^2 + y^2)-1.8)^2)/0.15)',bounds:[-3,3,-3,3]},
+ uniform:{title:'Uniform square',expression:'1',bounds:[-2,2,-2,2]}
+};
+const DEFAULT_YAW=5*Math.PI/4;
+const VIEW_ANGLES={front:DEFAULT_YAW,back:DEFAULT_YAW-Math.PI,left:DEFAULT_YAW-Math.PI/2,right:DEFAULT_YAW+Math.PI/2};
+const state={data:null,mode:'slices',slicesX:[],slicesY:[],colorJoint:'#66e7de',colorX:'#b496ff',colorY:'#ffbc76',opacity:.34,glow:.65,showJoint:true,showX:true,showY:true,heightScale:'family',viewSide:'front',yaw:DEFAULT_YAW,elevation:.57,zoom:1,panX:0,panY:0,title:'Correlated Gaussian',dirty:false};
+let geometry=[],hitPoints=[],renderPending=false,width=900,height=740,projection=null;
+const canvas=$('plot'),ctx=canvas.getContext('2d'),stage=$('stage');
+function showError(id,message){$(id).textContent=message;$(id).hidden=!message;}
+function readConfig(){return {kind:$('preset').value==='matrix'?'matrix':'continuous',matrix:$('matrix').value,expression:$('expression').value,...Object.fromEntries(['xmin','xmax','ymin','ymax'].map(k=>[k,$(k).value.trim()===''?NaN:Number($(k).value)]))};}
+function chooseValues(d,axis){
+ const values=axis==='x'?d.xs:d.ys,min=values[0],max=values[values.length-1],mid=(min+max)/2,span=(max-min)*Number($('coverage').value)/100,mode=$('placement').value;
+ let result=[];
+ if(mode==='custom'){
+  const input=$(axis==='x'?'xValues':'yValues').value;if(!input.trim())throw Error(`Enter at least one ${axis} conditioning value.`);
+  const terms=input.split(',');if(terms.some(s=>!s.trim()))throw Error('Separate numbers with commas; remove empty values.');
+  result=terms.map(Number);if(result.length>24||result.some(v=>!Number.isFinite(v)||v<min||v>max))throw Error(`Use up to 24 ${axis} values between ${fmt(min)} and ${fmt(max)}.`);
+  if(d.discrete&&result.some(v=>!Number.isInteger(v)))throw Error('Discrete conditioning values must be whole-number row or column indices.');
+ }else if(mode==='interval'){
+  const step=Number($('interval').value);if(!Number.isFinite(step)||step<=0)throw Error('The interval must be a positive number.');
+  if(d.discrete&&!Number.isInteger(step))throw Error('Use a whole-number interval for a discrete table.');
+  const count=Math.floor(span/step)+1;if(count>24)throw Error('That interval creates more than 24 slices. Increase the interval or reduce coverage.');
+  result=Array.from({length:count},(_,i)=>mid+(i-(count-1)/2)*step);
+ }else{const count=Number($('sliceCount').value);result=Array.from({length:count},(_,i)=>count===1?mid:mid-span/2+span*i/(count-1));}
+ if(d.discrete&&mode!=='custom')result=result.map(v=>clamp(Math.round(v),min,max));
+ return [...new Set(result)].sort((a,b)=>a-b);
+}
+function updateSlices(){
+ if(!state.data)return;
+ try{
+  const d=state.data;
+  const vx=state.mode==='surface'?[]:chooseValues(d,'x'),vy=state.mode==='surface'?[]:chooseValues(d,'y');
+  state.slicesX=vy.map(value=>({value,values:conditional(d,'x',value)}));state.slicesY=vx.map(value=>({value,values:conditional(d,'y',value)}));
+  showError('sliceError','');
+ }catch(err){showError('sliceError',err.message);state.slicesX=[];state.slicesY=[];}
+ buildScene();updateInfo();requestRender();
+}
+function applyDistribution(){
+ try{
+  const data=makeDistribution(readConfig());state.data=data;state.dirty=false;
+  state.title=presets[$('preset').value]?.title||($('preset').value==='matrix'?'Discrete probability table':'Custom density');
+  $('plotTitle').textContent=state.title;$('applyBtn').textContent='Plot';showError('inputError','');
+  $('continuousInput').hidden=data.discrete;$('matrixInput').hidden=!data.discrete;
+  $('normalizationHint').textContent=data.discrete?'Weights are normalized to a total probability of 1.':'Automatically normalized over this domain.';
+  $('surfaceMode').disabled=data.discrete;$('surfaceMode').title=data.discrete?'Continuous extrusion is available for continuous density inputs.':'';
+  if(data.discrete)setMode('slices',false);
+  // Preserve exact values when valid; reset out-of-domain ones on a new domain.
+  if($('placement').value==='custom'){
+   for(const [id,coords] of [['xValues',data.xs],['yValues',data.ys]]){
+    const current=$(id).value.split(',').map(Number);if(current.some(v=>!Number.isFinite(v)||v<coords[0]||v>coords.at(-1)||(data.discrete&&!Number.isInteger(v))))$(id).value=data.discrete?Array.from({length:Math.min(3,coords.length)},(_,i)=>Math.round(i*(coords.length-1)/(Math.min(3,coords.length)-1))).join(', '):[.28,.5,.72].map(t=>fmt(lerp(coords[0],coords.at(-1),t))).join(', ');
+   }
+  }
+  updateSlices();
+ }catch(err){showError('inputError',err.message);}
+}
+function updateInfo(){
+ const d=state.data,undefinedCount=[...state.slicesX,...state.slicesY].filter(s=>!s.values).length;
+ $('status').textContent=(d.discrete?'Σ p = ':'∬ f = ')+d.mass.toFixed(3)+(undefinedCount?' · '+undefinedCount+' undefined conditional'+(undefinedCount===1?'':'s'):'');
+ $('correlationStat').textContent='ρ = '+(d.rho===null?'undefined':(d.rho>=0?'+':'')+d.rho.toFixed(3));
+ $('scaleStatus').textContent=state.heightScale==='shared'?'Shared density scale':'Per-family scale';
+ canvas.setAttribute('aria-label',state.title+'. Joint at the front. X and Y axes extend into conditional distributions. Each conditional keeps the joint’s original row or column. Vertical axis: '+(d.discrete?'probability mass':'density')+'. Drag or use arrow keys to rotate, scroll to zoom, R to reset.');
+}
+// Preserve rows and columns of the original table: f(x|y) extends X
+// at the joint's original Y coordinate; f(y|x) extends Y at the original X.
+// Each conditional is perpendicular to the denominator marginal at the bridge.
+const SIDE=4,BRIDGE=4.6,ARM=5.45,END=9.3;
+function worldHeight(v,max){return max>0?v/max*2.2:0;}
+function buildScene(){
+ geometry=[];const d=state.data;if(!d)return;
+ const globalMax=Math.max(d.maxJoint,d.maxMX,d.maxMY,d.maxCX,d.maxCY);
+ const scales=state.heightScale==='shared'?{joint:globalMax,mx:globalMax,my:globalMax,cx:globalMax,cy:globalMax}:{joint:d.maxJoint,mx:d.maxMX,my:d.maxMY,cx:d.maxCX,cy:d.maxCY};
+ const push=(type,points,color,extra={})=>geometry.push({type,points,color,...extra});
+ const jointColor=state.colorJoint,xColor=state.colorX,yColor=state.colorY;
+ const floor=(x0,y0,x1,y1,color)=>{push('floor',[[x0,y0,0],[x1,y0,0],[x1,y1,0],[x0,y1,0]],color);for(let i=0;i<=8;i++){const t=i/8;push('grid',[[lerp(x0,x1,t),y0,0],[lerp(x0,x1,t),y1,0]],color);push('grid',[[x0,lerp(y0,y1,t),0],[x1,lerp(y0,y1,t),0]],color);}};
+ floor(0,0,SIDE,SIDE,jointColor);
+ floor(0,4.2,SIDE,5.15,xColor);floor(4.2,0,5.15,SIDE,yColor);
+ floor(0,ARM-.15,SIDE,END+.3,yColor);floor(ARM-.15,0,END+.3,SIDE,xColor);
+ push('outline',[[0,0,0],[4,0,0],[4,4.2,0],[END+.3,4.2,0],[END+.3,0,0],[4,0,0]],xColor);
+ push('outline',[[0,0,0],[0,END+.3,0],[4.2,END+.3,0],[4.2,4.2,0],[4.2,4,0]],yColor);
+ function addSurface(values,rect,color,max,kind,valid=null){
+  const [x0,y0,x1,y1]=rect,ny=values.length,nx=values[0].length;
+  const point=(i,j)=>[lerp(x0,x1,i/(nx-1)),lerp(y0,y1,j/(ny-1)),worldHeight(values[j][i],max)];
+  const cellValid=(i,j)=>i>=0&&j>=0&&i<nx-1&&j<ny-1&&(!valid||(valid(i,j)&&valid(i+1,j)&&valid(i,j+1)&&valid(i+1,j+1)));
+  const wall=(a,b)=>{
+   if(Math.max(a[2],b[2])<=0)return;
+   push('wall',[[a[0],a[1],0],a,b,[b[0],b[1],0]],color,{kind});
+   push('edge',[a,b],color,{kind});
+  };
+  if(!valid)push('base',[[x0,y0,0],[x1,y0,0],[x1,y1,0],[x0,y1,0]],color,{kind});
+  for(let j=0;j<ny-1;j++)for(let i=0;i<nx-1;i++){
+   if(!cellValid(i,j))continue;
+   const p=[point(i,j),point(i+1,j),point(i+1,j+1),point(i,j+1)];
+   push('surface',p,color,{strength:(values[j][i]+values[j+1][i+1])/(2*max),kind});
+   if(!cellValid(i,j-1))wall(p[0],p[1]);
+   if(!cellValid(i+1,j))wall(p[1],p[2]);
+   if(!cellValid(i,j+1))wall(p[2],p[3]);
+   if(!cellValid(i-1,j))wall(p[3],p[0]);
+  }
+  for(const [i,j] of [[0,0],[nx-1,0],[nx-1,ny-1],[0,ny-1]]){if(valid&&!valid(i,j))continue;const p=point(i,j);push('edge',[[p[0],p[1],0],p],color,{kind});}
+  const skip=kind==='joint'?4:5;
+  for(let j=0;j<ny;j+=skip){let line=[];for(let i=0;i<nx;i++){if(valid&&!valid(i,j)){if(line.length>1)push('mesh',line,color);line=[];}else line.push(point(i,j));}if(line.length>1)push('mesh',line,color);}
+  for(let i=0;i<nx;i+=skip){let line=[];for(let j=0;j<ny;j++){if(valid&&!valid(i,j)){if(line.length>1)push('mesh',line,color);line=[];}else line.push(point(i,j));}if(line.length>1)push('mesh',line,color);}
+  // Sampling points for hover inspection follow the actual displayed surface.
+  for(let j=0;j<ny;j+=2)for(let i=0;i<nx;i+=2){if(valid&&!valid(i,j))continue;push('hit',[point(i,j)],color,{kind,i,j,value:values[j][i]});}
+ }
+ function addBars(){
+  for(let j=0;j<d.ny;j++)for(let i=0;i<d.nx;i++){
+   const x0=i/d.nx*4+.025,x1=(i+1)/d.nx*4-.025,y0=j/d.ny*4+.025,y1=(j+1)/d.ny*4-.025,z=worldHeight(d.pdf[j][i],scales.joint);
+   if(z<=0)continue;
+   push('surface',[[x0,y0,z],[x1,y0,z],[x1,y1,z],[x0,y1,z]],jointColor,{strength:.6});
+   push('surface',[[x0,y0,0],[x0,y0,z],[x1,y0,z],[x1,y0,0]],jointColor,{strength:.3});
+   push('surface',[[x0,y1,0],[x0,y1,z],[x1,y1,z],[x1,y1,0]],jointColor,{strength:.3});
+   push('surface',[[x0,y0,0],[x0,y0,z],[x0,y1,z],[x0,y1,0]],jointColor,{strength:.15});
+   push('surface',[[x1,y0,0],[x1,y0,z],[x1,y1,z],[x1,y1,0]],jointColor,{strength:.15});
+   push('mesh',[[x0,y0,z],[x1,y0,z],[x1,y1,z],[x0,y1,z],[x0,y0,z]],jointColor);
+   push('hit',[[(x0+x1)/2,(y0+y1)/2,z]],jointColor,{kind:'joint',i,j,value:d.pdf[j][i]});
+  }
+ }
+ if(state.showJoint){if(d.discrete)addBars();else addSurface(d.pdf,[0,0,4,4],jointColor,scales.joint,'joint');}
+ function ridge(values,axis,at,color,max,kind,fixed){
+  const points=[],n=values.length;
+  const along=u=>kind==='conditional'?lerp(ARM,END,u/SIDE):u;
+  const point=(u,z)=>axis==='x'?[along(u),at,z]:[at,along(u),z];
+  if(d.discrete){for(let i=0;i<n;i++){const z=worldHeight(values[i],max);points.push(point(i/n*4,z),point((i+1)/n*4,z));}}
+  else values.forEach((v,i)=>points.push(point(i/(n-1)*4,worldHeight(v,max))));
+  push('curtain',[point(0,0),...points,point(4,0)],color,{kind,axis,fixed});push('ridge',points,color,{kind,axis,fixed});
+  push('baseline',[point(0,0),point(4,0)],color);
+  push('edge',[point(0,0),points[0]],color,{kind});push('edge',[points[points.length-1],point(4,0)],color,{kind});
+  const symbol=d.discrete?'p':'f';const label=kind==='marginal'?`${symbol}(${axis})`:`${axis==='x'?'y':'x'} = ${fmt(fixed)}`;
+  push('label',[kind==='marginal'?point(-.22,worldHeight(values[0],max)+.13):point(4.18,0)],color,{text:label,small:kind!=='marginal',tag:kind});
+  for(let i=0;i<n;i+=d.discrete?1:2)push('hit',[point(d.discrete?(i+.5)/n*4:i/(n-1)*4,worldHeight(values[i],max))],color,{kind,axis,i,value:values[i],fixed});
+ }
+ if(state.showX)ridge(d.mx,'x',BRIDGE,xColor,scales.mx,'marginal');
+ if(state.showY)ridge(d.my,'y',BRIDGE,yColor,scales.my,'marginal');
+ for(const axis of ['x','y']){
+  if(axis==='x'?!state.showX:!state.showY)continue;
+  const color=axis==='x'?xColor:yColor,coords=axis==='x'?d.ys:d.xs,lo=coords[0],hi=coords.at(-1),scale=axis==='x'?scales.cx:scales.cy;
+  if(state.mode==='surface'){
+   const values=axis==='x'?d.cx:d.cy;
+   addSurface(values,axis==='x'?[ARM,0,END,SIDE]:[0,ARM,SIDE,END],color,scale,axis==='x'?'conditionalX':'conditionalY',(i,j)=>axis==='x'?d.validY[j]:d.validX[i]);
+   for(const t of [0,.5,1])push('label',[axis==='x'?[END+.22,t*SIDE,0]:[t*SIDE,END+.22,0]],color,{text:`${axis==='x'?'y':'x'} = ${fmt(lerp(lo,hi,t))}`,small:true});
+  }else{
+   const slices=axis==='x'?state.slicesX:state.slicesY;
+   for(const slice of slices){const at=d.discrete?(slice.value+.5)/coords.length*SIDE:SIDE*(slice.value-lo)/(hi-lo);
+    push('guide',axis==='x'?[[0,at,0],[ARM,at,0]]:[[at,0,0],[at,ARM,0]],color,{axis,fixed:slice.value});
+    if(slice.values)ridge(slice.values,axis,at,color,scale,'conditional',slice.value);
+    else push('label',[axis==='x'?[END+.22,at,0]:[at,END+.22,0]],color,{text:`${axis==='x'?'y':'x'}=${fmt(slice.value)} · undefined`,small:true});
+   }
+  }
+ }
+ const symbol=d.discrete?'p':'f';
+ push('label',[[2,2,2.8]],jointColor,{text:`${symbol}(x, y)`,heading:true,labelFor:'joint'});
+ push('label',[[(ARM+END)/2,2,2.75]],xColor,{text:`${symbol}(x | y)`,heading:true,labelFor:'x'});
+ push('label',[[2,(ARM+END)/2,2.75]],yColor,{text:`${symbol}(y | x)`,heading:true,labelFor:'y'});
+ // Numeric coordinates refer to the support, not the spacing between ridges.
+ for(const t of [0,.5,1]){
+  const ix=Math.round(t*(d.nx-1)),iy=Math.round(t*(d.ny-1));
+  push('tick',[[d.discrete?(ix+.5)/d.nx*4:lerp(0,4,t),-.48,0]],'#70849d',{text:fmt(d.discrete?d.xs[ix]:lerp(d.xs[0],d.xs.at(-1),t))});
+  push('tick',[[-.48,d.discrete?(iy+.5)/d.ny*4:lerp(0,4,t),0]],'#70849d',{text:fmt(d.discrete?d.ys[iy]:lerp(d.ys[0],d.ys.at(-1),t))});
+  const tx=d.discrete?(ix+.5)/d.nx:t,ty=d.discrete?(iy+.5)/d.ny:t;
+  push('tick',[[lerp(ARM,END,tx),-.48,0]],xColor,{text:fmt(d.discrete?d.xs[ix]:lerp(d.xs[0],d.xs.at(-1),t))});
+  push('tick',[[-.48,lerp(ARM,END,ty),0]],yColor,{text:fmt(d.discrete?d.ys[iy]:lerp(d.ys[0],d.ys.at(-1),t))});
+ }
+ for(const [start,end] of [[0,SIDE+.18],[ARM,END+.18]]){
+  push('arrow',[[start,-.23,0],[end,-.23,0]],xColor);
+  push('arrow',[[-.23,start,0],[-.23,end,0]],yColor);
+ }
+ push('label',[[2,-.95,0]],xColor,{text:'X axis',axisLabel:true});
+ push('label',[[-.95,2,0]],yColor,{text:'Y axis',axisLabel:true});
+ push('label',[[(ARM+END)/2,-.95,0]],xColor,{text:'X axis',axisLabel:true});
+ push('label',[[-.95,(ARM+END)/2,0]],yColor,{text:'Y axis',axisLabel:true});
+ // Height refers to the joint's scale; per-family fitting is disclosed in the UI.
+ if(state.showJoint){const at=[-.38,-.38];push('arrow',[[...at,0],[...at,2.35]],'#8fa8be');for(const t of [0,.5,1])push('ztick',[[...at,t*2.2]],'#9bb2c6',{text:fmt(t*scales.joint)});push('label',[[...at,2.62]],'#b8cbdc',{text:d.discrete?'Probability mass':'Density',axisLabel:true});}
+}
+function createProjection(){
+ const c=Math.cos(state.yaw),s=Math.sin(state.yaw),e=Math.sin(state.elevation),ce=Math.cos(state.elevation);
+ const raw=p=>[(p[0]*c-p[1]*s),(p[0]*s+p[1]*c)*e-p[2]*ce];
+ const corners=[[0,0,0],[4,0,0],[0,4,0],[0,END+1.15,0],[4.6,END+1.15,0],[END+1.15,0,0],[END+1.15,4.6,0],[0,0,2.7],[4,4,2.7],[0,END,2.3],[END,0,2.3],[4,END,2.3],[END,4,2.3]].map(raw);
+ const minX=Math.min(...corners.map(p=>p[0])),maxX=Math.max(...corners.map(p=>p[0])),minY=Math.min(...corners.map(p=>p[1])),maxY=Math.max(...corners.map(p=>p[1]));
+ const top=70,bottom=65,scale=Math.min((width-(width<500?32:70))/(maxX-minX),(height-top-bottom)/(maxY-minY))*state.zoom;
+ const cx=width/2+state.panX,cy=top+(height-top-bottom)/2+state.panY;
+ return {point(p){const v=raw(p);return [cx+(v[0]-(minX+maxX)/2)*scale,cy+(v[1]-(minY+maxY)/2)*scale];},depth(p){return(p[0]*s+p[1]*c)*ce+p[2]*e;},scale};
+}
+function requestRender(){if(renderPending)return;renderPending=true;requestAnimationFrame(()=>{renderPending=false;render();});}
+function render(){
+ if(!state.data||!ctx)return;
+ syncViewButtons();
+ const dpr=Math.min(window.devicePixelRatio||1,2);if(canvas.width!==Math.round(width*dpr)||canvas.height!==Math.round(height*dpr)){canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);}
+ ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,width,height);projection=createProjection();hitPoints=[];
+ const path=(points,close=false)=>{ctx.beginPath();points.forEach((p,i)=>{const [x,y]=projection.point(p);i?ctx.lineTo(x,y):ctx.moveTo(x,y);});if(close)ctx.closePath();};
+ const draw=shape=>{
+  const {type,points,color}=shape;
+  if(type==='hit'){const screen=projection.point(points[0]);hitPoints.push({...shape,x:screen[0],y:screen[1],depth:projection.depth(points[0])});return;}
+  if(['label','tick','ztick'].includes(type))return;
+  const closed=['floor','surface','curtain','wall','base'].includes(type);path(points,closed);
+  if(type==='floor'){ctx.fillStyle=rgba(color,.021);ctx.fill();ctx.strokeStyle=rgba(color,.18);ctx.lineWidth=.6;ctx.stroke();}
+  else if(type==='grid'){ctx.strokeStyle=rgba(color,.065);ctx.lineWidth=.6;ctx.stroke();}
+  else if(type==='outline'){ctx.strokeStyle=rgba(color,.21);ctx.lineWidth=.8;ctx.stroke();}
+  else if(type==='guide'){ctx.save();ctx.setLineDash([3,5]);ctx.strokeStyle=rgba(color,.28);ctx.lineWidth=.8;ctx.stroke();ctx.restore();}
+  else if(type==='arrow'){
+   ctx.strokeStyle=rgba(color,.6);ctx.lineWidth=1;ctx.stroke();
+   const a=projection.point(points[0]),b=projection.point(points[points.length-1]),angle=Math.atan2(b[1]-a[1],b[0]-a[0]);
+   ctx.beginPath();ctx.moveTo(b[0]-6*Math.cos(angle-.45),b[1]-6*Math.sin(angle-.45));ctx.lineTo(b[0],b[1]);ctx.lineTo(b[0]-6*Math.cos(angle+.45),b[1]-6*Math.sin(angle+.45));ctx.stroke();
+  }
+  else if(type==='surface'){const a=state.opacity*(.28+.52*clamp(shape.strength||0,0,1));ctx.fillStyle=rgba(color,a);ctx.fill();ctx.strokeStyle=rgba(color,a*.18);ctx.lineWidth=.4;ctx.stroke();}
+  else if(type==='wall'){ctx.fillStyle=rgba(color,state.opacity*.72);ctx.fill();}
+  else if(type==='base'){ctx.fillStyle=rgba(color,state.opacity*.16);ctx.fill();}
+  else if(type==='edge'){ctx.strokeStyle=rgba(color,.6);ctx.lineWidth=.9;ctx.stroke();}
+  else if(type==='curtain'){
+   const projected=points.map(p=>projection.point(p)),low=Math.max(...projected.map(p=>p[1])),high=Math.min(...projected.map(p=>p[1]));
+   const gradient=ctx.createLinearGradient(0,high,0,Math.max(high+1,low));gradient.addColorStop(0,rgba(color,state.opacity*.85));gradient.addColorStop(1,rgba(color,state.opacity*.5));ctx.fillStyle=gradient;ctx.fill();
+  }else{
+   const ridge=type==='ridge',mesh=type==='mesh';ctx.strokeStyle=rgba(color,ridge?.9:mesh?.38:.28);ctx.lineWidth=ridge?1.5:mesh?.65:.65;
+   if(ridge&&state.glow>0){ctx.shadowColor=color;ctx.shadowBlur=state.glow*14;}ctx.stroke();ctx.shadowBlur=0;
+  }
+ };
+ // Floor first; painter-sorted translucent faces and curves next.
+ geometry.filter(s=>['floor','grid','outline'].includes(s.type)).forEach(draw);
+ const shapes=geometry.filter(s=>!['floor','grid','outline','label','tick','ztick'].includes(s.type));
+ for(const shape of shapes)shape.depth=shape.points.reduce((sum,p)=>sum+projection.depth(p),0)/shape.points.length;
+ shapes.sort((a,b)=>a.depth-b.depth);
+ shapes.forEach(draw);
+ // A restrained bloom pass keeps wireframes luminous without hiding the shape.
+ if(state.glow>0){ctx.save();ctx.globalCompositeOperation='screen';ctx.shadowBlur=10*state.glow;geometry.filter(s=>s.type==='mesh').forEach(shape=>{path(shape.points);ctx.strokeStyle=rgba(shape.color,.08*state.glow);ctx.shadowColor=shape.color;ctx.lineWidth=1.6;ctx.stroke();});ctx.restore();}
+ const occupied=[],headingTops={joint:Infinity,x:Infinity,y:Infinity};
+ for(const p of hitPoints){const family=p.kind==='joint'?'joint':p.kind==='conditionalX'?'x':p.kind==='conditionalY'?'y':p.kind==='conditional'?p.axis:null;if(family)headingTops[family]=Math.min(headingTops[family],p.y);}
+ const labels=geometry.filter(s=>['label','tick','ztick'].includes(s.type));labels.sort((a,b)=>(b.axisLabel?3:b.heading?2:b.tag==='marginal'?1:0)-(a.axisLabel?3:a.heading?2:a.tag==='marginal'?1:0));
+ for(const shape of labels){
+  let [x,y]=projection.point(shape.points[0]);const fontSize=shape.axisLabel?(width<650?11:13):shape.heading?(width<650?9:11):shape.type==='tick'||shape.type==='ztick'?9:shape.small?10:12;
+  if(shape.labelFor&&Number.isFinite(headingTops[shape.labelFor]))y=Math.max(72,headingTops[shape.labelFor]-18);
+  ctx.font=`${shape.heading?'500 ':''}${fontSize}px ${shape.heading?'"Segoe UI", sans-serif':'Consolas, monospace'}`;ctx.textAlign='center';ctx.textBaseline='middle';
+  if(shape.type==='ztick'){x-=10;ctx.textAlign='right';}
+  const text=width<650?shape.text.replace('CONDITIONALS  ',''):shape.text;
+  const textWidth=ctx.measureText(text).width,box={x:x-(ctx.textAlign==='right'?textWidth:textWidth/2)-3,y:y-fontSize/2-2,w:textWidth+6,h:fontSize+4};
+  if(!shape.heading&&occupied.some(b=>box.x<b.x+b.w&&box.x+box.w>b.x&&box.y<b.y+b.h&&box.y+box.h>b.y))continue;
+  if(x<10||x>width-10||y<65||y>height-24)continue;occupied.push(box);
+  ctx.lineWidth=4;ctx.strokeStyle='#0b111d';ctx.strokeText(text,x,y);ctx.fillStyle=rgba(shape.color,shape.heading?.94:.85);ctx.fillText(text,x,y);
+ }
+}
+function sideYaw(){return VIEW_ANGLES[state.viewSide];}
+function syncViewButtons(){
+ const sameAngle=angle=>Math.abs(Math.atan2(Math.sin(state.yaw-angle),Math.cos(state.yaw-angle)))<1e-5;
+ const isometric=Math.abs(state.elevation-.57)<1e-5;
+ for(const [id,side] of [['isoBtn','front'],['backBtn','back'],['leftBtn','left'],['rightBtn','right']])$(id).setAttribute('aria-pressed',isometric&&sameAngle(VIEW_ANGLES[side]));
+}
+function selectSide(side){state.viewSide=side;state.yaw=sideYaw();state.elevation=.57;state.panX=0;state.panY=0;syncViewButtons();requestRender();}
+function resetView(){state.yaw=sideYaw();state.elevation=.57;state.zoom=1;state.panX=0;state.panY=0;syncViewButtons();requestRender();}
+function setMode(mode,update=true){state.mode=mode;$('slicesMode').setAttribute('aria-pressed',mode==='slices');$('surfaceMode').setAttribute('aria-pressed',mode==='surface');$('sliceSettings').hidden=mode==='surface';$('infinityNote').hidden=mode!=='surface';if(update)updateSlices();}
+function setPreset(){
+ const name=$('preset').value,preset=presets[name];$('rhoField').hidden=name!=='gaussian';$('continuousInput').hidden=name==='matrix';$('matrixInput').hidden=name!=='matrix';
+ if(preset){$('expression').value=preset.expression;['xmin','xmax','ymin','ymax'].forEach((k,i)=>$(k).value=preset.bounds[i]);if(name==='gaussian'){$('rho').value=.65;$('rhoValue').value='+0.65';}}
+ if(name==='custom'){$('expression').focus();return;}applyDistribution();
+}
+function dirty(){state.dirty=true;$('applyBtn').textContent='Plot';}
+$('preset').addEventListener('change',setPreset);
+$('applyBtn').addEventListener('click',()=>{if(state.dirty&&$('preset').value!=='matrix'){$('preset').value='custom';$('rhoField').hidden=true;}applyDistribution();});
+for(const id of ['expression','xmin','xmax','ymin','ymax','matrix'])$(id).addEventListener('input',dirty);
+$('expression').addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){$('applyBtn').click();e.preventDefault();}});
+let rhoTimer;$('rho').addEventListener('input',()=>{const rho=Number($('rho').value);$('rhoValue').value=(rho>=0?'+':'')+rho.toFixed(2);$('expression').value=`exp(-(x^2 ${rho>=0?'-':'+'} ${Math.abs(2*rho).toFixed(2)}*x*y + y^2) / ${(2*(1-rho*rho)).toFixed(6)})`;clearTimeout(rhoTimer);rhoTimer=setTimeout(applyDistribution,45);});
+$('slicesMode').addEventListener('click',()=>setMode('slices'));$('surfaceMode').addEventListener('click',()=>setMode('surface'));
+$('sliceCount').addEventListener('input',()=>{$('countValue').value=$('sliceCount').value;updateSlices();});
+$('coverage').addEventListener('input',()=>{$('coverageValue').value=$('coverage').value+'%';updateSlices();});
+$('placement').addEventListener('change',()=>{const mode=$('placement').value;$('coverageField').hidden=mode==='custom';$('customValues').hidden=mode!=='custom';$('intervalField').hidden=mode!=='interval';$('sliceCount').disabled=mode!=='even';$('countValue').value=mode==='even'?$('sliceCount').value:'auto';updateSlices();});
+for(const id of ['interval','xValues','yValues'])$(id).addEventListener('change',updateSlices);
+for(const [id,key,css] of [['jointColor','colorJoint','--cyan'],['xColor','colorX','--violet'],['yColor','colorY','--amber']])$(id).addEventListener('input',()=>{state[key]=$(id).value;document.documentElement.style.setProperty(css,state[key]);buildScene();updateInfo();requestRender();});
+for(const id of ['showJoint','showX','showY'])$(id).addEventListener('change',()=>{state[id]=$(id).checked;buildScene();requestRender();});
+for(const id of ['opacity','glow'])$(id).addEventListener('input',()=>{state[id]=Number($(id).value)/100;$(id+'Value').value=$(id).value+'%';requestRender();});
+$('heightScale').addEventListener('change',()=>{state.heightScale=$('heightScale').value;$('scaleHint').textContent=state.heightScale==='shared'?'All heights use the same numerical scale. Density units depend on each variable.':'Height is fitted separately for the joint, marginals, and conditional families.';buildScene();updateInfo();requestRender();});
+$('isoBtn').addEventListener('click',()=>selectSide('front'));$('backBtn').addEventListener('click',()=>selectSide('back'));$('resetView').addEventListener('click',resetView);$('leftBtn').addEventListener('click',()=>selectSide('left'));$('rightBtn').addEventListener('click',()=>selectSide('right'));
+$('zoomIn').addEventListener('click',()=>{state.zoom=clamp(state.zoom*1.15,.55,2.8);requestRender();});$('zoomOut').addEventListener('click',()=>{state.zoom=clamp(state.zoom/1.15,.55,2.8);requestRender();});
+$('helpBtn').addEventListener('click',()=>$('helpDialog').showModal());$('closeHelp').addEventListener('click',()=>$('helpDialog').close());$('helpDialog').addEventListener('click',e=>{if(e.target===$('helpDialog')){const r=$('helpDialog').getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)$('helpDialog').close();}});
+
+$('settingsBtn').addEventListener('click',()=>$('settingsDialog').showModal());
+$('closeSettings').addEventListener('click',()=>$('settingsDialog').close());
+$('settingsDialog').addEventListener('click',e=>{if(e.target!==$('settingsDialog'))return;const r=$('settingsDialog').getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)$('settingsDialog').close();});
+
+function inspectAt(x,y){
+ let best=null,bestDist=23**2;
+ for(const p of hitPoints){const distance=(p.x-x)**2+(p.y-y)**2;if(distance<bestDist){best=p;bestDist=distance;}}
+ const tip=$('tooltip');if(!best){tip.hidden=true;return;}
+ const d=state.data,symbol=d.discrete?'p':'f';let text='';
+ if(best.kind==='joint')text=`Joint ${symbol}(x, y)\nx = ${fmt(d.xs[best.i])}   y = ${fmt(d.ys[best.j])}\n${d.discrete?'Probability':'Density'} = ${fmt(best.value)}`;
+ else if(best.kind==='conditionalX'||best.kind==='conditionalY'){const axis=best.kind==='conditionalX'?'x':'y';text=`${symbol}(${axis} | ${axis==='x'?'y':'x'})\nx = ${fmt(d.xs[best.i])}   y = ${fmt(d.ys[best.j])}\nDensity = ${fmt(best.value)}`;}
+ else{const coords=best.axis==='x'?d.xs:d.ys;text=best.kind==='marginal'?`Marginal ${symbol}(${best.axis})`:`${symbol}(${best.axis} | ${best.axis==='x'?'y':'x'} = ${fmt(best.fixed)})`;text+=`\n${best.axis} = ${fmt(coords[best.i])}\n${d.discrete?'Probability':'Density'} = ${fmt(best.value)}`;}
+ tip.textContent=text;tip.hidden=false;tip.style.left=clamp(x+17,8,width-tip.offsetWidth-12)+'px';tip.style.top=clamp(y-20,8,height-tip.offsetHeight-12)+'px';tip.style.borderColor=rgba(best.color,.6);
+}
+const pointers=new Map();let drag=null,pinchDistance=0;
+canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});drag={x:e.clientX,y:e.clientY,shift:e.shiftKey};$('tooltip').hidden=true;if(pointers.size===2){const p=[...pointers.values()];pinchDistance=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);}});
+canvas.addEventListener('pointermove',e=>{
+ if(pointers.has(e.pointerId)){
+  pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pointers.size===2){const p=[...pointers.values()],distance=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);if(pinchDistance>0)state.zoom=clamp(state.zoom*distance/pinchDistance,.55,2.8);pinchDistance=distance;}
+  else if(drag){const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(e.shiftKey){state.panX+=dx;state.panY+=dy;}else{state.yaw+=dx*.006;state.elevation=clamp(state.elevation+dy*.004,.2,Math.PI/2);}syncViewButtons();}
+  drag={x:e.clientX,y:e.clientY};requestRender();
+ }else{const rect=canvas.getBoundingClientRect();inspectAt(e.clientX-rect.left,e.clientY-rect.top);}
+});
+function endPointer(e){pointers.delete(e.pointerId);drag=pointers.size?{...pointers.values().next().value}:null;pinchDistance=0;}
+canvas.addEventListener('pointerup',endPointer);canvas.addEventListener('pointercancel',endPointer);canvas.addEventListener('pointerleave',()=>$('tooltip').hidden=true);
+canvas.addEventListener('wheel',e=>{e.preventDefault();state.zoom=clamp(state.zoom*Math.exp(-e.deltaY*.001),.55,2.8);$('tooltip').hidden=true;requestRender();},{passive:false});
+canvas.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','=','-','r','R','0'].includes(e.key))return;e.preventDefault();if(e.key==='ArrowLeft')state.yaw-=.09;if(e.key==='ArrowRight')state.yaw+=.09;if(e.key==='ArrowUp')state.elevation=clamp(state.elevation-.07,.2,Math.PI/2);if(e.key==='ArrowDown')state.elevation=clamp(state.elevation+.07,.2,Math.PI/2);if(e.key==='+'||e.key==='=')state.zoom=clamp(state.zoom*1.1,.55,2.8);if(e.key==='-')state.zoom=clamp(state.zoom/1.1,.55,2.8);if(['r','R','0'].includes(e.key))resetView();else{syncViewButtons();requestRender();}});
+$('exportBtn').addEventListener('click',()=>{
+ render();const scale=2,out=document.createElement('canvas');out.width=width*scale;out.height=(height+78)*scale;const g=out.getContext('2d');g.scale(scale,scale);g.fillStyle='#0b111d';g.fillRect(0,0,width,height+78);g.drawImage(canvas,0,55,width,height);g.fillStyle='#e1eaf4';g.font='500 22px "Segoe UI",sans-serif';g.fillText('jointspace / '+state.title,28,34);g.font='11px Consolas,monospace';g.fillStyle='#91a6bf';g.fillText(`${state.mode==='surface'?'Continuous conditionals':'Conditional slices'} · ${state.heightScale==='family'?'Heights fitted by family':'Shared density scale'} · Total probability 1.000`,28,height+58);
+ out.toBlob(blob=>{if(!blob)return;const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='jointspace-'+state.title.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.png';document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);},'image/png');
+});
+new ResizeObserver(entries=>{const r=entries[0].contentRect;width=r.width;height=r.height;requestRender();}).observe(stage);
+applyDistribution();
+// Optional, read-only WebMCP support; normal browsers need no integration.
+if(document.modelContext?.registerTool){try{Promise.resolve(document.modelContext.registerTool({name:'read_probability_distribution',description:'Read the currently plotted joint distribution, marginals, and selected conditional values in Joint Space.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true},execute(){const d=state.data;return {title:state.title,discrete:d.discrete,totalProbability:d.mass,correlation:d.rho,x:d.xs,y:d.ys,joint:d.pdf,marginalX:d.mx,marginalY:d.my,mode:state.mode,conditionsOnX:state.slicesY.map(s=>s.value),conditionsOnY:state.slicesX.map(s=>s.value)};}})).catch(()=>{});}catch{}}
+</script>
+</body>
+</html>
